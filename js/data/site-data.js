@@ -45,7 +45,12 @@
         coverArtSrc: "assets/images/song icons/annas song.png",
         audioSrc: "assets/audio/Fractions of Ascent - Last of Our Kind (Anna's Song).mp3",
         tags: ["AI-assisted", "audio restoration"],
-        notes: ""
+        notes: "",
+        infoLabel: "Info",
+        infoTitle: "Last of Our Kind (Anna's Song)",
+        infoBody: [
+          "Details to come."
+        ]
       },
       {
         id: "escape",
@@ -54,7 +59,12 @@
         coverDimensions: "1024 x 1024 cover art",
         audioSrc: "assets/audio/Fractions of Ascent - Escape.mp3",
         tags: ["AI-assisted", "audio restoration"],
-        notes: ""
+        notes: "",
+        infoLabel: "Info",
+        infoTitle: "Escape",
+        infoBody: [
+          "Details to come."
+        ]
       }
     ]
   },
@@ -69,7 +79,7 @@
       launchUrl: "https://clarchon.com",
       launchLabel: "Launch",
       infoLabel: "Info",
-      status: ["playable"],
+      status: [],
       infoTitle: "Clarchon",
       infoBody: [
         "Details to come."
@@ -87,16 +97,3 @@
     }
   ]
 };
-
-
-
-
-
-
-
-
-
-
-
-
-

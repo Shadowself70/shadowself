@@ -118,7 +118,7 @@
           ? `
             <div class="audio-actions">
               <button
-                class="ui-button secondary"
+                class="audio-info-button"
                 type="button"
                 data-open-modal="${escapeAttribute(modalId)}"
               >
@@ -228,7 +228,7 @@
                 ${escapeHtml(project.launchLabel || "Launch")}
               </a>
               <button
-                class="ui-button secondary"
+                class="audio-info-button"
                 type="button"
                 data-open-modal="${escapeAttribute(modalId)}"
               >
@@ -413,6 +413,8 @@
     return escapeHtml(value);
   }
 })();
+
+
 
 
 
