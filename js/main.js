@@ -197,13 +197,28 @@
           })
         );
 
-        return `
-          <article class="project-card">
+        const projectArt = project.imageSrc
+          ? `
+            <div class="project-card-art">
+              <img
+                class="project-cover-art"
+                src="${escapeAttribute(project.imageSrc)}"
+                alt="${escapeAttribute(project.title)} artwork"
+                loading="lazy"
+              >
+            </div>
+          `
+          : `
             <div class="project-card-art placeholder-box">
               <span class="placeholder-kicker">Project Art Placeholder</span>
               <strong>${escapeHtml(project.title)}</strong>
               <span class="placeholder-meta">Recommended asset: ${escapeHtml(project.imageDimensions)}</span>
             </div>
+          `;
+
+        return `
+          <article class="project-card">
+            ${projectArt}
             <div class="project-card-body">
               <h3>${escapeHtml(project.title)}</h3>
               ${project.summary ? `<p>${escapeHtml(project.summary)}</p>` : ""}
@@ -399,6 +414,7 @@
     return escapeHtml(value);
   }
 })();
+
 
 
 

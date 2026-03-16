@@ -65,6 +65,7 @@
       title: "Clarchon",
       summary: "",
       imageDimensions: "1200 x 900 cover art or screenshot",
+      imageSrc: "assets/images/games/clarchon_logo.png",
       launchUrl: "https://clarchon.com",
       launchLabel: "Launch",
       infoLabel: "Info",
@@ -86,6 +87,8 @@
     }
   ]
 };
+
+
 
 
 
