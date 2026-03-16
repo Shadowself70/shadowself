@@ -84,8 +84,8 @@ img {
 .home-hero {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(110px, 16vw) minmax(0, 1fr) minmax(110px, 16vw);
-  gap: clamp(10px, 1.6vh, 18px);
+  grid-template-columns: minmax(140px, 250px) minmax(0, 1fr) minmax(140px, 250px);
+  gap: clamp(8px, 1.2vh, 14px);
   align-items: center;
 }
 
@@ -96,7 +96,7 @@ img {
 }
 
 .hero-side {
-  width: min(100%, 260px, 18vw, 20vh);
+  width: 100%;
   display: flex;
   align-items: center;
 }
@@ -112,7 +112,7 @@ img {
 
 .hero-art-control,
 .hero-art-link {
-  width: min(100%, 248px, 17.5vw, 19vh);
+  width: min(100%, 250px, 18vw, 21vh);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -162,7 +162,6 @@ img {
   background: transparent;
   border: 0;
   box-shadow: none;
-  clip-path: none;
   transition: transform 180ms ease, filter 180ms ease;
 }
 
@@ -254,7 +253,6 @@ img {
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%),
     var(--bg-panel-alt);
   border: 1px dashed var(--line-bright);
-  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
 }
 
 .placeholder-kicker,
@@ -292,7 +290,6 @@ img {
   background: transparent;
   color: var(--text);
   border: 1px solid var(--line);
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
   transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -513,7 +510,6 @@ img {
   border: 1px solid var(--line-bright);
   background: rgba(98, 18, 21, 0.14);
   color: var(--text);
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.76rem;
@@ -553,7 +549,6 @@ img {
   background: linear-gradient(135deg, rgba(98, 18, 21, 0.18), rgba(255, 255, 255, 0.03));
   font-family: var(--display-font);
   font-size: 1.15rem;
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
 }
 
 .post-body {
@@ -565,7 +560,6 @@ img {
   display: grid;
   gap: 12px;
   padding: 20px;
-  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
 }
 
 .modal {
@@ -602,29 +596,8 @@ img {
     var(--bg-panel);
   border: 1px solid var(--line-bright);
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.56);
-  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
 }
 
-.modal-panel::before,
-.modal-panel::after {
-  content: "";
-  position: absolute;
-  width: 34px;
-  height: 1px;
-  background: var(--line-bright);
-}
-
-.modal-panel::before {
-  top: 11px;
-  right: -4px;
-  transform: rotate(45deg);
-}
-
-.modal-panel::after {
-  bottom: 11px;
-  left: -4px;
-  transform: rotate(45deg);
-}
 
 .modal-close {
   position: absolute;
@@ -662,7 +635,7 @@ img {
 
   .hero-art-control,
   .hero-art-link {
-    width: min(100%, 210px, 16vw, 16vh);
+    width: min(100%, 224px, 17vw, 17vh);
   }
 
   .entry-tile {
@@ -785,6 +758,7 @@ img {
     padding: 18px;
   }
 }
+
 
 
 
