@@ -164,8 +164,7 @@
               <h3>${escapeHtml(entry.title)}</h3>
               ${entry.description ? `<p>${escapeHtml(entry.description)}</p>` : ""}
               ${audioShell}
-              ${renderTags(entry.tags)}
-              ${infoAction}
+              <div class="audio-meta-row">${infoAction}${renderTags(entry.tags)}</div>
               ${entry.notes ? `<p>${escapeHtml(entry.notes)}</p>` : ""}
             </div>
           </article>
@@ -414,6 +413,11 @@
     return escapeHtml(value);
   }
 })();
+
+
+
+
+
 
 
 
