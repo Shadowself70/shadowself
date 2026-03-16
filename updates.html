@@ -16,31 +16,26 @@
   <div class="site-shell">
     <header class="interior-header">
       <a class="home-mark" href="index.html" aria-label="Return to Shadowself home">
-        <span class="home-mark-monogram">SS</span>
-        <span class="home-mark-text">Shadowself</span>
+        <img class="home-mark-art" src="assets/logos/shadowself-ss-mark.svg" alt="">
       </a>
 
       <div class="page-heading">
         <p class="eyebrow">Updates &amp; Random Thoughts</p>
         <h1>Dispatch Feed</h1>
-        <p>Short posts, development notes, and whatever else deserves to be dated and thrown onto the wall.</p>
       </div>
 
       <div class="header-actions">
-        <button class="ui-link ui-link-button" type="button" data-open-modal="ai-disclosure-modal">
-          AI Disclosure
+        <button class="subpage-art-control" type="button" data-open-modal="ai-disclosure-modal" aria-label="AI Disclosure">
+          <img class="subpage-action-art" src="assets/images/site/ai-disclosure-button-alpha.svg" alt="">
         </button>
-        <a class="ui-link" href="media.html">Media</a>
+        <a class="subpage-art-link" href="media.html" aria-label="Media">
+          <img class="subpage-action-art" src="assets/images/site/media-button-alpha.svg" alt="">
+        </a>
       </div>
     </header>
 
     <main class="page-main">
       <section class="section-block">
-        <div class="section-heading">
-          <p class="eyebrow">Posts</p>
-          <h2>Newest At The Top</h2>
-          <p>This page is wired for low-friction updates without bringing back the overhead of a CMS.</p>
-        </div>
         <div id="updates-feed" class="updates-feed"></div>
       </section>
     </main>

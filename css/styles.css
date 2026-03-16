@@ -320,28 +320,18 @@ img {
 }
 
 .home-mark {
-  display: inline-grid;
-  gap: 8px;
+  width: min(100%, 96px);
+  display: inline-flex;
   justify-self: start;
+  align-items: center;
 }
 
-.home-mark-monogram {
-  width: 66px;
-  height: 66px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line-bright);
-  background: linear-gradient(135deg, rgba(127, 20, 35, 0.28), rgba(255, 255, 255, 0.03));
-  font-family: var(--display-font);
-  font-size: 1.45rem;
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
-}
-
-.home-mark-text {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.76rem;
-  color: var(--text-dim);
+.home-mark-art {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.98;
+  filter: drop-shadow(0 8px 14px rgba(47, 6, 13, 0.16));
 }
 
 .page-heading {
@@ -358,6 +348,25 @@ img {
   justify-content: flex-end;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.subpage-art-control,
+.subpage-art-link {
+  width: min(100%, 176px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.subpage-action-art {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.98;
+  filter: drop-shadow(0 8px 16px rgba(47, 6, 13, 0.16));
 }
 
 .page-main {
@@ -687,6 +696,8 @@ img {
     padding: 18px;
   }
 }
+
+
 
 
 
