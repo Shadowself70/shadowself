@@ -138,13 +138,28 @@
           );
         }
 
-        return `
-          <article class="audio-entry">
+        const coverArt = entry.coverArtSrc
+          ? `
+            <div class="audio-art-placeholder">
+              <img
+                class="audio-cover-art"
+                src="${escapeAttribute(entry.coverArtSrc)}"
+                alt="${escapeAttribute(entry.title)} cover art"
+                loading="lazy"
+              >
+            </div>
+          `
+          : `
             <div class="audio-art-placeholder placeholder-box">
               <span class="placeholder-kicker">Cover Art Placeholder</span>
               <strong>${escapeHtml(entry.title)}</strong>
               <span class="placeholder-meta">Recommended asset: ${escapeHtml(entry.coverDimensions)}</span>
             </div>
+          `;
+
+        return `
+          <article class="audio-entry">
+            ${coverArt}
             <div class="audio-entry-copy">
               <h3>${escapeHtml(entry.title)}</h3>
               ${entry.description ? `<p>${escapeHtml(entry.description)}</p>` : ""}
@@ -384,6 +399,7 @@
     return escapeHtml(value);
   }
 })();
+
 
 
 

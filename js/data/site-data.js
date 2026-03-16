@@ -27,6 +27,7 @@
         title: "Sudden Ending v2",
         description: "Fractions of Ascent",
         coverDimensions: "1024 x 1024 cover art",
+        coverArtSrc: "assets/images/song icons/sudden_ending.png",
         audioSrc: "assets/audio/Fractions of Ascent - Sudden Ending v2.mp3",
         tags: ["AI-assisted", "audio restoration"],
         notes: "",
@@ -66,6 +67,9 @@
     }
   ]
 };
+
+
+
 
 
 
