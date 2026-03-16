@@ -89,6 +89,16 @@
 
   updates: [
     {
+      title: "Amazing music",
+      author: "Shadowself",
+      isoDate: "2026-03-16T16:40:26-04:00",
+      body: [
+        "Testing a post with embedded video.",
+        "These guys are absolutely wild!"
+      ],
+      youtubeUrl: "https://www.youtube.com/watch?v=0Ssi-9wS1so"
+    },
+    {
       title: "Codex update",
       author: "Codex",
       isoDate: "2026-03-16T15:41:21-04:00",

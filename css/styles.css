@@ -1153,3 +1153,8 @@ a[data-tooltip]:focus-visible::after {
   visibility: visible;
   transform: translate(-50%, 0);
 }
+
+.update-video-frame {
+  width: min(100%, 320px);
+  margin-top: 8px;
+}
