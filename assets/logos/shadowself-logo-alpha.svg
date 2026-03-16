@@ -1,90 +1,63 @@
 ﻿<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <radialGradient id="bodyGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(808 447) rotate(90) scale(296 512)">
-      <stop offset="0" stop-color="#761517" stop-opacity="0.72"/>
-      <stop offset="0.35" stop-color="#511012" stop-opacity="0.46"/>
-      <stop offset="0.72" stop-color="#1E090A" stop-opacity="0.18"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="leftBloom" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(602 450) rotate(90) scale(204 212)">
-      <stop offset="0" stop-color="#6A1A18" stop-opacity="0.32"/>
-      <stop offset="0.55" stop-color="#461112" stop-opacity="0.12"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="rightBloom" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1015 438) rotate(90) scale(188 196)">
-      <stop offset="0" stop-color="#5A1616" stop-opacity="0.26"/>
-      <stop offset="0.58" stop-color="#341011" stop-opacity="0.08"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="shardRed" x1="492" y1="314" x2="1130" y2="575" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#E0D8D1" stop-opacity="0.78"/>
-      <stop offset="0.18" stop-color="#7D211E" stop-opacity="0.68"/>
-      <stop offset="0.55" stop-color="#571516" stop-opacity="0.52"/>
-      <stop offset="1" stop-color="#190607" stop-opacity="0.10"/>
-    </linearGradient>
-    <linearGradient id="shardDark" x1="563" y1="390" x2="1044" y2="526" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#130405" stop-opacity="0.88"/>
-      <stop offset="0.5" stop-color="#1D0809" stop-opacity="0.44"/>
+    <linearGradient id="ghostBand" x1="322" y1="454" x2="1290" y2="454" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0.16" stop-color="#0E0F11" stop-opacity="0.36"/>
+      <stop offset="0.52" stop-color="#1A1C20" stop-opacity="0.56"/>
+      <stop offset="0.84" stop-color="#0F1012" stop-opacity="0.32"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
     </linearGradient>
-    <filter id="mist" x="170" y="105" width="1260" height="670" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="26"/>
+    <linearGradient id="lineGray" x1="392" y1="328" x2="1186" y2="566" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#CFC9C2" stop-opacity="0.14"/>
+      <stop offset="0.3" stop-color="#7C7F87" stop-opacity="0.22"/>
+      <stop offset="0.72" stop-color="#3D4046" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#121316" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="fog" x="240" y="222" width="1120" height="432" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="20"/>
     </filter>
-    <filter id="softType" x="240" y="260" width="1120" height="340" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feOffset dy="2"/>
-      <feGaussianBlur stdDeviation="6"/>
-      <feColorMatrix type="matrix" values="0 0 0 0 0.14 0 0 0 0 0.02 0 0 0 0 0.03 0 0 0 0.45 0"/>
+    <filter id="typeShadow" x="212" y="216" width="1180" height="446" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feOffset dy="4"/>
+      <feGaussianBlur stdDeviation="10"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.04 0 0 0 0 0.04 0 0 0 0 0.05 0 0 0 0.72 0"/>
       <feBlend in="SourceGraphic"/>
     </filter>
-    <filter id="ghost" x="220" y="180" width="1160" height="520" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="10"/>
-    </filter>
-    <mask id="ovalFadeMask">
+    <mask id="sliceMask">
       <rect width="1600" height="900" fill="black"/>
-      <g filter="url(#mist)">
-        <path d="M420 446C438 318 566 243 780 229C1004 214 1167 277 1192 407C1215 531 1098 637 894 670C650 710 398 609 420 446Z" fill="white"/>
-        <ellipse cx="782" cy="450" rx="404" ry="216" fill="white"/>
-      </g>
+      <text x="798" y="454" text-anchor="middle" fill="white" font-size="164" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" font-weight="700" letter-spacing="12" transform="skewX(-12)">SHADOW</text>
+      <text x="832" y="596" text-anchor="middle" fill="white" font-size="156" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" font-weight="700" letter-spacing="12" transform="skewX(-12)">SELF</text>
+      <rect x="270" y="474" width="1040" height="14" fill="black"/>
+      <rect x="514" y="330" width="286" height="10" fill="black" transform="rotate(-7 514 330)"/>
+      <rect x="808" y="618" width="340" height="10" fill="black" transform="rotate(-7 808 618)"/>
+      <rect x="908" y="372" width="224" height="8" fill="black" transform="rotate(12 908 372)"/>
+      <rect x="394" y="558" width="250" height="8" fill="black" transform="rotate(12 394 558)"/>
     </mask>
-    <clipPath id="softOvalClip">
-      <path d="M420 446C438 318 566 243 780 229C1004 214 1167 277 1192 407C1215 531 1098 637 894 670C650 710 398 609 420 446Z"/>
-    </clipPath>
   </defs>
 
-  <g mask="url(#ovalFadeMask)">
-    <path d="M420 446C438 318 566 243 780 229C1004 214 1167 277 1192 407C1215 531 1098 637 894 670C650 710 398 609 420 446Z" fill="url(#bodyGlow)"/>
-    <ellipse cx="660" cy="454" rx="216" ry="178" fill="url(#leftBloom)"/>
-    <ellipse cx="998" cy="430" rx="166" ry="146" fill="url(#rightBloom)"/>
-
-    <g clip-path="url(#softOvalClip)" opacity="0.82">
-      <path d="M484 495L592 341L882 341L1025 252L1136 294L944 540L639 540L528 596L452 554L484 495Z" fill="url(#shardRed)"/>
-      <path d="M563 390L864 390L1040 315L1118 352L912 505L650 505L540 562L497 524L563 390Z" fill="url(#shardDark)"/>
-      <path d="M525 312L627 312" stroke="#C8BCB4" stroke-opacity="0.18" stroke-width="2"/>
-      <path d="M1036 574L1128 574" stroke="#621A1A" stroke-opacity="0.22" stroke-width="2"/>
-      <path d="M1012 287L1106 381" stroke="#4E1414" stroke-opacity="0.24" stroke-width="2"/>
-      <path d="M507 544L592 629" stroke="#431112" stroke-opacity="0.20" stroke-width="2"/>
-      <path d="M639 370H938" stroke="#F2EAE4" stroke-opacity="0.05" stroke-width="1"/>
-      <path d="M620 533H966" stroke="#0D0103" stroke-opacity="0.26" stroke-width="1"/>
-      <g opacity="0.18">
-        <path d="M564 330H703" stroke="#E0D6CF" stroke-width="1"/>
-        <path d="M777 330H844" stroke="#E0D6CF" stroke-width="1"/>
-        <path d="M905 330H1025" stroke="#E0D6CF" stroke-width="1"/>
-        <path d="M604 562H728" stroke="#E0D6CF" stroke-width="1"/>
-        <path d="M788 562H1004" stroke="#E0D6CF" stroke-width="1"/>
-      </g>
-    </g>
+  <g filter="url(#fog)" opacity="0.8">
+    <path d="M344 454C366 386 482 354 690 348L1098 350C1216 356 1284 388 1290 446C1296 504 1236 544 1114 554L654 556C452 552 324 516 344 454Z" fill="url(#ghostBand)"/>
   </g>
 
-  <g filter="url(#ghost)" opacity="0.10">
-    <text x="800" y="495" text-anchor="middle" fill="#5D1718" font-size="114" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="8">SHADOWSELF</text>
+  <g mask="url(#sliceMask)">
+    <rect x="252" y="218" width="1098" height="438" fill="#E4DFD8"/>
+    <path d="M248 470H1350" stroke="#0A0B0C" stroke-opacity="0.88" stroke-width="14"/>
+    <path d="M310 324H884" stroke="url(#lineGray)" stroke-width="8"/>
+    <path d="M742 620H1270" stroke="url(#lineGray)" stroke-width="8"/>
+    <path d="M916 292L1180 388" stroke="#5F636A" stroke-opacity="0.28" stroke-width="6"/>
+    <path d="M362 566L612 652" stroke="#5F636A" stroke-opacity="0.22" stroke-width="6"/>
+    <path d="M268 438L1324 438" stroke="#F0EBE5" stroke-opacity="0.06" stroke-width="2"/>
+    <path d="M286 512L1342 512" stroke="#000000" stroke-opacity="0.14" stroke-width="2"/>
   </g>
 
-  <g filter="url(#softType)">
-    <text x="800" y="492" text-anchor="middle" fill="#ECE4DD" stroke="#611617" stroke-opacity="0.20" stroke-width="2" font-size="112" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="8">SHADOWSELF</text>
+  <g filter="url(#typeShadow)" opacity="0.14">
+    <text x="798" y="454" text-anchor="middle" fill="#6B7078" font-size="164" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" font-weight="700" letter-spacing="12" transform="skewX(-12)">SHADOW</text>
+    <text x="832" y="596" text-anchor="middle" fill="#6B7078" font-size="156" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" font-weight="700" letter-spacing="12" transform="skewX(-12)">SELF</text>
   </g>
 
-  <g opacity="0.18">
-    <path d="M474 446H542" stroke="#EEE6DF" stroke-width="2"/>
-    <path d="M1058 446H1126" stroke="#EEE6DF" stroke-width="2"/>
+  <g opacity="0.16">
+    <path d="M286 450H350" stroke="#E8E2DB" stroke-width="2"/>
+    <path d="M1250 450H1314" stroke="#E8E2DB" stroke-width="2"/>
+    <path d="M334 590H404" stroke="#7A7D84" stroke-width="2"/>
+    <path d="M1194 328H1260" stroke="#7A7D84" stroke-width="2"/>
   </g>
 </svg>
