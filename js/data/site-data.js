@@ -46,6 +46,15 @@
         audioSrc: "assets/audio/Fractions of Ascent - Last of Our Kind (Anna's Song).mp3",
         tags: ["AI-assisted", "audio restoration"],
         notes: ""
+      },
+      {
+        id: "escape",
+        title: "Escape",
+        description: "Fractions of Ascent",
+        coverDimensions: "1024 x 1024 cover art",
+        audioSrc: "assets/audio/Fractions of Ascent - Escape.mp3",
+        tags: ["AI-assisted", "audio restoration"],
+        notes: ""
       }
     ]
   },
@@ -77,6 +86,7 @@
     }
   ]
 };
+
 
 
 
