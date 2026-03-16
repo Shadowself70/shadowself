@@ -5,11 +5,11 @@
   --bg-panel-alt: #0f0d0f;
   --text: #ece7e2;
   --text-dim: #b9b0aa;
-  --accent: #7f1423;
-  --accent-strong: #a41d31;
-  --accent-shadow: rgba(127, 20, 35, 0.26);
-  --line: #4f1821;
-  --line-bright: #7b2430;
+  --accent: #621215;
+  --accent-strong: #7a191d;
+  --accent-shadow: rgba(98, 18, 21, 0.18);
+  --line: #331013;
+  --line-bright: #5a1719;
   --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
   --display-font: "Palatino Linotype", "Book Antiqua", Palatino, serif;
   --body-font: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
@@ -30,10 +30,13 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(circle at top, rgba(127, 20, 35, 0.2), transparent 30%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 14%),
-    var(--bg);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(90deg, rgba(6, 6, 7, 1) 0%, rgba(12, 3, 4, 0.992) 18%, rgba(22, 5, 7, 0.62) 50%, rgba(12, 3, 4, 0.992) 82%, rgba(6, 6, 7, 1) 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.003) 24%, rgba(255, 255, 255, 0.005) 50%, rgba(255, 255, 255, 0.003) 76%, rgba(255, 255, 255, 0) 100%);
+  background-repeat: repeat;
+  background-position: top center, top center;
+  background-size: 100% 320px, 100% 320px;
   color: var(--text);
   font-family: var(--body-font);
   line-height: 1.6;
@@ -102,7 +105,9 @@ img {
 .hero-side-right {
   justify-content: flex-end;
   text-align: right;
-}.hero-art-control,
+}
+
+.hero-art-control,
 .hero-art-link {
   width: min(100%, 214px);
   display: inline-flex;
@@ -149,7 +154,7 @@ img {
   padding: 18px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%),
-    linear-gradient(135deg, rgba(127, 20, 35, 0.12), rgba(0, 0, 0, 0) 60%),
+    linear-gradient(135deg, rgba(98, 18, 21, 0.08), rgba(0, 0, 0, 0) 60%),
     var(--bg-panel);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
@@ -241,7 +246,7 @@ img {
   padding: clamp(14px, 1.8vw, 22px);
   text-align: center;
   background:
-    linear-gradient(135deg, rgba(127, 20, 35, 0.24), rgba(255, 255, 255, 0.02) 45%, rgba(0, 0, 0, 0.24)),
+    linear-gradient(135deg, rgba(98, 18, 21, 0.16), rgba(255, 255, 255, 0.02) 45%, rgba(0, 0, 0, 0.24)),
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%),
     var(--bg-panel-alt);
   border: 1px dashed var(--line-bright);
@@ -293,7 +298,7 @@ img {
 .ui-link:hover,
 .ui-link:focus-visible {
   border-color: var(--line-bright);
-  background: rgba(127, 20, 35, 0.18);
+  background: rgba(98, 18, 21, 0.12);
 }
 
 .ui-link-button {
@@ -401,7 +406,7 @@ img {
 .empty-state {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%),
-    linear-gradient(135deg, rgba(127, 20, 35, 0.12), transparent 50%),
+    linear-gradient(135deg, rgba(98, 18, 21, 0.08), transparent 50%),
     var(--bg-panel);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
@@ -445,7 +450,7 @@ img {
   align-items: center;
   min-height: 26px;
   padding: 0 10px;
-  background: rgba(127, 20, 35, 0.14);
+  background: rgba(98, 18, 21, 0.10);
   border: 1px solid var(--line);
 }
 
@@ -502,7 +507,7 @@ img {
   min-height: 44px;
   padding: 0 16px;
   border: 1px solid var(--line-bright);
-  background: rgba(127, 20, 35, 0.22);
+  background: rgba(98, 18, 21, 0.14);
   color: var(--text);
   clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
   text-transform: uppercase;
@@ -512,7 +517,7 @@ img {
 
 .ui-button:hover,
 .ui-button:focus-visible {
-  background: rgba(127, 20, 35, 0.32);
+  background: rgba(98, 18, 21, 0.22);
 }
 
 .ui-button.secondary {
@@ -541,7 +546,7 @@ img {
   display: grid;
   place-items: center;
   border: 1px solid var(--line-bright);
-  background: linear-gradient(135deg, rgba(127, 20, 35, 0.28), rgba(255, 255, 255, 0.03));
+  background: linear-gradient(135deg, rgba(98, 18, 21, 0.18), rgba(255, 255, 255, 0.03));
   font-family: var(--display-font);
   font-size: 1.15rem;
   clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
@@ -589,7 +594,7 @@ img {
   padding: 24px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 30%),
-    linear-gradient(135deg, rgba(127, 20, 35, 0.18), transparent 54%),
+    linear-gradient(135deg, rgba(98, 18, 21, 0.12), transparent 54%),
     var(--bg-panel);
   border: 1px solid var(--line-bright);
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.56);
@@ -633,7 +638,7 @@ img {
 .modal-close:hover,
 .modal-close:focus-visible {
   border-color: var(--line-bright);
-  background: rgba(127, 20, 35, 0.16);
+  background: rgba(98, 18, 21, 0.12);
 }
 
 .modal-panel ul {
@@ -696,6 +701,11 @@ img {
     padding: 18px;
   }
 }
+
+
+
+
+
 
 
 

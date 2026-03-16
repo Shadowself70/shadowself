@@ -1,37 +1,31 @@
 ﻿<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <radialGradient id="bodyGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(808 447) rotate(90) scale(296 512)">
-      <stop offset="0" stop-color="#A51E33" stop-opacity="0.88"/>
-      <stop offset="0.35" stop-color="#7B1425" stop-opacity="0.6"/>
-      <stop offset="0.72" stop-color="#2E0710" stop-opacity="0.22"/>
+      <stop offset="0" stop-color="#761517" stop-opacity="0.72"/>
+      <stop offset="0.35" stop-color="#511012" stop-opacity="0.46"/>
+      <stop offset="0.72" stop-color="#1E090A" stop-opacity="0.18"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="leftBloom" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(602 450) rotate(90) scale(204 212)">
-      <stop offset="0" stop-color="#C52F48" stop-opacity="0.58"/>
-      <stop offset="0.55" stop-color="#761423" stop-opacity="0.18"/>
+      <stop offset="0" stop-color="#6A1A18" stop-opacity="0.32"/>
+      <stop offset="0.55" stop-color="#461112" stop-opacity="0.12"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="rightBloom" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1015 438) rotate(90) scale(188 196)">
-      <stop offset="0" stop-color="#8E1B2E" stop-opacity="0.44"/>
-      <stop offset="0.58" stop-color="#4E0C18" stop-opacity="0.12"/>
+      <stop offset="0" stop-color="#5A1616" stop-opacity="0.26"/>
+      <stop offset="0.58" stop-color="#341011" stop-opacity="0.08"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="shardRed" x1="492" y1="314" x2="1130" y2="575" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#E8E0D9" stop-opacity="0.86"/>
-      <stop offset="0.18" stop-color="#C54B5F" stop-opacity="0.92"/>
-      <stop offset="0.55" stop-color="#8F1E31" stop-opacity="0.74"/>
-      <stop offset="1" stop-color="#2A050E" stop-opacity="0.14"/>
+      <stop offset="0" stop-color="#E0D8D1" stop-opacity="0.78"/>
+      <stop offset="0.18" stop-color="#7D211E" stop-opacity="0.68"/>
+      <stop offset="0.55" stop-color="#571516" stop-opacity="0.52"/>
+      <stop offset="1" stop-color="#190607" stop-opacity="0.10"/>
     </linearGradient>
     <linearGradient id="shardDark" x1="563" y1="390" x2="1044" y2="526" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#170306" stop-opacity="0.9"/>
-      <stop offset="0.5" stop-color="#2D0710" stop-opacity="0.52"/>
+      <stop offset="0" stop-color="#130405" stop-opacity="0.88"/>
+      <stop offset="0.5" stop-color="#1D0809" stop-opacity="0.44"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="typeGlow" x1="534" y1="371" x2="1093" y2="535" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#EEE7E1" stop-opacity="0.92"/>
-      <stop offset="0.25" stop-color="#D9CFC8" stop-opacity="0.92"/>
-      <stop offset="0.7" stop-color="#B13044" stop-opacity="0.86"/>
-      <stop offset="1" stop-color="#F2EBE6" stop-opacity="0.88"/>
     </linearGradient>
     <filter id="mist" x="170" y="105" width="1260" height="670" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feGaussianBlur stdDeviation="26"/>
@@ -39,7 +33,7 @@
     <filter id="softType" x="240" y="260" width="1120" height="340" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feOffset dy="2"/>
       <feGaussianBlur stdDeviation="6"/>
-      <feColorMatrix type="matrix" values="0 0 0 0 0.2 0 0 0 0 0.02 0 0 0 0 0.05 0 0 0 0.55 0"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.14 0 0 0 0 0.02 0 0 0 0 0.03 0 0 0 0.45 0"/>
       <feBlend in="SourceGraphic"/>
     </filter>
     <filter id="ghost" x="220" y="180" width="1160" height="520" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -62,36 +56,35 @@
     <ellipse cx="660" cy="454" rx="216" ry="178" fill="url(#leftBloom)"/>
     <ellipse cx="998" cy="430" rx="166" ry="146" fill="url(#rightBloom)"/>
 
-    <g clip-path="url(#softOvalClip)" opacity="0.84">
+    <g clip-path="url(#softOvalClip)" opacity="0.82">
       <path d="M484 495L592 341L882 341L1025 252L1136 294L944 540L639 540L528 596L452 554L484 495Z" fill="url(#shardRed)"/>
       <path d="M563 390L864 390L1040 315L1118 352L912 505L650 505L540 562L497 524L563 390Z" fill="url(#shardDark)"/>
-      <path d="M525 312L627 312" stroke="#DA6B79" stroke-opacity="0.68" stroke-width="2"/>
-      <path d="M1036 574L1128 574" stroke="#D14E63" stroke-opacity="0.48" stroke-width="2"/>
-      <path d="M1012 287L1106 381" stroke="#8B1A2D" stroke-opacity="0.46" stroke-width="2"/>
-      <path d="M507 544L592 629" stroke="#7A1525" stroke-opacity="0.38" stroke-width="2"/>
-      <path d="M639 370H938" stroke="#F6EDE7" stroke-opacity="0.08" stroke-width="1"/>
-      <path d="M620 533H966" stroke="#0D0103" stroke-opacity="0.32" stroke-width="1"/>
-      <g opacity="0.26">
-        <path d="M564 330H703" stroke="#E7DED8" stroke-width="1"/>
-        <path d="M777 330H844" stroke="#E7DED8" stroke-width="1"/>
-        <path d="M905 330H1025" stroke="#E7DED8" stroke-width="1"/>
-        <path d="M604 562H728" stroke="#E7DED8" stroke-width="1"/>
-        <path d="M788 562H1004" stroke="#E7DED8" stroke-width="1"/>
+      <path d="M525 312L627 312" stroke="#C8BCB4" stroke-opacity="0.18" stroke-width="2"/>
+      <path d="M1036 574L1128 574" stroke="#621A1A" stroke-opacity="0.22" stroke-width="2"/>
+      <path d="M1012 287L1106 381" stroke="#4E1414" stroke-opacity="0.24" stroke-width="2"/>
+      <path d="M507 544L592 629" stroke="#431112" stroke-opacity="0.20" stroke-width="2"/>
+      <path d="M639 370H938" stroke="#F2EAE4" stroke-opacity="0.05" stroke-width="1"/>
+      <path d="M620 533H966" stroke="#0D0103" stroke-opacity="0.26" stroke-width="1"/>
+      <g opacity="0.18">
+        <path d="M564 330H703" stroke="#E0D6CF" stroke-width="1"/>
+        <path d="M777 330H844" stroke="#E0D6CF" stroke-width="1"/>
+        <path d="M905 330H1025" stroke="#E0D6CF" stroke-width="1"/>
+        <path d="M604 562H728" stroke="#E0D6CF" stroke-width="1"/>
+        <path d="M788 562H1004" stroke="#E0D6CF" stroke-width="1"/>
       </g>
     </g>
   </g>
 
-  <g filter="url(#ghost)" opacity="0.18">
-    <text x="800" y="495" text-anchor="middle" fill="#C84559" font-size="114" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="8">SHADOWSELF</text>
+  <g filter="url(#ghost)" opacity="0.10">
+    <text x="800" y="495" text-anchor="middle" fill="#5D1718" font-size="114" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="8">SHADOWSELF</text>
   </g>
 
   <g filter="url(#softType)">
-    <text x="800" y="492" text-anchor="middle" fill="#F0E9E2" stroke="#922033" stroke-opacity="0.32" stroke-width="2" font-size="112" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="8">SHADOWSELF</text>
+    <text x="800" y="492" text-anchor="middle" fill="#ECE4DD" stroke="#611617" stroke-opacity="0.20" stroke-width="2" font-size="112" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="8">SHADOWSELF</text>
   </g>
 
-  <g opacity="0.34">
-    <path d="M474 446H542" stroke="#F1EAE5" stroke-width="2"/>
-    <path d="M1058 446H1126" stroke="#F1EAE5" stroke-width="2"/>
+  <g opacity="0.18">
+    <path d="M474 446H542" stroke="#EEE6DF" stroke-width="2"/>
+    <path d="M1058 446H1126" stroke="#EEE6DF" stroke-width="2"/>
   </g>
 </svg>
-

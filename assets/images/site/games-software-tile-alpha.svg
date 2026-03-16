@@ -1,21 +1,21 @@
 ﻿<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <radialGradient id="gamesBody" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(642 360) rotate(90) scale(212 362)">
-      <stop offset="0" stop-color="#991C2F" stop-opacity="0.82"/>
-      <stop offset="0.4" stop-color="#6E1222" stop-opacity="0.5"/>
-      <stop offset="0.78" stop-color="#1B040A" stop-opacity="0.1"/>
+      <stop offset="0" stop-color="#741617" stop-opacity="0.72"/>
+      <stop offset="0.4" stop-color="#4B1112" stop-opacity="0.44"/>
+      <stop offset="0.78" stop-color="#170506" stop-opacity="0.08"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="gamesBloom" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(790 352) rotate(90) scale(162 168)">
-      <stop offset="0" stop-color="#B92E45" stop-opacity="0.44"/>
-      <stop offset="0.62" stop-color="#6E1222" stop-opacity="0.12"/>
+      <stop offset="0" stop-color="#5E1717" stop-opacity="0.24"/>
+      <stop offset="0.62" stop-color="#411011" stop-opacity="0.08"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="gamesShard" x1="380" y1="246" x2="924" y2="500" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#EDE4DD" stop-opacity="0.8"/>
-      <stop offset="0.2" stop-color="#C64B5E" stop-opacity="0.9"/>
-      <stop offset="0.64" stop-color="#861B2D" stop-opacity="0.6"/>
-      <stop offset="1" stop-color="#180308" stop-opacity="0.08"/>
+      <stop offset="0" stop-color="#E4DBD4" stop-opacity="0.76"/>
+      <stop offset="0.2" stop-color="#791F1D" stop-opacity="0.68"/>
+      <stop offset="0.64" stop-color="#521516" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#170506" stop-opacity="0.08"/>
     </linearGradient>
     <filter id="gamesMist" x="170" y="110" width="940" height="500" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feGaussianBlur stdDeviation="22"/>
@@ -30,7 +30,7 @@
     <filter id="gamesType" x="224" y="212" width="862" height="302" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feOffset dy="2"/>
       <feGaussianBlur stdDeviation="5"/>
-      <feColorMatrix type="matrix" values="0 0 0 0 0.19 0 0 0 0 0.02 0 0 0 0 0.05 0 0 0 0.55 0"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.15 0 0 0 0 0.02 0 0 0 0 0.03 0 0 0 0.42 0"/>
       <feBlend in="SourceGraphic"/>
     </filter>
   </defs>
@@ -38,21 +38,21 @@
   <g mask="url(#gamesFade)">
     <path d="M328 360C344 264 452 206 626 198C826 190 972 248 986 346C998 436 914 502 730 532C512 568 306 473 328 360Z" fill="url(#gamesBody)"/>
     <ellipse cx="792" cy="352" rx="174" ry="148" fill="url(#gamesBloom)"/>
-    <path d="M394 438L490 288L742 288L868 226L948 268L812 472L558 472L458 516L384 484L394 438Z" fill="url(#gamesShard)" opacity="0.9"/>
-    <path d="M474 314H590" stroke="#EADFD8" stroke-opacity="0.24" stroke-width="2"/>
-    <path d="M768 494H896" stroke="#B13346" stroke-opacity="0.34" stroke-width="2"/>
-    <path d="M814 248L902 336" stroke="#821A2B" stroke-opacity="0.4" stroke-width="2"/>
-    <path d="M430 444L522 536" stroke="#6D1222" stroke-opacity="0.3" stroke-width="2"/>
-    <rect x="454" y="326" width="120" height="72" rx="8" stroke="#F1E9E3" stroke-opacity="0.34" stroke-width="4"/>
-    <path d="M512 348V376" stroke="#F1E9E3" stroke-opacity="0.7" stroke-width="4" stroke-linecap="round"/>
-    <path d="M498 362H526" stroke="#F1E9E3" stroke-opacity="0.7" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="554" cy="350" r="7" fill="#F1E9E3" fill-opacity="0.64"/>
-    <circle cx="554" cy="374" r="7" fill="#F1E9E3" fill-opacity="0.64"/>
-    <path d="M596 362H850" stroke="#100205" stroke-opacity="0.34" stroke-width="2"/>
+    <path d="M394 438L490 288L742 288L868 226L948 268L812 472L558 472L458 516L384 484L394 438Z" fill="url(#gamesShard)" opacity="0.86"/>
+    <path d="M474 314H590" stroke="#E2D9D2" stroke-opacity="0.16" stroke-width="2"/>
+    <path d="M768 494H896" stroke="#5D1718" stroke-opacity="0.22" stroke-width="2"/>
+    <path d="M814 248L902 336" stroke="#461314" stroke-opacity="0.24" stroke-width="2"/>
+    <path d="M430 444L522 536" stroke="#3E1011" stroke-opacity="0.22" stroke-width="2"/>
+    <rect x="454" y="326" width="120" height="72" rx="8" stroke="#EBE2DB" stroke-opacity="0.24" stroke-width="4"/>
+    <path d="M512 348V376" stroke="#EBE2DB" stroke-opacity="0.56" stroke-width="4" stroke-linecap="round"/>
+    <path d="M498 362H526" stroke="#EBE2DB" stroke-opacity="0.56" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="554" cy="350" r="7" fill="#EBE2DB" fill-opacity="0.50"/>
+    <circle cx="554" cy="374" r="7" fill="#EBE2DB" fill-opacity="0.50"/>
+    <path d="M596 362H850" stroke="#100205" stroke-opacity="0.26" stroke-width="2"/>
   </g>
 
   <g filter="url(#gamesType)">
-    <text x="684" y="360" text-anchor="middle" fill="#F0E9E2" stroke="#8B1E30" stroke-opacity="0.3" stroke-width="2" font-size="72" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="6">GAMES &amp;</text>
-    <text x="684" y="442" text-anchor="middle" fill="#F0E9E2" stroke="#8B1E30" stroke-opacity="0.3" stroke-width="2" font-size="72" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="6">SOFTWARE</text>
+    <text x="684" y="360" text-anchor="middle" fill="#ECE4DD" stroke="#5D1718" stroke-opacity="0.20" stroke-width="2" font-size="72" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="6">GAMES &amp;</text>
+    <text x="684" y="442" text-anchor="middle" fill="#ECE4DD" stroke="#5D1718" stroke-opacity="0.20" stroke-width="2" font-size="72" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="6">SOFTWARE</text>
   </g>
 </svg>
