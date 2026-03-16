@@ -98,8 +98,12 @@
     }
 
     const entries = data.media?.audio || [];
+    const fragment = document.createDocumentFragment();
+
     root.innerHTML = entries
-      .map((entry) => {
+      .map((entry, index) => {
+        const entryId = entry.id || `audio-entry-${index + 1}`;
+        const modalId = `${entryId}-modal`;
         const audioShell = entry.audioSrc
           ? `
             <div class="audio-player-shell">
@@ -109,9 +113,30 @@
               </audio>
             </div>
           `
-          : `
-            
-          `;
+          : "";
+        const infoAction = entry.infoBody && entry.infoBody.length
+          ? `
+            <div class="audio-actions">
+              <button
+                class="ui-button secondary"
+                type="button"
+                data-open-modal="${escapeAttribute(modalId)}"
+              >
+                ${escapeHtml(entry.infoLabel || "Info")}
+              </button>
+            </div>
+          `
+          : "";
+
+        if (entry.infoBody && entry.infoBody.length) {
+          fragment.append(
+            buildModal({
+              id: modalId,
+              title: entry.infoTitle || entry.title,
+              body: entry.infoBody.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")
+            })
+          );
+        }
 
         return `
           <article class="audio-entry">
@@ -125,12 +150,15 @@
               ${entry.description ? `<p>${escapeHtml(entry.description)}</p>` : ""}
               ${audioShell}
               ${renderTags(entry.tags)}
+              ${infoAction}
               ${entry.notes ? `<p>${escapeHtml(entry.notes)}</p>` : ""}
             </div>
           </article>
         `;
       })
       .join("");
+
+    document.body.append(fragment);
   }
 
   function renderProjects() {
@@ -356,6 +384,7 @@
     return escapeHtml(value);
   }
 })();
+
 
 
 

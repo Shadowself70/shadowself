@@ -23,12 +23,18 @@
     ],
     audio: [
       {
-        title: "Audio Slot 01",
-        description: "",
+        id: "sudden-ending-v2",
+        title: "Sudden Ending v2",
+        description: "Fractions of Ascent",
         coverDimensions: "1024 x 1024 cover art",
-        audioSrc: "",
+        audioSrc: "assets/audio/Fractions of Ascent - Sudden Ending v2.mp3",
         tags: ["AI-assisted", "audio restoration"],
-        notes: ""
+        notes: "",
+        infoLabel: "Info",
+        infoTitle: "Sudden Ending v2",
+        infoBody: [
+          "This ancient song started out as an improvised acoustic guitar piece in an alternate tuning. I then added piano and strings sounds on keyboard, then programmed the drums by playing them on the keys. Then, as usual, I abandoned it. Over two decades later, I threw it through Suno about 20 times with many different settings and prompts until I finally got something I accepted. I then added some vocals by singing right into Suno Studio. Su-su-studio. And in my normal fashion, I only did vocals on a small part and then abandoned it. I think this one sounds quite true to the original recording. I love the fretless bass it added."
+        ]
       }
     ]
   },
@@ -60,4 +66,7 @@
     }
   ]
 };
+
+
+
 

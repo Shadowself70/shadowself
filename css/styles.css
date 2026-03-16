@@ -498,7 +498,8 @@ img {
   min-height: clamp(138px, 15vw, 210px);
 }
 
-.project-actions {
+.project-actions,
+.audio-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -758,6 +759,9 @@ img {
     padding: 18px;
   }
 }
+
+
+
 
 
 
