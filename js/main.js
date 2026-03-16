@@ -4,6 +4,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     injectAiDisclosureModal();
     renderCurrentPage();
+    initializeTooltips();
     bindModalTriggers();
     bindAudioAutoPause();
   });
@@ -271,12 +272,16 @@
     root.innerHTML = posts
       .map((post) => {
         const dateLabel = post.isoDate ? formatter.format(new Date(post.isoDate)) : post.displayDate || "";
+        const metaParts = [dateLabel];
+        if (post.author) {
+          metaParts.push(`By ${post.author}`);
+        }
         const body = (post.body || []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
 
         return `
           <article class="update-post">
             <div class="post-brand" aria-hidden="true">SS</div>
-            <div class="post-meta">${escapeHtml(dateLabel)}</div>
+            <div class="post-meta">${escapeHtml(metaParts.filter(Boolean).join(" | "))}</div>
             <h2>${escapeHtml(post.title)}</h2>
             <div class="post-body">${body}</div>
           </article>
@@ -335,6 +340,30 @@
       true
     );
   }
+
+  function initializeTooltips() {
+    document.querySelectorAll("a, button").forEach((control) => {
+      if (!(control instanceof HTMLElement)) {
+        return;
+      }
+
+      if (control.closest(".audio-player-shell") || control.hasAttribute("data-tooltip-skip")) {
+        return;
+      }
+
+      const explicitLabel = control.dataset.tooltip;
+      const ariaLabel = control.getAttribute("aria-label");
+      const textLabel = control.textContent.replace(/\s+/g, " ").trim();
+      const label = explicitLabel || ariaLabel || textLabel;
+
+      if (!label) {
+        return;
+      }
+
+      control.dataset.tooltip = label;
+    });
+  }
+
 
   function openModal(modalId) {
     const modal = document.getElementById(modalId);

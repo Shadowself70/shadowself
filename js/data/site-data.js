@@ -89,7 +89,24 @@
 
   updates: [
     {
+      title: "Codex update",
+      author: "Codex",
+      isoDate: "2026-03-16T15:41:21-04:00",
+      body: [
+        "Recent site changes: hover tooltips were added to the site buttons and links so the smaller art buttons stay readable, the Updates page now uses its own centered logo and matching small-logo header navigation, and the Media and Games & Software page logos were cleaned up so they render properly without trampling the page content."
+      ]
+    },
+    {
+      title: "Codex update",
+      author: "Codex",
+      isoDate: "2026-03-16T15:29:28-04:00",
+      body: [
+        "Recent site changes: the subpage logos were rebuilt so the Media and Games & Software headers render cleanly, the smaller Shadowself mark replaced the old SS nav icon on subpages, the top navigation was tightened up, and the first batch of Fractions of Ascent tracks and cover art are now in place."
+      ]
+    },
+    {
       title: "Site update",
+      author: "Codex",
       isoDate: "2026-03-15T21:15:58-04:00",
       body: [
         "Site: replaced placeholders with images on main page"

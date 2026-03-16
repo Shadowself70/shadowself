@@ -1107,3 +1107,49 @@ img {
 .games-heading-logo {
   background-image: url("../assets/logos/games and software logo.png");
 }
+
+.updates-heading-logo {
+  width: min(100%, 520px);
+  background-image: url("../assets/logos/updates-logo.png");
+}
+
+
+button[data-tooltip],
+a[data-tooltip] {
+  position: relative;
+}
+
+button[data-tooltip]::after,
+a[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translate(-50%, -4px);
+  width: max-content;
+  max-width: min(240px, calc(100vw - 28px));
+  padding: 6px 10px;
+  background: #111214;
+  color: #f5f5f2;
+  border: 1px solid var(--line-bright);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.42);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 240;
+  transition: opacity 140ms ease, transform 140ms ease, visibility 140ms ease;
+}
+
+button[data-tooltip]:hover::after,
+button[data-tooltip]:focus-visible::after,
+a[data-tooltip]:hover::after,
+a[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
