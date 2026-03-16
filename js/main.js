@@ -81,7 +81,7 @@
             ${mediaFrame}
             <div class="video-copy">
               <h3>${escapeHtml(video.title)}</h3>
-              <p>${escapeHtml(video.description)}</p>
+              ${video.description ? `<p>${escapeHtml(video.description)}</p>` : ""}
               ${renderTags(video.tags)}
               ${video.notes ? `<p>${escapeHtml(video.notes)}</p>` : ""}
             </div>
@@ -110,7 +110,7 @@
             </div>
           `
           : `
-            <div class="audio-empty">Add audio source to enable browser playback.</div>
+            
           `;
 
         return `
@@ -122,7 +122,7 @@
             </div>
             <div class="audio-entry-copy">
               <h3>${escapeHtml(entry.title)}</h3>
-              <p>${escapeHtml(entry.description)}</p>
+              ${entry.description ? `<p>${escapeHtml(entry.description)}</p>` : ""}
               ${audioShell}
               ${renderTags(entry.tags)}
               ${entry.notes ? `<p>${escapeHtml(entry.notes)}</p>` : ""}
@@ -163,7 +163,7 @@
             </div>
             <div class="project-card-body">
               <h3>${escapeHtml(project.title)}</h3>
-              <p>${escapeHtml(project.summary)}</p>
+              ${project.summary ? `<p>${escapeHtml(project.summary)}</p>` : ""}
               ${renderStatuses(project.status)}
             </div>
             <div class="project-actions">
@@ -356,3 +356,6 @@
     return escapeHtml(value);
   }
 })();
+
+
+

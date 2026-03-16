@@ -14,21 +14,21 @@
     videos: [
       {
         title: "Video Slot 01",
-        description: "Placeholder card for the first YouTube embed. Swap in a `youtubeId` when a video is ready.",
+        description: "",
         youtubeId: "",
         placeholderDimensions: "1280 x 720 thumbnail / embed cover",
         tags: ["AI-generated", "YouTube embed"],
-        notes: "Add a title, short description, tags, and a YouTube ID in this file."
+        notes: ""
       }
     ],
     audio: [
       {
         title: "Audio Slot 01",
-        description: "Placeholder entry for a rebuilt or restored track.",
+        description: "",
         coverDimensions: "1000 x 1000 cover art",
         audioSrc: "",
         tags: ["AI-assisted", "audio restoration"],
-        notes: "Drop in an MP3 or OGG path later and the browser player will appear here."
+        notes: ""
       }
     ]
   },
@@ -37,7 +37,7 @@
     {
       id: "clarchon",
       title: "Clarchon",
-      summary: "First linked project slot. Launch points outward; the info panel stays short and local.",
+      summary: "",
       imageDimensions: "1200 x 900 cover art or screenshot",
       launchUrl: "https://clarchon.com",
       launchLabel: "Launch",
@@ -45,8 +45,7 @@
       status: ["playable"],
       infoTitle: "Clarchon",
       infoBody: [
-        "Info goes here.",
-        "Replace this with a short project description when you are ready."
+        "Details to come."
       ]
     }
   ],
@@ -61,4 +60,3 @@
     }
   ]
 };
-
