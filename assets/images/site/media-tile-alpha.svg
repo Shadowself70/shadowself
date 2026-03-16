@@ -1,0 +1,54 @@
+﻿<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="mediaBody" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(642 356) rotate(90) scale(204 352)">
+      <stop offset="0" stop-color="#A61F34" stop-opacity="0.82"/>
+      <stop offset="0.38" stop-color="#781425" stop-opacity="0.48"/>
+      <stop offset="0.78" stop-color="#22060D" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mediaBloom" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(526 362) rotate(90) scale(154 154)">
+      <stop offset="0" stop-color="#C7374E" stop-opacity="0.55"/>
+      <stop offset="0.65" stop-color="#781425" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mediaShard" x1="398" y1="248" x2="906" y2="469" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0E7E0" stop-opacity="0.8"/>
+      <stop offset="0.22" stop-color="#CA5062" stop-opacity="0.9"/>
+      <stop offset="0.65" stop-color="#8D1E30" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#23060D" stop-opacity="0.08"/>
+    </linearGradient>
+    <filter id="mediaMist" x="184" y="118" width="920" height="480" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+    <mask id="mediaFade">
+      <rect width="1280" height="720" fill="black"/>
+      <g filter="url(#mediaMist)">
+        <path d="M334 356C350 265 449 206 608 196C798 185 938 234 956 334C972 428 877 500 706 528C523 558 314 465 334 356Z" fill="white"/>
+        <ellipse cx="646" cy="358" rx="324" ry="172" fill="white"/>
+      </g>
+    </mask>
+    <filter id="mediaType" x="312" y="228" width="660" height="260" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feOffset dy="2"/>
+      <feGaussianBlur stdDeviation="5"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.19 0 0 0 0 0.02 0 0 0 0 0.05 0 0 0 0.55 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+
+  <g mask="url(#mediaFade)">
+    <path d="M334 356C350 265 449 206 608 196C798 185 938 234 956 334C972 428 877 500 706 528C523 558 314 465 334 356Z" fill="url(#mediaBody)"/>
+    <ellipse cx="518" cy="366" rx="164" ry="142" fill="url(#mediaBloom)"/>
+    <path d="M406 406L504 284L720 284L844 218L928 256L786 446L556 446L470 490L392 456L406 406Z" fill="url(#mediaShard)" opacity="0.9"/>
+    <path d="M448 318H550" stroke="#E5DCD6" stroke-opacity="0.26" stroke-width="2"/>
+    <path d="M770 474H880" stroke="#B53447" stroke-opacity="0.38" stroke-width="2"/>
+    <path d="M798 252L886 340" stroke="#8A1C2D" stroke-opacity="0.42" stroke-width="2"/>
+    <path d="M430 426L520 516" stroke="#761526" stroke-opacity="0.32" stroke-width="2"/>
+    <circle cx="508" cy="362" r="54" stroke="#F2EAE4" stroke-opacity="0.36" stroke-width="4"/>
+    <circle cx="508" cy="362" r="14" fill="#F2EAE4" fill-opacity="0.72"/>
+    <path d="M576 362H810" stroke="#140306" stroke-opacity="0.34" stroke-width="2"/>
+  </g>
+
+  <g filter="url(#mediaType)">
+    <text x="684" y="382" text-anchor="middle" fill="#F0E9E2" stroke="#8F1F31" stroke-opacity="0.3" stroke-width="2" font-size="104" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="8">MEDIA</text>
+  </g>
+</svg>

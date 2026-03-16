@@ -1,0 +1,53 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shadowself | Updates</title>
+  <meta
+    name="description"
+    content="Read updates, random thoughts, development notes, and short dispatches from Shadowself."
+  >
+  <link rel="stylesheet" href="css/styles.css">
+  <script defer src="js/data/site-data.js"></script>
+  <script defer src="js/main.js"></script>
+</head>
+<body class="page" data-page="updates">
+  <div class="site-shell">
+    <header class="interior-header">
+      <a class="home-mark" href="index.html" aria-label="Return to Shadowself home">
+        <span class="home-mark-monogram">SS</span>
+        <span class="home-mark-text">Shadowself</span>
+      </a>
+
+      <div class="page-heading">
+        <p class="eyebrow">Updates &amp; Random Thoughts</p>
+        <h1>Dispatch Feed</h1>
+        <p>Short posts, development notes, and whatever else deserves to be dated and thrown onto the wall.</p>
+      </div>
+
+      <div class="header-actions">
+        <button class="ui-link ui-link-button" type="button" data-open-modal="ai-disclosure-modal">
+          AI Disclosure
+        </button>
+        <a class="ui-link" href="media.html">Media</a>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <section class="section-block">
+        <div class="section-heading">
+          <p class="eyebrow">Posts</p>
+          <h2>Newest At The Top</h2>
+          <p>This page is wired for low-friction updates without bringing back the overhead of a CMS.</p>
+        </div>
+        <div id="updates-feed" class="updates-feed"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Future post additions can be made by appending one entry in the shared updates data file.</p>
+    </footer>
+  </div>
+</body>
+</html>
