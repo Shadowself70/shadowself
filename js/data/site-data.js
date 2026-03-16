@@ -25,7 +25,7 @@
       {
         title: "Audio Slot 01",
         description: "",
-        coverDimensions: "1000 x 1000 cover art",
+        coverDimensions: "1024 x 1024 cover art",
         audioSrc: "",
         tags: ["AI-assisted", "audio restoration"],
         notes: ""
@@ -60,3 +60,4 @@
     }
   ]
 };
+
