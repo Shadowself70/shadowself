@@ -1,43 +1,42 @@
-﻿<svg width="520" height="140" viewBox="0 0 520 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+﻿<svg width="620" height="152" viewBox="0 0 620 152" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <radialGradient id="body" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(262 70) rotate(90) scale(54 172)">
-      <stop offset="0" stop-color="#731617" stop-opacity="0.74"/>
-      <stop offset="0.44" stop-color="#4D1113" stop-opacity="0.40"/>
-      <stop offset="0.84" stop-color="#170506" stop-opacity="0.08"/>
+    <linearGradient id="band" x1="68" y1="76" x2="552" y2="76" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0.16" stop-color="#101215" stop-opacity="0.34"/>
+      <stop offset="0.5" stop-color="#1A1D22" stop-opacity="0.54"/>
+      <stop offset="0.84" stop-color="#101215" stop-opacity="0.34"/>
       <stop offset="1" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="shard" x1="104" y1="40" x2="404" y2="98" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#E7DED7" stop-opacity="0.66"/>
-      <stop offset="0.22" stop-color="#7D211F" stop-opacity="0.68"/>
-      <stop offset="0.72" stop-color="#541516" stop-opacity="0.50"/>
-      <stop offset="1" stop-color="#170506" stop-opacity="0.06"/>
     </linearGradient>
-    <filter id="mist" x="18" y="4" width="484" height="132" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+    <linearGradient id="cut" x1="156" y1="42" x2="464" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EEE8E1" stop-opacity="0.12"/>
+      <stop offset="0.28" stop-color="#8A8D95" stop-opacity="0.22"/>
+      <stop offset="0.7" stop-color="#43464D" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#111316" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur" x="18" y="12" width="584" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feGaussianBlur stdDeviation="10"/>
     </filter>
-    <mask id="fade">
-      <rect width="520" height="140" fill="black"/>
-      <g filter="url(#mist)">
-        <path d="M62 72C69 36 115 15 212 12C336 8 426 27 444 62C458 91 425 120 338 129C214 143 55 112 62 72Z" fill="white"/>
+    <mask id="mask">
+      <rect width="620" height="152" fill="black"/>
+      <g filter="url(#blur)">
+        <path d="M56 78C64 38 116 18 226 14L414 14C516 18 570 42 576 76C582 108 536 132 434 138L212 138C106 134 48 112 56 78Z" fill="white"/>
       </g>
     </mask>
-    <filter id="type" x="64" y="18" width="394" height="106" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+    <filter id="typeShadow" x="82" y="20" width="456" height="108" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feOffset dy="1"/>
       <feGaussianBlur stdDeviation="3"/>
-      <feColorMatrix type="matrix" values="0 0 0 0 0.16 0 0 0 0 0.02 0 0 0 0 0.04 0 0 0 0.40 0"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.03 0 0 0 0 0.03 0 0 0 0 0.04 0 0 0 0.55 0"/>
       <feBlend in="SourceGraphic"/>
     </filter>
   </defs>
-
-  <g mask="url(#fade)">
-    <path d="M62 72C69 36 115 15 212 12C336 8 426 27 444 62C458 91 425 120 338 129C214 143 55 112 62 72Z" fill="url(#body)"/>
-    <path d="M102 84L144 42L268 42L334 24L402 42L326 96L194 96L144 112L88 96L102 84Z" fill="url(#shard)" opacity="0.86"/>
-    <path d="M126 42H178" stroke="#E4DBD4" stroke-opacity="0.16" stroke-width="2"/>
-    <path d="M334 100H396" stroke="#5A1718" stroke-opacity="0.22" stroke-width="2"/>
-    <path d="M344 30L394 80" stroke="#481314" stroke-opacity="0.22" stroke-width="2"/>
+  <g mask="url(#mask)">
+    <path d="M56 78C64 38 116 18 226 14L414 14C516 18 570 42 576 76C582 108 536 132 434 138L212 138C106 134 48 112 56 78Z" fill="url(#band)"/>
+    <path d="M122 92L164 46L334 46L390 30L500 34L542 54L500 106L304 106L240 122L138 118L98 102L122 92Z" fill="url(#cut)" opacity="0.92"/>
+    <path d="M156 44H244" stroke="#E9E3DC" stroke-opacity="0.14" stroke-width="2"/>
+    <path d="M382 116H498" stroke="#6D7179" stroke-opacity="0.20" stroke-width="2"/>
+    <path d="M420 34L500 82" stroke="#50535A" stroke-opacity="0.22" stroke-width="2"/>
   </g>
-
-  <g filter="url(#type)">
-    <text x="260" y="82" text-anchor="middle" fill="#ECE4DD" stroke="#5E1718" stroke-opacity="0.20" stroke-width="1.5" font-size="34" font-family="Palatino Linotype, Book Antiqua, Palatino, serif" font-weight="700" letter-spacing="4">AI DISCLOSURE</text>
+  <g filter="url(#typeShadow)">
+    <text x="310" y="87" text-anchor="middle" fill="#E8E2DB" stroke="#545860" stroke-opacity="0.14" stroke-width="1.5" font-size="39" font-family="Bahnschrift SemiCondensed, Segoe UI Semibold, Trebuchet MS, sans-serif" font-weight="600" letter-spacing="4">AI DISCLOSURE</text>
   </g>
 </svg>

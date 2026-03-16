@@ -84,8 +84,10 @@ img {
 .home-hero {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(110px, 16vw) minmax(0, 1fr) minmax(110px, 16vw);
-  gap: clamp(10px, 1.6vh, 18px);
+  width: min(100%, 1200px);
+  margin: 0 auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(8px, 1vw, 14px);
   align-items: center;
 }
 
@@ -96,9 +98,9 @@ img {
 }
 
 .hero-side {
-  width: min(100%, 260px, 18vw, 20vh);
   display: flex;
   align-items: center;
+  flex: 0 0 auto;
 }
 
 .hero-side-left {
@@ -112,7 +114,7 @@ img {
 
 .hero-art-control,
 .hero-art-link {
-  width: min(100%, 248px, 17.5vw, 19vh);
+  width: min(100%, 320px, 22vw, 24vh);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -127,11 +129,11 @@ img {
   height: auto;
   display: block;
   opacity: 0.98;
-  filter: drop-shadow(0 8px 16px rgba(47, 6, 13, 0.18));
+  filter: drop-shadow(0 10px 18px rgba(10, 10, 12, 0.18));
 }
 
 .logo-lockup {
-  width: min(100%, 940px, 62vw, 48vh);
+  width: min(100%, 900px, 58vw, 46vh);
 }
 
 .hero-lede {
@@ -162,7 +164,6 @@ img {
   background: transparent;
   border: 0;
   box-shadow: none;
-  clip-path: none;
   transition: transform 180ms ease, filter 180ms ease;
 }
 
@@ -254,7 +255,6 @@ img {
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%),
     var(--bg-panel-alt);
   border: 1px dashed var(--line-bright);
-  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
 }
 
 .placeholder-kicker,
@@ -292,7 +292,6 @@ img {
   background: transparent;
   color: var(--text);
   border: 1px solid var(--line);
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
   transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
   text-transform: uppercase;
   letter-spacing: 0.14em;
@@ -513,7 +512,6 @@ img {
   border: 1px solid var(--line-bright);
   background: rgba(98, 18, 21, 0.14);
   color: var(--text);
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.76rem;
@@ -553,7 +551,6 @@ img {
   background: linear-gradient(135deg, rgba(98, 18, 21, 0.18), rgba(255, 255, 255, 0.03));
   font-family: var(--display-font);
   font-size: 1.15rem;
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
 }
 
 .post-body {
@@ -565,7 +562,6 @@ img {
   display: grid;
   gap: 12px;
   padding: 20px;
-  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
 }
 
 .modal {
@@ -602,28 +598,6 @@ img {
     var(--bg-panel);
   border: 1px solid var(--line-bright);
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.56);
-  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
-}
-
-.modal-panel::before,
-.modal-panel::after {
-  content: "";
-  position: absolute;
-  width: 34px;
-  height: 1px;
-  background: var(--line-bright);
-}
-
-.modal-panel::before {
-  top: 11px;
-  right: -4px;
-  transform: rotate(45deg);
-}
-
-.modal-panel::after {
-  bottom: 11px;
-  left: -4px;
-  transform: rotate(45deg);
 }
 
 .modal-close {
@@ -657,12 +631,12 @@ img {
   }
 
   .logo-lockup {
-    width: min(100%, 820px, 58vw, 42vh);
+    width: min(100%, 800px, 54vw, 40vh);
   }
 
   .hero-art-control,
   .hero-art-link {
-    width: min(100%, 210px, 16vw, 16vh);
+    width: min(100%, 280px, 20vw, 20vh);
   }
 
   .entry-tile {
@@ -680,21 +654,21 @@ img {
   }
 
   .home-hero {
-    grid-template-columns: minmax(110px, 15vw) minmax(0, 1fr) minmax(110px, 15vw);
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 8px;
   }
 
   .hero-side {
-    width: min(100%, 180px, 15vw, 13vh);
+    width: auto;
   }
 
   .logo-lockup {
-    width: min(100%, 740px, 56vw, 38vh);
+    width: min(100%, 700px, 52vw, 36vh);
   }
 
   .hero-art-control,
   .hero-art-link {
-    width: min(100%, 174px, 14vw, 13vh);
+    width: min(100%, 236px, 18vw, 16vh);
   }
 
   .entry-tile {
@@ -713,16 +687,16 @@ img {
   }
 
   .hero-side {
-    width: min(100%, 136px, 12vw, 10vh);
+    width: auto;
   }
 
   .logo-lockup {
-    width: min(100%, 620px, 54vw, 31vh);
+    width: min(100%, 600px, 50vw, 30vh);
   }
 
   .hero-art-control,
   .hero-art-link {
-    width: min(100%, 134px, 11vw, 10vh);
+    width: min(100%, 176px, 14vw, 12vh);
   }
 
   .entry-tile {
@@ -785,6 +759,10 @@ img {
     padding: 18px;
   }
 }
+
+
+
+
 
 
 
