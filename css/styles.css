@@ -1066,6 +1066,16 @@ img {
   width: min(100%, 132px);
 }
 
+.page:not(.page-home) .subpage-action-art {
+  width: 100%;
+  height: auto;
+}
+
+.page:not(.page-home) .subpage-art-control-tall,
+.page:not(.page-home) .subpage-art-link-tall {
+  width: min(100%, 76px);
+}
+
 @media (max-width: 1100px) {
   .page:not(.page-home) .interior-header {
     grid-template-columns: 1fr;

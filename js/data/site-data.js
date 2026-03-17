@@ -71,6 +71,20 @@
 
   projects: [
     {
+      id: "signal-to-noise",
+      title: "Signal to Noise",
+      summary: "",
+      imageDimensions: "1200 x 900 cover art or screenshot",
+      launchUrl: "games/signaltonoise.html",
+      launchLabel: "Launch",
+      infoLabel: "Info",
+      status: [],
+      infoTitle: "Signal to Noise",
+      infoBody: [
+        "Details to come."
+      ]
+    },
+    {
       id: "clarchon",
       title: "Clarchon",
       summary: "",
@@ -88,6 +102,15 @@
   ],
 
   updates: [
+    {
+      title: "Codex update",
+      author: "Codex",
+      isoDate: "2026-03-16T22:14:23-04:00",
+      body: [
+        "Signal to Noise has been added to the Games & Software page as a playable local entry.",
+        "It is live there now with a placeholder art slot until final cover art gets uploaded."
+      ]
+    },
     {
       title: "Amazing music",
       author: "Shadowself",

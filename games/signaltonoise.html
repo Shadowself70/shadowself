@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal To Noise // Tactical Transceiver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700;800&family=Syncopate:wght@700&display=swap');
+        
+        :root { 
+            --jp8-orange: #f97316; 
+            --jp8-yellow: #fbce07; 
+            --jp8-blue: #2563eb; 
+            --jp8-white: #f8fafc;
+            --chassis-bg: #000000;
+            --panel-bg: #1a1a20;
+            --panel-border: #555566;
+        }
+
+        body { 
+            font-family: 'JetBrains Mono', monospace; 
+            background-color: var(--chassis-bg); 
+            color: var(--jp8-white); 
+            overflow-x: hidden; 
+            min-height: 100vh;
+            height: auto;
+        }
+
+        .font-sync { font-family: 'Syncopate', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+
+        .crt-overlay { 
+            position: fixed; 
+            inset: 0; 
+            background: repeating-linear-gradient(rgba(0, 0, 0, 0.08) 0px, rgba(0, 0, 0, 0.08) 1px, transparent 1px, transparent 2px); 
+            pointer-events: none; 
+            z-index: 100; 
+            opacity: 0.3; 
+        }
+
+        @keyframes scanline { 
+            0% { transform: translateY(-100%); } 
+            100% { transform: translateY(100%); } 
+        }
+        .scanline { 
+            position: absolute; 
+            width: 100%; 
+            height: 120px; 
+            background: linear-gradient(0deg, transparent 0%, rgba(255, 255, 255, 0.02) 50%, transparent 100%); 
+            animation: scanline 12s linear infinite; 
+            pointer-events: none; 
+        }
+
+        .hardware-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 20px 40px rgba(0,0,0,0.9);
+            position: relative;
+        }
+
+        .recessed-display {
+            background: #000;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.95), 0 1px 0 rgba(255,255,255,0.05);
+            border: 1px solid #333344;
+        }
+
+        .label-marker { 
+            background: #000; 
+            color: #fff; 
+            padding: 2px 10px; 
+            text-transform: uppercase; 
+            font-weight: 800; 
+            font-size: 0.6rem; 
+            letter-spacing: 0.2em; 
+            border: 1px solid #666; 
+        }
+
+        .oscilloscope-bg { 
+            background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px); 
+            background-size: 10px 10px; 
+        }
+        
+        @keyframes wave-flow { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-wave-flow { animation: wave-flow var(--wave-speed, 3s) linear infinite; }
+        
+        .synth-btn {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .synth-btn:active { transform: translateY(1px); filter: brightness(0.9); }
+
+        .screw {
+            width: 5px;
+            height: 5px;
+            background: #444455;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 1px #000, 0 1px 0 rgba(255,255,255,0.1);
+            position: absolute;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        ::-webkit-scrollbar { width: 0px; } 
+    </style>
+</head>
+<body class="selection:bg-orange-500/40">
+    <div class="crt-overlay"></div>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, arrayUnion, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvNRmvm7wfw9SSV3wx7z40po1VkBA4cg0",
+            authDomain: "signaltonoise-93a46.firebaseapp.com",
+            projectId: "signaltonoise-93a46",
+            storageBucket: "signaltonoise-93a46.firebasestorage.app",
+            messagingSenderId: "282514177653",
+            appId: "1:282514177653:web:6b7bcf7e69864876ac423c"
+        };
+
+        const appId = 'signal-to-noise-production';
+        const PROXY_URL = "https://signaltonoise.shadowself.workers.dev/"; 
+        const HINT_LIMIT = 2;
+        const SIGNAL_TIMEOUT = 15000; 
+        const FIRMWARE_VERSION = "v4.3.1_PRO";
+
+        const fbApp = initializeApp(firebaseConfig);
+        const fbAuth = getAuth(fbApp);
+        const fbDb = getFirestore(fbApp);
+
+        function normalizeWord(w) { return w ? w.toLowerCase().trim() : ""; }
+
+        const getSignalColor = (rank) => {
+            const r = Math.floor(rank);
+            if (r === 1) return { text: 'text-emerald-400', bg: 'bg-emerald-500', hex: '#10b981', label: 'LOCKED' };
+            if (r <= 2000) return { text: 'text-emerald-400', bg: 'bg-emerald-500', hex: '#10b981', label: 'RESONANT' };
+            if (r <= 10000) return { text: 'text-yellow-400', bg: 'bg-yellow-500', hex: '#fbce07', label: 'DISTANT' };
+            if (r <= 25000) return { text: 'text-orange-400', bg: 'bg-orange-600', hex: '#f97316', label: 'FRINGE' };
+            return { text: 'text-red-500', bg: 'bg-red-800', hex: '#ef4444', label: 'STATIC' };
+        };
+
+        const Icon = ({ name, className }) => {
+            React.useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
+            return <i data-lucide={name} className={className}></i>;
+        };
+
+        const ContinuousWave = ({ rank = 50000 }) => {
+            const r = Math.floor(rank);
+            const proximity = Math.max(5, Math.min(100, (50000 - r) / 500));
+            const speed = (4 - (proximity / 100) * 3.6).toFixed(2);
+            const color = getSignalColor(r);
+            const pathData = "M0 20 C 20 0, 30 0, 50 20 C 70 40, 80 40, 100 20";
+
+            return (
+                <div className="h-14 w-full flex items-center justify-center overflow-hidden recessed-display rounded relative oscilloscope-bg">
+                    <div className="w-[200%] h-full flex items-center animate-wave-flow opacity-90" style={{ '--wave-speed': `${speed}s` }}>
+                        <svg viewBox="0 0 100 40" className="w-1/2 h-full flex-shrink-0" preserveAspectRatio="none">
+                            <path d={pathData} fill="none" stroke={color.hex} strokeWidth="2.5" />
+                        </svg>
+                        <svg viewBox="0 0 100 40" className="w-1/2 h-full flex-shrink-0" preserveAspectRatio="none">
+                            <path d={pathData} fill="none" stroke={color.hex} strokeWidth="2.5" />
+                        </svg>
+                    </div>
+                </div>
+            );
+        };
+
+        const LockOnBar = ({ minRank = 50000 }) => {
+            const r = Math.floor(minRank);
+            const progress = Math.max(0, Math.min(100, (50000 - r) / 500));
+            const color = getSignalColor(r);
+            return (
+                <div className="w-full bg-black border border-white/20 p-1 rounded-sm">
+                    <div className="flex justify-between text-[7px] font-bold uppercase tracking-widest text-zinc-300 mb-0.5 px-1">
+                        <span>Static_Noise</span>
+                        <span className={r <= 10000 ? color.text : 'text-zinc-400'}>Target_Proximity</span>
+                    </div>
+                    <div className="h-2 bg-[#111] rounded-full overflow-hidden border border-white/5 shadow-inner">
+                        <div className={`h-full transition-all duration-1000 ease-out ${color.bg}`} style={{ width: `${progress}%`, boxShadow: `0 0 12px ${color.hex}` }}></div>
+                    </div>
+                </div>
+            );
+        };
+
+        function App() {
+            const { useState, useEffect, useRef, useMemo } = React;
+            const [user, setUser] = useState(null);
+            const [opName, setOpName] = useState('');
+            const [roomName, setRoomName] = useState('');
+            const [inGame, setInGame] = useState(false);
+            const [gameMode, setGameMode] = useState('solo'); 
+            const [gameState, setGameState] = useState(null);
+            const [guess, setGuess] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
+            const [revealWord, setRevealWord] = useState(false);
+            const [showResetConfirm, setShowResetConfirm] = useState(false);
+            const [showHelp, setShowHelp] = useState(false);
+            const [sessionLogs, setSessionLogs] = useState([]);
+            const inputRef = useRef(null);
+            const logContainerRef = useRef(null);
+
+            const addLog = (msg) => {
+                const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                setSessionLogs(prev => [`[${time}] ${msg}`, ...prev].slice(0, 50));
+            };
+
+            useEffect(() => {
+                signInAnonymously(fbAuth).then(() => addLog("CRYPTO_UP")).catch(e => setError("Auth Fail"));
+                return onAuthStateChanged(fbAuth, setUser);
+            }, []);
+
+            useEffect(() => {
+                if (!user || !inGame) return;
+                const path = gameMode === 'solo' 
+                    ? doc(fbDb, 'artifacts', appId, 'users', user.uid, 'solo_game', 'current')
+                    : doc(fbDb, 'artifacts', appId, 'public', 'data', 'rooms', roomName.toLowerCase().trim());
+                return onSnapshot(path, snap => snap.exists() && setGameState(snap.data()), e => addLog("SYNC_ERR"));
+            }, [user, inGame, roomName, gameMode]);
+
+            const sortedHistory = useMemo(() => [...(gameState?.history || [])].sort((a, b) => a.rank - b.rank), [gameState?.history]);
+            const lowestRank = useMemo(() => gameState?.history?.length ? Math.min(...gameState.history.map(h => h.rank)) : 50000, [gameState?.history]);
+            
+            const lastVibe = useMemo(() => {
+                if (!gameState?.history?.length) return null;
+                const history = gameState.history;
+                return history[history.length - 1].vibe;
+            }, [gameState?.history]);
+
+            const hintsRemaining = useMemo(() => {
+                if (!gameState?.history) return 0;
+                const totalGuesses = gameState.history.length;
+                const hintsUsed = gameState.history.filter(h => h.isHint).length;
+                const earned = Math.floor(totalGuesses / 50);
+                const wallet = earned - hintsUsed;
+                return Math.max(0, Math.min(2, wallet));
+            }, [gameState?.history]);
+            
+            const isHost = gameMode === 'solo' || (gameState?.players?.[0] === user?.uid);
+            const isMyTurn = gameMode === 'solo' || gameState?.mode === 'sync' || gameState?.turn === user?.uid;
+
+            const transmit = async (e, forced = null, hint = false) => {
+                if (e) e.preventDefault();
+                const raw = (forced || guess).toLowerCase().trim();
+                if (!raw || !gameState || loading || gameState.status !== 'playing') return;
+
+                if (raw === "reveal word" && isHost) { 
+                    const ref = gameMode === 'solo' ? doc(fbDb, 'artifacts', appId, 'users', user.uid, 'solo_game', 'current') : doc(fbDb, 'artifacts', appId, 'public', 'data', 'rooms', roomName.toLowerCase().trim());
+                    await updateDoc(ref, { status: 'finished' });
+                    setRevealWord(true); 
+                    setGuess(''); 
+                    addLog("ADMIN: REVEALING_SIGNAL");
+                    return; 
+                }
+
+                if (raw === "force host") {
+                    const ref = gameMode === 'solo' ? doc(fbDb, 'artifacts', appId, 'users', user.uid, 'solo_game', 'current') : doc(fbDb, 'artifacts', appId, 'public', 'data', 'rooms', roomName.toLowerCase().trim());
+                    try {
+                        const snap = await getDoc(ref);
+                        if (snap.exists()) {
+                            const currentPlayers = snap.data().players || [];
+                            const newPlayers = [user.uid, ...currentPlayers.filter(p => p !== user.uid)];
+                            await updateDoc(ref, { players: newPlayers });
+                            addLog("ADMIN: NODE_HIJACKED");
+                        }
+                    } catch(e) { addLog("ADMIN: BYPASS_FAILED"); }
+                    setGuess(''); return;
+                }
+
+                if (raw === "force hint") {
+                    if (hintsRemaining > 0) { setError("Wallet not empty"); setGuess(''); return; }
+                    addLog("ADMIN: FORCING_HINT...");
+                    await triggerHint(true);
+                    setGuess(''); return;
+                }
+
+                if (!isMyTurn && !hint) return; 
+                if (raw.includes(' ')) { setError("Single word only"); return; }
+                if (gameState.history?.some(h => normalizeWord(h.word) === raw)) { 
+                    if (hint) addLog("HINT_REJECTED: DUPE");
+                    else addLog("REJECTED: DUPE"); 
+                    setGuess(''); 
+                    return; 
+                }
+
+                setLoading(true); setError(null); 
+                addLog(`TX_SEND: ${raw.toUpperCase()}`);
+                addLog("GATEWAY: PINGING_PROXY...");
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), SIGNAL_TIMEOUT);
+
+                try {
+                    const isPerfect = raw === gameState.target.toLowerCase().trim();
+                    let res;
+                    if (isPerfect) {
+                        addLog("GATEWAY: PERFECT_MATCH_DETECTED");
+                        res = { rank: 1, vibe: "SIGNAL LOCKED", insult: "Statistical fluke detected. Signal locked." };
+                    } else {
+                        const response = await fetch(PROXY_URL, { 
+                            method: 'POST', 
+                            headers: { 'Content-Type': 'application/json' }, 
+                            body: JSON.stringify({ target: gameState.target, guess: raw, type: 'guess', history: (gameState.history || []).map(h => h.word) }), 
+                            signal: controller.signal 
+                        });
+                        addLog("GATEWAY: LLM_PARSE_INIT...");
+                        const d = await response.json();
+                        res = JSON.parse(d.candidates[0].content.parts[0].text);
+                        addLog(`GATEWAY: RANK_RETURNED [${res.rank}]`);
+                    }
+                    
+                    const ref = gameMode === 'solo' ? doc(fbDb, 'artifacts', appId, 'users', user.uid, 'solo_game', 'current') : doc(fbDb, 'artifacts', appId, 'public', 'data', 'rooms', roomName.toLowerCase().trim());
+                    const payload = {
+                        history: arrayUnion({ player: user.uid, op: opName || 'SOLO', word: raw, rank: Math.floor(res.rank) || 49991, vibe: res.vibe || "Static noise.", insult: res.insult || "Mediocrity logged.", isHint: hint, timestamp: Date.now() }),
+                        status: res.rank === 1 ? 'finished' : 'playing',
+                        lastActive: Date.now()
+                    };
+                    if (gameMode !== 'solo' && gameState.mode === 'signal') {
+                        const other = gameState.players.find(p => p !== user.uid);
+                        payload.turn = (res.rank === 1 || !other) ? user.uid : other;
+                    }
+                    await updateDoc(ref, payload);
+                    addLog("SYNC: NODE_WRITE_COMPLETE");
+                    setGuess('');
+                } catch(e) { 
+                    setError(e.name === 'AbortError' ? "AI TIMEOUT: RETRANSMIT" : "Signal Lost"); 
+                    addLog(`ERR: ${e.name === 'AbortError' ? 'TIME_OUT' : 'CARRIER_DROP'}`);
+                }
+                setLoading(false); clearTimeout(timeoutId);
+            };
+
+            const triggerHint = async (forced = false) => {
+                if (!forced && (loading || gameState.status === 'finished' || hintsRemaining <= 0)) return;
+                setLoading(true); 
+                addLog("GATEWAY: REQ_HINT_PAYLOAD");
+                try {
+                    const res = await fetch(PROXY_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ target: gameState.target, type: 'hint', history: (gameState.history || []).map(h => h.word) }) 
+                    }).then(r => r.json());
+                    const hintData = JSON.parse(res.candidates[0].content.parts[0].text);
+                    
+                    const normalizedHint = normalizeWord(hintData.word);
+                    const alreadyPresent = (gameState.history || []).some(h => normalizeWord(h.word) === normalizedHint);
+
+                    if (hintData.word && !alreadyPresent) {
+                        addLog("GATEWAY: HINT_VECTOR_LOCKED");
+                        await transmit(null, hintData.word, true);
+                    } else if (alreadyPresent) {
+                        addLog("HINT_GATE: DUPE_REJECTED");
+                    }
+                } catch(e) { addLog("ERR: HINT_ACQUISITION_LOST"); }
+                setLoading(false);
+            };
+
+            const triggerReset = async () => {
+                setLoading(true); 
+                setShowResetConfirm(false);
+                setRevealWord(false);
+                addLog("NODE: FLUSHING_BUFFER...");
+                try {
+                    addLog("GATEWAY: REQUESTING_NEW_SIGNAL");
+                    const res = await fetch(PROXY_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'get_word' }) 
+                    }).then(r => r.json());
+                    const ref = gameMode === 'solo' ? doc(fbDb, 'artifacts', appId, 'users', user.uid, 'solo_game', 'current') : doc(fbDb, 'artifacts', appId, 'public', 'data', 'rooms', roomName.toLowerCase().trim());
+                    await updateDoc(ref, { target: res.word, status: 'playing', history: [], signalId: res.index + 101, turn: user.uid, lastGuess: deleteField() });
+                    addLog("SYNC: FREQUENCY_CYCLED_OK");
+                } catch(e) { addLog("ERR: RECOVERY_FAIL"); }
+                setLoading(false);
+            };
+
+            const kickPlayer = async (pid) => {
+                if (!isHost || pid === user.uid) return;
+                const ref = doc(fbDb, 'artifacts', appId, 'public', 'data', 'rooms', roomName.toLowerCase().trim());
+                try { await updateDoc(ref, { players: arrayRemove(pid), [`operators.${pid}`]: deleteField() }); addLog("ADMIN: NODE_EXPELLED"); } catch(e) { addLog("KICK_FAIL"); }
+            };
+
+            const HelpManual = () => (
+                <div className="fixed inset-0 z-[300] flex items-start justify-center pt-10 md:pt-20 bg-black/98 backdrop-blur-md p-4 overflow-y-auto font-inter">
+                    <div className="max-w-2xl w-full hardware-panel p-6 md:p-10 rounded-lg shadow-2xl border-zinc-500 mb-20">
+                        <div className="screw top-3 left-3"></div><div className="screw top-3 right-3"></div><div className="screw bottom-3 left-3"></div><div className="screw bottom-3 right-3"></div>
+                        <button onClick={() => setShowHelp(false)} className="absolute top-4 right-4 text-zinc-300 hover:text-white transition-colors"><Icon name="x" className="w-6 h-6" /></button>
+                        
+                        <div className="inline-block label-marker mb-6">Briefing_Module</div>
+                        <h2 className="text-2xl font-sync text-orange-500 mb-8 uppercase tracking-tighter leading-tight">Mission: Signal Triangulation</h2>
+                        
+                        <div className="space-y-8 text-sm text-zinc-100 leading-relaxed font-inter">
+                            <section>
+                                <h3 className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em] border-b border-zinc-700 pb-1.5 mb-3">01. The Objective</h3>
+                                <p>A central signal (secret word) is being broadcast. Your mission is to identify it. Every word you transmit returns a <b>Rank</b> and a <b>Vibe</b>.</p>
+                                <ul className="mt-3 space-y-2 list-none text-zinc-400">
+                                    <li className="flex gap-2"><span className="text-emerald-400 font-bold">Rank:</span> The lower the number, the closer the conceptual meaning. 1 is the target.</li>
+                                    <li className="flex gap-2"><span className="text-blue-400 font-bold">Vibe:</span> A descriptive analysis of how the target "feels" compared to your guess.</li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h3 className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em] border-b border-zinc-700 pb-1.5 mb-3">02. Logic Hierarchy (Target: CAT)</h3>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-4 p-2 bg-black border border-white/20 rounded">
+                                        <span className="text-emerald-400 font-bold w-12 text-center text-xs">1</span>
+                                        <div><p className="font-bold">CAT</p><p className="text-[10px] text-zinc-500 uppercase">Target locked. Terminate intercept.</p></div>
+                                    </div>
+                                    <div className="flex items-center gap-4 p-2 bg-black border border-white/20 rounded">
+                                        <span className="text-emerald-500 font-bold w-12 text-center text-xs">85</span>
+                                        <div><p className="font-bold">KITTEN</p><p className="text-[10px] text-zinc-500 uppercase">Resonant trace. Conceptually identical.</p></div>
+                                    </div>
+                                    <div className="flex items-center gap-4 p-2 bg-black border border-white/20 rounded">
+                                        <span className="text-green-500 font-bold w-12 text-center text-xs">1,400</span>
+                                        <div><p className="font-bold">WHISKERS</p><p className="text-[10px] text-zinc-500 uppercase">High resonance. Physical attribute detected.</p></div>
+                                    </div>
+                                    <div className="flex items-center gap-4 p-2 bg-black border border-white/20 rounded">
+                                        <span className="text-yellow-500 font-bold w-12 text-center text-xs">8,500</span>
+                                        <div><p className="font-bold">MILK</p><p className="text-[10px] text-zinc-500 uppercase">Distant trace. Broad semantic relationship.</p></div>
+                                    </div>
+                                    <div className="flex items-center gap-4 p-2 bg-black border border-white/20 rounded opacity-60">
+                                        <span className="text-red-700 font-bold w-12 text-center text-xs">45k</span>
+                                        <div><p className="font-bold">WRENCH</p><p className="text-[10px] text-zinc-500 uppercase">Total static. Concept mismatch.</p></div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h3 className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em] border-b border-zinc-700 pb-1.5 mb-3">03. Hint Acquisition</h3>
+                                <p>Operators initialize with <b>0 hints</b>. The machine generates 1 hint credit for every <b>50 transmissions</b> logged. Your signal wallet caps at <b>2 credits</b>.</p>
+                            </section>
+                        </div>
+                        <button onClick={() => setShowHelp(false)} className="mt-10 w-full py-4 synth-btn bg-zinc-100 text-black font-black uppercase text-[11px] tracking-[0.3em] hover:bg-white rounded-md shadow-xl transition-all">Begin Transmission</button>
+                    </div>
+                </div>
+            );
+
+            if (!inGame) return (
+                <div className="min-h-screen bg-[#000] flex items-center justify-center p-6 md:p-12 relative animate-power-on">
+                    <div className="scanline"></div>
+                    <button onClick={() => setShowHelp(true)} className="absolute top-10 right-10 flex items-center gap-3 text-zinc-400 hover:text-orange-500 transition-all active-press group">
+                        <span className="text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Manual</span>
+                        <Icon name="help-circle" className="w-10 h-10" />
+                    </button>
+                    {showHelp && <HelpManual />}
+                    <div className="max-w-md w-full hardware-panel p-10 md:p-12 rounded-xl border-zinc-600">
+                        <div className="screw top-4 left-4"></div><div className="screw top-4 right-4"></div><div className="screw bottom-4 left-4"></div><div className="screw bottom-4 right-4"></div>
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-orange-600 rounded-t-xl shadow-[0_2px_10px_rgba(234,88,12,0.4)]"></div>
+                        <div className="mb-14 text-center">
+                            <h1 className="text-3xl font-sync tracking-tighter text-orange-500 uppercase leading-none">Signal To Noise</h1>
+                            <p className="text-[10px] font-black text-zinc-300 uppercase mt-4 tracking-[0.3em] opacity-80 font-inter italic">by shadowself</p>
+                            <p className="text-[9px] font-black text-zinc-500 uppercase mt-2 tracking-[0.5em] opacity-40 font-inter">Firmware {FIRMWARE_VERSION}</p>
+                        </div>
+                        <div className="space-y-12">
+                            <div>
+                                <div className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.4em] mb-4 text-center opacity-70">Single Player</div>
+                                <button onClick={async () => {
+                                    setLoading(true);
+                                    const res = await fetch(PROXY_URL, { method: 'POST', body: JSON.stringify({ type: 'get_word' }) }).then(r => r.json());
+                                    await setDoc(doc(fbDb, 'artifacts', appId, 'users', user.uid, 'solo_game', 'current'), { target: res.word, history: [], status: 'playing', signalId: res.index + 101, mode: 'solo', lastActive: Date.now() });
+                                    setGameMode('solo'); setInGame(true); setLoading(false);
+                                }} className="w-full p-8 synth-btn bg-[#23232a] border-2 border-white/20 hover:border-orange-500 hover:bg-[#2a2a35] rounded-lg text-left group shadow-2xl transition-all">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <span className="block text-[8px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-2 group-hover:text-orange-400">Initialize_RX</span>
+                                            <span className="block text-2xl font-bold text-white italic tracking-tight">Local Operator</span>
+                                        </div>
+                                        <Icon name="chevron-right" className="w-6 h-6 text-zinc-600 group-hover:text-orange-500 transition-colors" />
+                                    </div>
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-4 pt-8 border-t border-zinc-700/50">
+                                <div className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.4em] mb-4 text-center opacity-70">Multiplayer</div>
+                                <div className="grid grid-cols-2 gap-3 mb-6">
+                                    <button onClick={() => setGameMode('signal')} className={`py-4 synth-btn border text-[11px] font-black uppercase rounded transition-all ${gameMode === 'signal' ? 'bg-yellow-500 text-black border-white shadow-[0_0_15px_rgba(251,206,7,0.3)]' : 'bg-transparent border-zinc-600 text-zinc-400 hover:border-zinc-400'}`}>Versus</button>
+                                    <button onClick={() => setGameMode('sync')} className={`py-4 synth-btn border text-[11px] font-black uppercase rounded transition-all ${gameMode === 'sync' ? 'bg-blue-600 text-white border-white shadow-[0_0_15px_rgba(37,99,235,0.3)]' : 'bg-transparent border-zinc-600 text-zinc-400 hover:border-zinc-400'}`}>Collab</button>
+                                </div>
+                                <form onSubmit={async (e) => {
+                                    e.preventDefault(); if (!roomName || !opName) return; setLoading(true);
+                                    const ref = doc(fbDb, 'artifacts', appId, 'public', 'data', 'rooms', roomName.toLowerCase().trim());
+                                    const snap = await getDoc(ref);
+                                    if (!snap.exists()) await setDoc(ref, { status: 'waiting', players: [user.uid], operators: { [user.uid]: opName }, presence: { [user.uid]: Date.now() }, mode: gameMode, lastActive: Date.now(), history: [] });
+                                    else {
+                                        await updateDoc(ref, { [`operators.${user.uid}`]: opName, [`presence.${user.uid}`]: Date.now(), players: arrayUnion(user.uid) });
+                                        setGameMode(snap.data().mode || 'signal');
+                                    }
+                                    setInGame(true); setLoading(false);
+                                }} className="space-y-3">
+                                    <input required className="w-full bg-black border border-zinc-600 p-4 font-bold uppercase text-white placeholder:text-zinc-700 rounded outline-none focus:border-zinc-400 transition-all font-inter" placeholder="Operator_ID" value={opName} onChange={e => setOpName(e.target.value)} />
+                                    <input required className="w-full bg-black border border-zinc-600 p-4 font-bold uppercase text-white placeholder:text-zinc-700 rounded outline-none focus:border-zinc-400 transition-all font-inter" placeholder="Room #" value={roomName} onChange={e => setRoomName(e.target.value)} />
+                                    <button className="w-full bg-zinc-100 text-black py-5 font-black uppercase tracking-[0.3em] rounded synth-btn shadow-xl hover:bg-white transition-all">Connect_Station</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            if (gameMode !== 'solo' && gameState?.status === 'waiting') return (
+                <div className="min-h-screen bg-black flex items-center justify-center p-6">
+                    <div className="scanline"></div>
+                    <div className="max-w-md w-full hardware-panel p-10 rounded-xl space-y-10 border-zinc-500">
+                        <div className="inline-block label-marker">Status_Sync_Pending</div>
+                        <div className="space-y-3">
+                            {(gameState.players || []).map(pid => (
+                                <div key={pid} className="p-5 bg-black border border-white/20 rounded flex items-center justify-between">
+                                    <span className="text-sm font-black uppercase text-zinc-100 tracking-widest">{gameState.operators?.[pid] || 'OP_NODE'}</span>
+                                    {gameState.players[0] === pid && <span className="text-[10px] font-black bg-orange-600 text-white px-3 py-1 rounded-sm shadow-sm">HOST</span>}
+                                </div>
+                            ))}
+                        </div>
+                        {isHost ? (
+                            <button onClick={async () => {
+                                setLoading(true);
+                                const res = await fetch(PROXY_URL, { 
+                                    method: 'POST', 
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ type: 'get_word' }) 
+                                }).then(r => r.json());
+                                const ref = doc(fbDb, 'artifacts', appId, 'public', 'data', 'rooms', roomName.toLowerCase().trim());
+                                await updateDoc(ref, { target: res.word, status: 'playing', history: [], signalId: res.index + 101, turn: gameState.players[0] });
+                                setLoading(false);
+                            }} className="w-full bg-orange-600 text-white py-6 font-black uppercase tracking-[0.4em] rounded synth-btn shadow-2xl hover:bg-orange-500 transition-all">Initialize_Broadcast</button>
+                        ) : (
+                            <div className="p-6 recessed-display rounded text-center animate-pulse text-[11px] text-zinc-300 tracking-widest uppercase">Awaiting Remote Signal Initialization...</div>
+                        )}
+                    </div>
+                </div>
+            );
+
+            if (!gameState) return <div className="min-h-screen bg-black flex items-center justify-center text-orange-500 animate-pulse font-sync uppercase">Synchronizing...</div>;
+
+            return (
+                <div className="min-h-screen bg-black p-4 md:p-6 lg:p-10 main-container animate-power-on relative h-auto">
+                    <div className="crt-overlay"></div>
+                    <div className="scanline"></div>
+                    {showHelp && <HelpManual />}
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+                        <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-4 lg:self-start">
+                            <div className="hardware-panel p-4 rounded-lg border-zinc-600">
+                                <div className="screw top-1.5 left-1.5"></div><div className="screw top-1.5 right-1.5"></div><div className="screw bottom-1.5 left-1.5"></div><div className="screw bottom-1.5 right-1.5"></div>
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="label-marker">Monitor_Unit</div>
+                                    <div className="flex gap-3">
+                                        <button onClick={() => setShowHelp(true)} className="text-zinc-300 hover:text-white transition-all"><Icon name="help-circle" className="w-4 h-4" /></button>
+                                        <button onClick={() => setInGame(false)} className="text-[7px] font-black text-zinc-300 hover:text-red-500 uppercase tracking-widest transition-colors">Off</button>
+                                    </div>
+                                </div>
+                                
+                                <ContinuousWave rank={lowestRank} />
+                                
+                                <div className="mt-3 flex items-end justify-between border-b border-zinc-700 pb-2">
+                                    <div>
+                                        <div className="text-[6px] font-black text-zinc-300 uppercase mb-0.5 tracking-widest">Packet_Count</div>
+                                        <div className="text-3xl font-black text-orange-500 tracking-tighter leading-none">{(gameState.history?.length || 0).toString().padStart(3, '0')}</div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[6px] font-black text-zinc-300 uppercase mb-0.5 tracking-widest">Frequency</div>
+                                        <div className="text-lg font-bold text-zinc-300 italic leading-none">RX-{gameState.signalId}</div>
+                                    </div>
+                                </div>
+
+                                {lastVibe && (
+                                    <div className="mt-3 p-2 bg-black rounded border-l-2 border-l-orange-600 shadow-inner">
+                                        <span className="text-[6px] font-black text-zinc-400 uppercase block mb-0.5 tracking-[0.1em]">SPECTRAL_RESONANCE</span>
+                                        <span className="text-[10px] font-inter font-medium text-white leading-tight italic">"{lastVibe}"</span>
+                                    </div>
+                                )}
+
+                                {gameMode !== 'solo' && (
+                                    <div className="mt-3 space-y-1 pt-2 border-t border-zinc-800">
+                                        <div className="flex justify-between items-center px-1 mb-0.5">
+                                            <div className="text-[7px] font-black text-zinc-300 uppercase tracking-widest">Operators</div>
+                                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_#2563eb]"></div>
+                                        </div>
+                                        {(gameState.players || []).map(pid => (
+                                            <div key={pid} className={`flex items-center justify-between p-1.5 rounded border transition-all ${gameState?.turn === pid ? 'border-orange-500 bg-orange-500/10' : 'border-zinc-800 bg-black/40 opacity-70'}`}>
+                                                <div className="flex items-center gap-2 overflow-hidden">
+                                                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${gameState?.turn === pid ? 'bg-orange-500 shadow-[0_0_5px_#f97316]' : 'bg-zinc-700'}`}></div>
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-white truncate">{gameState?.operators?.[pid] || 'RX_NODE'}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    {isHost && pid !== user.uid && (
+                                                        <button onClick={() => kickPlayer(pid)} className="text-[6px] font-black text-zinc-300 hover:text-red-500 uppercase tracking-tighter border border-zinc-700 px-1.5 rounded transition-colors bg-black/40">Kick</button>
+                                                    )}
+                                                    {gameState.players[0] === pid && <span className="text-[6px] font-black text-zinc-400 uppercase">Host</span>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="mt-4 grid grid-cols-1 gap-2">
+                                    <button onClick={() => triggerHint()} disabled={loading || gameState.status === 'finished' || hintsRemaining <= 0} className="w-full bg-blue-700 text-white py-2.5 text-[8px] font-black uppercase rounded synth-btn tracking-[0.2em] shadow-lg disabled:opacity-20 hover:bg-blue-600 transition-all">Request_Hint ({hintsRemaining})</button>
+                                    {isHost && <button onClick={() => setShowResetConfirm(true)} className="w-full bg-black border border-zinc-700 text-zinc-200 py-2 text-[8px] font-black uppercase rounded synth-btn hover:text-white tracking-widest transition-all">Cycle_Frequency</button>}
+                                </div>
+                            </div>
+                            
+                            <div className="hardware-panel p-3 rounded-lg border-zinc-700 bg-[#121217]">
+                                <div className="flex justify-between items-center mb-1 border-b border-zinc-800 pb-0.5"><div className="text-[7px] text-zinc-300 font-black uppercase tracking-widest">System_Verbose</div><div className="text-[7px] text-zinc-500">TTY_01</div></div>
+                                <div ref={logContainerRef} className="max-h-24 overflow-y-auto space-y-0.5 text-[8px] font-inter">
+                                    {(sessionLogs || []).map((log, i) => (
+                                        <div key={i} className={`flex gap-1.5 ${log.includes('REJECTED') ? 'text-red-400 font-bold' : (log.includes('GATEWAY') || log.includes('SYNC')) ? 'text-blue-400' : 'text-zinc-200'}`}><span className="opacity-40 text-zinc-500">>></span>{log}</div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-8 space-y-6">
+                            <div className="hardware-panel p-5 md:p-6 rounded-lg border-zinc-600">
+                                <LockOnBar minRank={lowestRank} />
+                                <div className="mt-4 md:mt-6">
+                                    <form onSubmit={transmit} className="recessed-display p-1 rounded-md border-zinc-800 relative group focus-within:border-orange-500/40">
+                                        <input ref={inputRef} disabled={gameState.status === 'finished'} value={guess} onChange={e => {setGuess(e.target.value); if (error) setError(null);}} placeholder={isMyTurn ? "TRANSMIT_PACKET..." : "WAITING_FOR_SYNC..."} className="w-full bg-transparent border-0 p-3 md:p-4 outline-none text-lg md:text-xl font-black text-white uppercase placeholder:text-zinc-900 tracking-tighter" />
+                                        {loading && <div className="absolute right-6 top-1/2 -translate-y-1/2"><div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shadow-[0_0_100px_#2563eb]"></div></div>}
+                                    </form>
+                                    {error && <div className="mt-2 px-2 border-l-2 border-red-500 text-[9px] font-black text-red-500 uppercase tracking-[0.2em] animate-pulse font-inter">!! {error} !!</div>}
+                                </div>
+                                {gameState.status === 'finished' && (
+                                    <div className="mt-6 bg-emerald-500 p-6 md:p-8 text-black space-y-6 rounded-lg shadow-[0_0_60px_rgba(16,185,129,0.3)] animate-in zoom-in duration-500 text-center border-2 border-emerald-300">
+                                        <div className="label-marker !bg-black !text-white !border-none !mx-auto shadow-lg">Signal_Locked_Success</div>
+                                        <div className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-tight drop-shadow-md">{gameState.target}</div>
+                                        <button onClick={triggerReset} className="w-full py-5 bg-black text-emerald-400 font-black uppercase text-sm tracking-[0.3em] rounded synth-btn shadow-2xl hover:bg-zinc-900 transition-all border border-emerald-500/30">Initialize New Signal</button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {(revealWord && gameState.status === 'playing') && (
+                                <div className="p-6 md:p-8 hardware-panel border-dashed border-zinc-500 bg-black/40 text-center uppercase font-black text-2xl md:text-3xl tracking-widest text-white animate-pulse rounded-lg shadow-inner">
+                                    Target Signal: {gameState.target}
+                                </div>
+                            )}
+
+                            <div className="space-y-1.5 pb-24">
+                                {sortedHistory.map(h => {
+                                    const theme = getSignalColor(h.rank);
+                                    const r = Math.floor(h.rank);
+                                    const progress = Math.max(2, (50000 - r) / 500);
+                                    return (
+                                        <div key={h.timestamp} className="hardware-panel p-2 md:p-3 rounded border-zinc-700 flex justify-between items-center text-zinc-100 overflow-hidden group hover:border-zinc-500 transition-all bg-[#1a1a23]">
+                                            <div className={`absolute inset-y-0 left-0 ${theme.bg} opacity-[0.15] transition-all`} style={{ width: `${progress}%` }}></div>
+                                            <div className="relative flex flex-1 items-center gap-4 md:gap-6 overflow-hidden z-10">
+                                                <div className="flex items-center gap-3 shrink-0">
+                                                    <span className="font-black uppercase text-[12px] md:text-[16px] tracking-tighter whitespace-nowrap text-white drop-shadow-sm">{h.word}</span>
+                                                    {h.isHint && <span className="bg-yellow-500/30 text-yellow-300 text-[6px] px-1.5 py-0.5 border border-yellow-500/40 font-black rounded-sm tracking-widest shrink-0">HINT</span>}
+                                                </div>
+                                                <div className="text-[10px] md:text-[11px] font-inter font-medium tracking-tight truncate leading-tight flex-1 opacity-100">
+                                                    <span className="text-zinc-400 font-mono font-bold mr-2 uppercase text-[8px] tracking-tighter">OP_{h.op}:</span> 
+                                                    <span className="text-amber-100 italic bg-black/60 px-2 py-0.5 rounded border border-white/10 shadow-sm shadow-black/50">"{h.insult}"</span>
+                                                </div>
+                                            </div>
+                                            <div className={`relative text-right z-10 font-mono font-black text-sm md:text-base ${theme.text} whitespace-nowrap ml-4 shrink-0 drop-shadow-md`}>#{r.toLocaleString()}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* MODALS */}
+                    {showResetConfirm && (
+                        <div className="fixed inset-0 z-[400] flex items-start justify-center pt-32 bg-black/95 backdrop-blur-md">
+                            <div className="max-w-xs w-full hardware-panel p-10 text-center rounded-xl border-orange-600 shadow-[0_0_100px_rgba(249,115,22,0.2)] bg-[#1a1a20]">
+                                <Icon name="alert-triangle" className="w-14 h-14 text-orange-600 mx-auto mb-8 animate-bounce" />
+                                <h2 className="text-xl font-sync text-white mb-6 uppercase tracking-tight leading-tight">Purge Buffer?</h2>
+                                <p className="text-[11px] font-inter text-zinc-300 mb-10 uppercase font-black tracking-wide">This will wipe the current session ledger and acquire a new signal.</p>
+                                <div className="space-y-3">
+                                    <button onClick={triggerReset} className="w-full bg-orange-600 text-white py-5 font-black uppercase text-[12px] rounded synth-btn shadow-lg hover:bg-orange-500 transition-all border border-orange-400/30">Confirm_Purge</button>
+                                    <button onClick={() => setShowResetConfirm(false)} className="w-full border border-zinc-600 text-zinc-300 py-4 font-black uppercase text-[11px] rounded synth-btn hover:text-white transition-all bg-black/40">Abort</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+<!-- WiredMinds eMetrics tracking with Enterprise Edition V5.4 START -->
+<script type='text/javascript' src='https://count.carrierzone.com/app/count_server/count.js'></script>
+<script type='text/javascript'><!--
+wm_custnum='dafc80c8c6d1740c';
+wm_page_name='admin-ajax.php';
+wm_group_name='/services/webpages/s/h/shadowself.ca/public/wp-admin';
+wm_campaign_key='campaign_id';
+wm_track_alt='';
+wiredminds.count();
+// -->
+</script>
+<!-- WiredMinds eMetrics tracking with Enterprise Edition V5.4 END -->
+</body>
+</html>
