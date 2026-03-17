@@ -332,8 +332,7 @@ img {
   grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) minmax(180px, 240px);
   gap: 18px;
   align-items: start;
-  padding: 8px 0 20px;
-  border-bottom: 1px solid var(--line);
+  padding: 8px 0 8px;
 }
 
 .home-mark {
@@ -387,7 +386,7 @@ img {
 }
 
 .page-main {
-  padding-top: 22px;
+  padding-top: 8px;
 }
 
 .section-block {
@@ -838,7 +837,7 @@ img {
 }
 
 .page-home .logo-lockup {
-  width: min(100%, 1120px, 74vw, 64vh);
+  width: min(100%, 1700px, 98vw, 90vh);
 }
 
 .page-home .home-nav-row {
@@ -851,7 +850,7 @@ img {
 
 .page-home .home-nav-control,
 .page-home .home-nav-link {
-  width: min(100%, 300px, 19vw, 18vh);
+  width: min(100%, 620px, 40vw, 40vh);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -910,34 +909,34 @@ img {
 
 @media (max-height: 900px) {
   .page-home .logo-lockup {
-    width: min(100%, 1000px, 68vw, 56vh);
+    width: min(100%, 1500px, 94vw, 80vh);
   }
 
   .page-home .home-nav-control,
   .page-home .home-nav-link {
-    width: min(100%, 270px, 18vw, 18vh);
+    width: min(100%, 520px, 35vw, 34vh);
   }
 }
 
 @media (max-height: 760px) {
   .page-home .logo-lockup {
-    width: min(100%, 860px, 64vw, 46vh);
+    width: min(100%, 1280px, 88vw, 68vh);
   }
 
   .page-home .home-nav-control,
   .page-home .home-nav-link {
-    width: min(100%, 220px, 17vw, 15vh);
+    width: min(100%, 420px, 31vw, 28vh);
   }
 }
 
 @media (max-height: 620px) {
   .page-home .logo-lockup {
-    width: min(100%, 700px, 58vw, 34vh);
+    width: min(100%, 980px, 78vw, 54vh);
   }
 
   .page-home .home-nav-control,
   .page-home .home-nav-link {
-    width: min(100%, 180px, 15vw, 12vh);
+    width: min(100%, 320px, 25vw, 22vh);
   }
 }
 
@@ -1012,7 +1011,7 @@ img {
 }
 
 .page-home .home-nav-link-section {
-  width: min(100%, 320px, 22vw, 20vh);
+  width: min(100%, 760px, 48vw, 48vh);
 }
 
 .page-home .home-nav-art-section {
@@ -1086,31 +1085,31 @@ img {
 .page-hero-logo-wrap {
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 4px 0 24px;
+  align-items: flex-start;
+  padding: 0 0 18px;
 }
 
 .page-hero-logo {
-  width: min(100%, 760px);
-  aspect-ratio: 3 / 2;
+  width: min(100%, 920px);
+  aspect-ratio: 8 / 3;
   display: block;
-  background-position: center;
+  background-position: center top;
   background-repeat: no-repeat;
   background-size: contain;
   filter: drop-shadow(0 10px 18px rgba(47, 6, 13, 0.16));
 }
 
 .media-heading-logo {
-  background-image: url("../assets/logos/media logo.png");
+  background-image: url("../assets/logos/media-logo-hero-web.png");
 }
 
 .games-heading-logo {
-  background-image: url("../assets/logos/games and software logo.png");
+  background-image: url("../assets/logos/games-software-logo-hero-web.png");
 }
 
 .updates-heading-logo {
-  width: min(100%, 520px);
-  background-image: url("../assets/logos/updates-logo.png");
+  width: min(100%, 560px);
+  background-image: url("../assets/logos/updates-logo-hero-web.png");
 }
 
 
