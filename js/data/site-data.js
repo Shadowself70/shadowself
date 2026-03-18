@@ -59,6 +59,21 @@ window.SHADOWSELF_DATA = {
       infoBody: [
         'Details to come.'
       ]
+    },
+    {
+      id: 'the-bright-side',
+      title: 'The Bright Side',
+      description: 'Fractions of Ascent',
+      coverDimensions: '360 x 360 embedded cover art',
+      coverArtSrc: 'assets/images/song icons/the bright side.jpg',
+      audioSrc: 'assets/audio/Fractions of Ascent - The Bright Side.mp3',
+      tags: ['AI-assisted', 'audio restoration'],
+      notes: '',
+      infoLabel: 'Info',
+      infoTitle: 'The Bright Side',
+      infoBody: [
+        'Details to come.'
+      ]
     }
   ],
 
@@ -172,6 +187,7 @@ window.SHADOWSELF_DATA = {
     }
   ]
 };
+
 
 
 
