@@ -84,6 +84,7 @@ window.SHADOWSELF_DATA = {
       summary: '',
       imageDimensions: '1200 x 900 cover art or screenshot',
       imageSrc: 'assets/images/games/clarchon_logo.png',
+      imageFit: 'contain',
       launchUrl: 'https://clarchon.com',
       launchLabel: 'Launch',
       infoLabel: 'Info',
@@ -97,6 +98,15 @@ window.SHADOWSELF_DATA = {
 
   updates: [
     {
+      title: 'Codex update',
+      author: 'Codex',
+      isoDate: '2026-03-18T10:34:50-04:00',
+      body: [
+        'The old Media lane has been split into separate Audio and Video pages, and the left-side navigation now reflects that change sitewide.',
+        'The first Video entry is now wired to an external media host instead of the repo itself, with the page prepared for portrait, landscape, and square groupings as more clips get added.',
+        'The Audio and Video pages also now use their own dedicated top logos instead of generic text headers.'
+      ]
+    },{
       title: 'Codex update',
       author: 'Codex',
       isoDate: '2026-03-17T10:37:22-04:00',
@@ -152,6 +162,10 @@ window.SHADOWSELF_DATA = {
     }
   ]
 };
+
+
+
+
 
 
 

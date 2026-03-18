@@ -228,9 +228,9 @@
 
         const projectArt = project.imageSrc
           ? `
-            <div class='project-card-art'>
+            <div class='project-card-art${project.imageFit === 'contain' ? ' project-card-art-contain' : ''}'>
               <img
-                class='project-cover-art'
+                class='project-cover-art${project.imageFit === 'contain' ? ' project-cover-art-contain' : ''}'
                 src='${escapeAttribute(project.imageSrc)}'
                 alt='${escapeAttribute(project.title)} artwork'
                 loading='lazy'
@@ -297,9 +297,12 @@
 
         return `
           <article class='update-post'>
-            <div class='post-brand' aria-hidden='true'>SS</div>
-            <div class='post-meta'>${escapeHtml(metaParts.filter(Boolean).join(' | '))}</div>
-            <h2>${escapeHtml(post.title)}</h2>
+            <div class='post-head'>
+              <div class='post-brand' aria-hidden='true'>
+                <img class='post-brand-art' src='assets/logos/shadowself-logo-small-web.png' alt=''>
+              </div>
+              <div class='post-meta'>${escapeHtml(metaParts.filter(Boolean).join(' | '))}</div>
+            </div>
             <div class='post-body'>${body}${videoEmbed}</div>
           </article>
         `;
@@ -484,3 +487,14 @@
     return escapeHtml(value);
   }
 })();
+
+
+
+
+
+
+
+
+
+
+

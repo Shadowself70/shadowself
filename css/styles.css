@@ -434,15 +434,27 @@ img {
   border-top: 0;
 }
 
+.post-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
 .post-brand {
   width: 54px;
-  height: 54px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line-bright);
-  background: linear-gradient(135deg, rgba(98, 18, 21, 0.18), rgba(255, 255, 255, 0.03));
-  font-family: var(--display-font);
-  font-size: 1.15rem;
+  flex: 0 0 54px;
+}
+
+.post-brand-art {
+  width: 54px;
+  height: auto;
+  display: block;
+}
+
+.post-meta {
+  color: #b96f73;
+  align-self: center;
 }
 
 .post-body {
@@ -1026,4 +1038,17 @@ img {
 
 .video-heading-logo {
   background-image: url("../assets/logos/video-logo.png");
+}
+
+
+
+
+
+.project-card-art-contain {
+  background: #000;
+}
+
+.project-cover-art-contain {
+  object-fit: contain;
+  background: #000;
 }
