@@ -831,55 +831,77 @@ img {
 @media (max-width: 1100px) {
   .site-shell.site-shell-framed,
   .page-home .site-shell.site-shell-framed {
-    width: auto;
+    width: calc(100% - 24px);
     max-width: none;
-    margin: 0;
+    margin: 0 auto;
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 16px;
     min-height: auto;
   }
 
   .site-rail {
     position: static;
     width: auto;
+    min-width: 0;
+    max-width: none;
     min-height: 0;
     grid-template-rows: none;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr;
+    justify-items: center;
     align-items: start;
-    gap: 16px;
+    gap: 12px;
     padding: 0 0 14px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
 
   .rail-brand {
-    width: 82px;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .rail-brand-art {
+    width: 80px;
   }
 
   .rail-nav {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    width: min(100%, 760px);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
     gap: 10px;
   }
 
   .rail-nav-control,
   .rail-nav-link {
-    width: 156px;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
     min-height: 42px;
   }
 
   .site-content {
     padding-top: 0;
+    padding-bottom: 18px;
   }
 
   .page-main-home {
     min-height: 0;
   }
 
+  .page-hero-logo-wrap {
+    padding-bottom: 14px;
+  }
+
+  .page-hero-logo {
+    width: min(100%, 480px);
+  }
+
   .home-stage {
     min-height: 0;
-    padding-top: 8px;
+    gap: 14px;
+    padding: 8px 0 16px;
   }
 
   .home-stage-logo {
@@ -888,27 +910,71 @@ img {
 
   .home-stage-lede {
     width: min(100%, 720px);
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .section-block {
+    gap: 14px;
+  }
+
+  .audio-list,
+  .project-grid,
+  .updates-feed,
+  .video-grid {
+    gap: 12px;
+  }
+
+  .audio-entry,
+  .project-card,
+  .video-card {
+    padding: 12px;
+  }
+
+  .audio-player-shell,
+  .audio-empty {
+    padding: 8px 10px;
+  }
+
+  .audio-entry h3,
+  .project-card h3,
+  .video-card h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .modal-panel {
+    width: min(100vw - 24px, 720px);
   }
 }
 
 @media (max-width: 760px) {
-  .site-rail {
-    grid-template-columns: 1fr;
-    gap: 10px;
+  .site-shell {
+    width: calc(100% - 16px);
+    padding-top: 10px;
   }
 
-  .rail-nav {
-    justify-content: flex-start;
+  .site-rail {
+    gap: 10px;
+    padding-bottom: 10px;
   }
 
   .rail-nav-control,
   .rail-nav-link {
-    width: 140px;
-    min-height: 36px;
+    min-height: 38px;
+    padding: 0 10px;
   }
 
   .rail-nav-label {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+  }
+
+  .page-hero-logo-wrap {
+    padding-bottom: 10px;
+  }
+
+  .page-hero-logo {
+    width: min(100%, 360px);
   }
 
   .home-stage-logo {
@@ -918,6 +984,89 @@ img {
   .home-stage-lede {
     width: min(100%, 640px);
     font-size: 0.9rem;
+  }
+
+  .audio-entry,
+  .project-card {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .video-card {
+    padding: 10px;
+  }
+
+  .audio-art-placeholder,
+  .project-card-art {
+    min-height: 120px;
+  }
+
+  .audio-meta-row,
+  .tag-list,
+  .status-list {
+    gap: 6px;
+  }
+
+  .audio-info-button,
+  .tag,
+  .status-pill {
+    min-height: 24px;
+    padding: 0 8px;
+    letter-spacing: 0.12em;
+  }
+
+  .post-head {
+    gap: 10px;
+  }
+
+  .post-brand {
+    width: 44px;
+    flex-basis: 44px;
+  }
+
+  .post-brand-art {
+    width: 44px;
+  }
+
+  .post-meta {
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+  }
+
+  .update-post {
+    gap: 10px;
+  }
+
+  .modal-panel {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .site-shell {
+    width: calc(100% - 12px);
+  }
+
+  .rail-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .rail-brand-art {
+    width: 72px;
+  }
+
+  .page-hero-logo {
+    width: min(100%, 300px);
+  }
+
+  .home-stage-logo {
+    width: min(100%, 96vw);
+  }
+
+  .home-stage-lede {
+    width: min(100%, 92vw);
+    font-size: 0.88rem;
   }
 }
 
@@ -1052,3 +1201,4 @@ img {
   object-fit: contain;
   background: #000;
 }
+

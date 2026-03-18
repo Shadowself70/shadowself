@@ -36,25 +36,8 @@
       return;
     }
 
-    const groups = [
-      {
-        entries: data.video?.portrait || [],
-        orientation: 'portrait',
-        gridClass: 'video-grid video-grid-portrait'
-      },
-      {
-        entries: data.video?.landscape || [],
-        orientation: 'landscape',
-        gridClass: 'video-grid video-grid-landscape'
-      },
-      {
-        entries: data.video?.square || [],
-        orientation: 'square',
-        gridClass: 'video-grid video-grid-square'
-      }
-    ].filter((group) => group.entries.length);
-
-    if (!groups.length) {
+    const entries = getVideoEntries();
+    if (!entries.length) {
       root.innerHTML = `
         <section class='empty-state'>
           <h2>No videos yet.</h2>
@@ -64,25 +47,77 @@
       return;
     }
 
-    root.innerHTML = groups
-      .map(
-        (group) => `
-          <section class='video-group video-group--${group.orientation}'>
-            <div class='${group.gridClass}'>
-              ${group.entries.map((video) => buildVideoCard(video, group.orientation)).join('')}
-            </div>
-          </section>
-        `
-      )
-      .join('');
+    root.innerHTML = `
+      <section class='video-group video-group--portrait' data-video-group='portrait' hidden>
+        <div class='video-grid video-grid-portrait'></div>
+      </section>
+      <section class='video-group video-group--landscape' data-video-group='landscape' hidden>
+        <div class='video-grid video-grid-landscape'></div>
+      </section>
+      <section class='video-group video-group--square' data-video-group='square' hidden>
+        <div class='video-grid video-grid-square'></div>
+      </section>
+    `;
+
+    entries.forEach((entry, index) => {
+      const hintedOrientation = normalizeVideoOrientation(
+        entry.orientationHint || deriveOrientationFromPlaceholder(entry.placeholderDimensions)
+      );
+      const card = buildVideoCardElement(entry, hintedOrientation, index);
+
+      placeVideoCard(root, card, hintedOrientation);
+
+      const video = card.querySelector('video');
+      if (!video || !entry.videoSrc) {
+        return;
+      }
+
+      const applyDetectedOrientation = () => {
+        const detectedOrientation = classifyVideoOrientation(video.videoWidth, video.videoHeight) || hintedOrientation;
+        syncVideoFrameOrientation(card, detectedOrientation);
+        placeVideoCard(root, card, detectedOrientation);
+      };
+
+      if (video.readyState >= 1 && video.videoWidth && video.videoHeight) {
+        applyDetectedOrientation();
+        return;
+      }
+
+      video.addEventListener('loadedmetadata', applyDetectedOrientation, { once: true });
+      video.addEventListener(
+        'error',
+        () => {
+          syncVideoFrameOrientation(card, hintedOrientation);
+          placeVideoCard(root, card, hintedOrientation);
+        },
+        { once: true }
+      );
+    });
   }
 
-  function buildVideoCard(video, orientation) {
-    const mediaFrame = video.videoSrc
+  function getVideoEntries() {
+    if (Array.isArray(data.video?.entries)) {
+      return data.video.entries;
+    }
+
+    return ['portrait', 'landscape', 'square'].flatMap((orientation) =>
+      (data.video?.[orientation] || []).map((entry) => ({
+        ...entry,
+        orientationHint: entry.orientationHint || orientation
+      }))
+    );
+  }
+
+  function buildVideoCardElement(entry, orientation, index) {
+    const card = document.createElement('article');
+    card.className = 'video-card';
+    card.dataset.entryIndex = String(index);
+
+    const mediaFrame = entry.videoSrc
       ? `
         <div class='video-frame video-frame--${orientation}'>
           <video controls preload='metadata' playsinline>
-            <source src='${escapeAttribute(video.videoSrc)}'>
+            <source src='${escapeAttribute(entry.videoSrc)}'>
             Your browser does not support the video tag.
           </video>
         </div>
@@ -90,24 +125,101 @@
       : `
         <div class='video-frame-placeholder video-frame--${orientation} placeholder-box'>
           <span class='placeholder-kicker'>Video Placeholder</span>
-          <strong>${escapeHtml(video.title)}</strong>
+          <strong>${escapeHtml(entry.title)}</strong>
           <span class='placeholder-meta'>Recommended asset: ${escapeHtml(
-            video.placeholderDimensions || getVideoPlaceholderDimensions(orientation)
+            entry.placeholderDimensions || getVideoPlaceholderDimensions(orientation)
           )}</span>
         </div>
       `;
 
-    return `
-      <article class='video-card'>
-        ${mediaFrame}
-        <div class='video-copy'>
-          <h3>${escapeHtml(video.title)}</h3>
-          ${video.description ? `<p>${escapeHtml(video.description)}</p>` : ''}
-          ${renderTags(video.tags)}
-          ${video.notes ? `<p>${escapeHtml(video.notes)}</p>` : ''}
-        </div>
-      </article>
+    card.innerHTML = `
+      ${mediaFrame}
+      <div class='video-copy'>
+        <h3>${escapeHtml(entry.title)}</h3>
+        ${entry.description ? `<p>${escapeHtml(entry.description)}</p>` : ''}
+        ${renderTags(entry.tags)}
+        ${entry.notes ? `<p>${escapeHtml(entry.notes)}</p>` : ''}
+      </div>
     `;
+
+    return card;
+  }
+
+  function placeVideoCard(root, card, orientation) {
+    const normalizedOrientation = normalizeVideoOrientation(orientation);
+    const targetGroup = root.querySelector(`[data-video-group='${normalizedOrientation}']`);
+    if (!targetGroup) {
+      return;
+    }
+
+    card.dataset.orientation = normalizedOrientation;
+    targetGroup.hidden = false;
+
+    const grid = targetGroup.querySelector('.video-grid');
+    insertVideoCardInOrder(grid, card);
+    updateVideoGroupVisibility(root);
+  }
+
+  function insertVideoCardInOrder(grid, card) {
+    const cardIndex = Number(card.dataset.entryIndex || 0);
+    const nextCard = Array.from(grid.children).find(
+      (existingCard) => Number(existingCard.dataset.entryIndex || 0) > cardIndex
+    );
+
+    if (nextCard) {
+      grid.insertBefore(card, nextCard);
+      return;
+    }
+
+    grid.appendChild(card);
+  }
+
+  function updateVideoGroupVisibility(root) {
+    root.querySelectorAll('[data-video-group]').forEach((group) => {
+      const grid = group.querySelector('.video-grid');
+      group.hidden = !grid || !grid.children.length;
+    });
+  }
+
+  function syncVideoFrameOrientation(card, orientation) {
+    const normalizedOrientation = normalizeVideoOrientation(orientation);
+    const frame = card.querySelector('.video-frame, .video-frame-placeholder');
+    if (!frame) {
+      return;
+    }
+
+    frame.classList.remove('video-frame--portrait', 'video-frame--landscape', 'video-frame--square');
+    frame.classList.add(`video-frame--${normalizedOrientation}`);
+  }
+
+  function classifyVideoOrientation(width, height) {
+    if (!width || !height) {
+      return '';
+    }
+
+    const ratio = width / height;
+    if (Math.abs(ratio - 1) <= 0.08) {
+      return 'square';
+    }
+
+    return ratio > 1 ? 'landscape' : 'portrait';
+  }
+
+  function deriveOrientationFromPlaceholder(placeholderDimensions) {
+    const label = String(placeholderDimensions || '').toLowerCase();
+    if (label.includes('square') || label.includes('1080 x 1080')) {
+      return 'square';
+    }
+
+    if (label.includes('portrait') || label.includes('1080 x 1920')) {
+      return 'portrait';
+    }
+
+    return 'landscape';
+  }
+
+  function normalizeVideoOrientation(value) {
+    return ['portrait', 'landscape', 'square'].includes(value) ? value : 'landscape';
   }
 
   function getVideoPlaceholderDimensions(orientation) {
@@ -487,6 +599,7 @@
     return escapeHtml(value);
   }
 })();
+
 
 
 
