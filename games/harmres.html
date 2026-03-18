@@ -438,6 +438,7 @@
         let db, auth;
         let userId = 'loading'; // Will be set after auth completes
         let isAuthReady = false;
+        const SCOREBOARD_ENABLED = false;
 
         // --- GAME GLOBALS ---
         let scene, camera, renderer, geometry, material, mesh;
@@ -534,45 +535,14 @@
         // --- FIREBASE INIT AND AUTHENTICATION ---
 
         async function initFirebaseAndAuth() {
-            
-            // Your web app's Firebase configuration
-            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-            const firebaseConfig = {
-                apiKey: "AIzaSyC5KhBpSofg1h4klmpKCnryqc7c7CWPRqM",
-                authDomain: "harmonicresonance-afd4e.firebaseapp.com",
-                projectId: "harmonicresonance-afd4e",
-                storageBucket: "harmonicresonance-afd4e.firebasestorage.app",
-                messagingSenderId: "765444499363",
-                appId: "1:765444499363:web:fdac0e577aecdb645adc16",
-                measurementId: "G-PGY7K2GMXB"
-              };
+            isAuthReady = false;
+            db = null;
+            auth = null;
+            userId = 'disabled';
 
-            try {
-                const app = initializeApp(firebaseConfig);
-                const analytics = getAnalytics(app);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                setLogLevel('error'); // Set logging level
-
-                // Authentication:
-                await signInAnonymously(auth);
-
-                // Wait for auth state to settle
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                    } else {
-                        userId = crypto.randomUUID();
-                    }
-                    isAuthReady = true;
-                    console.log(`Auth Ready. User ID: ${userId}`);
-                    setupScoreboardListener(); // Start listening for scores only after auth is ready
-                });
-
-            } catch (error) {
-                const message = error.message || "Unknown Firebase setup error.";
-                showError(`Setup Failed: ${message}`);
-                document.getElementById('scoreboard-container').innerHTML = `<h2 class="text-red-500">Error</h2><p class="text-gray-400">Firebase Error: Scoreboard disabled.</p>`;
+            const scoreboard = document.getElementById('scoreboard-container');
+            if (scoreboard) {
+                scoreboard.innerHTML = `<h2 class="text-red-500">Scoreboard Offline</h2><p class="text-gray-400">Online high scores are disabled for this hosted build.</p>`;
             }
         }
 
@@ -943,9 +913,14 @@
             gameOverTitle.textContent = "Harmony Achieved!";
             gameOverStats.innerHTML = `Final Score: ${currentScore}<br>Total Moves: ${finalMoves}`;
 
-            // Hide game grid, show name prompt
+            // Hide game grid
             document.getElementById('game-grid').style.opacity = '0';
             document.getElementById('game-grid').style.pointerEvents = 'none';
+
+            if (!SCOREBOARD_ENABLED) {
+                document.getElementById('game-over-modal').style.display = 'flex';
+                return;
+            }
 
             // Show name prompt modal
             document.getElementById('final-score-text').textContent = `${currentScore} (${finalMoves} moves)`;
@@ -1014,6 +989,9 @@
         // --- SCORE SUBMISSION ---
 
         async function saveScore(score, moves, name) {
+            if (!SCOREBOARD_ENABLED) {
+                return;
+            }
             if (!isAuthReady || !db) {
                 showError("Cannot save score: Firebase is not connected or user is not authorized.");
                 return;
@@ -1076,6 +1054,12 @@
 
         // Make submitScore globally accessible for the onclick attribute
         window.submitScore = function(skipName) {
+            if (!SCOREBOARD_ENABLED) {
+                document.getElementById('name-prompt-modal').style.display = 'none';
+                document.getElementById('game-over-modal').style.display = 'flex';
+                return;
+            }
+
             let playerName = skipName;
             if (skipName === false) { // Submit button clicked
                 const nameInput = document.getElementById('name-input');
@@ -1161,3 +1145,6 @@
     </script>
 </body>
 </html>
+
+
+

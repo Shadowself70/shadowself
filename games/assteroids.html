@@ -136,7 +136,7 @@
                 class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-xl shadow-md transition duration-150">
                 START MISSION
             </button>
-            <p class="text-xs text-gray-500 mt-4">Name will be saved to the leaderboard.</p>
+            <p class="text-xs text-gray-500 mt-4">Leaderboard is disabled in this hosted build.</p>
         </div>
     </div>
 
@@ -202,39 +202,20 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
         // FIX: Re-import 'orderBy'
         import { getFirestore, collection, query, limit, addDoc, onSnapshot, serverTimestamp, setLogLevel, orderBy } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+        const SCOREBOARD_ENABLED = false;
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC5KhBpSofg1h4klmpKCnryqc7c7CWPRqM",
-            authDomain: "harmonicresonance-afd4e.firebaseapp.com",
-            projectId: "harmonicresonance-afd4e",
-            storageBucket: "harmonicresonance-afd4e.firebasestorage.app",
-            messagingSenderId: "765444499363",
-            appId: "1:765444499363:web:0d314c758af234645adc16",
-            measurementId: "G-6BF8KFQK9H"
-        };
-
-
-        // Initialize Firebase
+        // Hosted build: disable the online leaderboard instead of shipping Firebase credentials.
         let app, auth, db, analytics;
-        try {
-            app = initializeApp(firebaseConfig);
-            analytics = getAnalytics(app);
-            auth = getAuth(app);
-            db = getFirestore(app);
-            setLogLevel('Debug');
-            console.log("Firebase initialized successfully.");
-            signInUser();
-        } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            document.getElementById("scoreboard").innerHTML = '<p class="text-red-500 text-center">Error connecting to leaderboard.</p>';
-        }
-
         let currentUserId = null;
+
+        if (!SCOREBOARD_ENABLED) {
+            document.getElementById("scoreboard").innerHTML = '<p class="text-gray-400 text-center">Leaderboard disabled for this hosted build.</p>';
+        }
         let pilotName = "Pilot"; // Default pilot name
 
         // --- FIREBASE AUTH & SCORE ---
         function signInUser() {
+            if (!SCOREBOARD_ENABLED || !auth) return;
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     console.log("User is signed in:", user.uid);
@@ -250,7 +231,7 @@
         }
 
         function startScoreListener() {
-            if (!db) return;
+            if (!SCOREBOARD_ENABLED || !db) return;
 
             const scoresRef = collection(db, `assteroids_scores`);
             
@@ -284,6 +265,9 @@
         }
 
         async function addHighScore(score, name) {
+            if (!SCOREBOARD_ENABLED) {
+                return;
+            }
             if (!db || !currentUserId) {
                 console.error("Database not initialized or user not signed in.");
                 return;
@@ -1239,7 +1223,7 @@
                 ctx.fillStyle = 'white';
                 ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 60);
                 ctx.font = '24px Orbitron';
-                ctx.fillText('Score submitted to leaderboard!', canvas.width / 2, canvas.height / 2 + 100);
+                ctx.fillText(SCOREBOARD_ENABLED ? 'Score submitted to leaderboard!' : 'Leaderboard disabled for hosted build.', canvas.width / 2, canvas.height / 2 + 100);
                 ctx.restore();
             }
         }
@@ -1408,3 +1392,4 @@
 </body>
 
 </html>
+
