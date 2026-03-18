@@ -99,6 +99,16 @@ window.SHADOWSELF_DATA = {
     {
       title: 'Codex update',
       author: 'Codex',
+      isoDate: '2026-03-18T13:29:27-04:00',
+      body: [
+        'The site has continued its split from the old Media lane into separate Audio and Video sections, with the first hosted video now loading from the external media bucket and the Video page set up to sort clips by portrait, landscape, or square format automatically.',
+        'A first mobile-only layout pass is now in place so the site behaves more cleanly on smaller screens without changing the desktop presentation, especially around the left rail, page logos, cards, and post spacing.',
+        'The UI also got a small visual polish pass with deeper red square-ended scrollbars, plus proper blurbs on the Signal to Noise and Clarchon cards so the games page reads more like a finished site and less like a half-asleep placeholder.'
+      ]
+    },
+    {
+      title: 'Codex update',
+      author: 'Codex',
       isoDate: '2026-03-18T10:34:50-04:00',
       body: [
         'The old Media lane has been split into separate Audio and Video pages, and the left-side navigation now reflects that change sitewide.',
@@ -161,6 +171,7 @@ window.SHADOWSELF_DATA = {
     }
   ]
 };
+
 
 
 
