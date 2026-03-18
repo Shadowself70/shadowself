@@ -1,54 +1,55 @@
-﻿<!doctype html>
-<html lang="en">
+<!doctype html>
+<html lang='en'>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
   <title>Shadowself | Updates</title>
   <meta
-    name="description"
-    content="Read updates, random thoughts, development notes, and short dispatches from Shadowself."
+    name='description'
+    content='Read updates, random thoughts, development notes, and short dispatches from Shadowself.'
   >
-  <link rel="stylesheet" href="css/styles.css">
-  <script defer src="js/data/site-data.js"></script>
-  <script defer src="js/main.js"></script>
+  <link rel='stylesheet' href='css/styles.css'>
+  <script defer src='js/data/site-data.js'></script>
+  <script defer src='js/main.js'></script>
 </head>
-<body class="page" data-page="updates">
-  <div class="site-shell">
-    <header class="interior-header">
-      <a class="home-mark" href="index.html" aria-label="Return to Shadowself home">
-        <img class="home-mark-art" src="assets/logos/shadowself-logo-small-web.png" alt="">
+<body class='page' data-page='updates'>
+  <div class='site-shell site-shell-framed'>
+    <aside class='site-rail' aria-label='Primary navigation'>
+      <a class='rail-brand' href='index.html' aria-label='Return to Shadowself home'>
+        <img class='rail-brand-art' src='assets/logos/shadowself-logo-small-web.png' alt=''>
       </a>
-
-      <div class="page-heading">
-        <p class="eyebrow">UPDATES &amp; BRAINFARTS</p>
-      </div>
-
-      <div class="header-actions">
-        <button class="subpage-art-control subpage-art-control-tall" type="button" data-open-modal="ai-disclosure-modal" aria-label="AI Disclosure">
-          <img class="subpage-action-art" src="assets/logos/ai-disclosure-button-web.png" alt="">
-        </button>
-        <a class="subpage-art-link" href="media.html" aria-label="Media">
-          <img class="subpage-action-art" src="assets/logos/media-logo-small-web.png" alt="Media">
+      <nav class='rail-nav' aria-label='Site navigation'>
+        <a class='rail-nav-link' href='ai-disclosure.html' aria-label='AI Disclosure'>
+          <span class='rail-nav-label'>AI Disclosure</span>
         </a>
-        <a class="subpage-art-link" href="games-software.html" aria-label="Games and software">
-          <img class="subpage-action-art" src="assets/logos/games-software-logo-small-web.png" alt="Games and software">
+        <a class='rail-nav-link' href='audio.html' aria-label='Audio'>
+          <span class='rail-nav-label'>Audio</span>
         </a>
-      </div>
-    </header>
-
-    <main class="page-main">
-      <div class="page-hero-logo-wrap">
-        <div
-          class="page-hero-logo updates-heading-logo"
-          role="img"
-          aria-label="Updates logo"
-        ></div>
-      </div>
-      <section class="section-block">
-        <div id="updates-feed" class="updates-feed"></div>
-      </section>
-    </main>
+        <a class='rail-nav-link' href='video.html' aria-label='Video'>
+          <span class='rail-nav-label'>Video</span>
+        </a>
+        <a class='rail-nav-link' href='games-software.html' aria-label='Games and software'>
+          <span class='rail-nav-label'>Games / Software</span>
+        </a>
+        <a class='rail-nav-link' href='updates.html' aria-label='Updates and brainfarts'>
+          <span class='rail-nav-label'>Updates</span>
+        </a>
+      </nav>
+    </aside>
+    <div class='site-content'>
+      <main class='page-main'>
+        <div class='page-hero-logo-wrap'>
+          <div
+            class='page-hero-logo updates-heading-logo'
+            role='img'
+            aria-label='Updates logo'
+          ></div>
+        </div>
+        <section class='section-block'>
+          <div id='updates-feed' class='updates-feed'></div>
+        </section>
+      </main>
+    </div>
   </div>
 </body>
 </html>
-

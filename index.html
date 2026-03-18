@@ -1,43 +1,53 @@
-﻿<!doctype html>
-<html lang="en">
+<!doctype html>
+<html lang='en'>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
   <title>Shadowself</title>
   <meta
-    name="description"
-    content="Shadowself is a dark little creative hub for AI-assisted media, games, software, and experiments."
+    name='description'
+    content='Shadowself is a dark little creative hub for AI-assisted audio, video, games, software, and experiments.'
   >
-  <link rel="stylesheet" href="css/styles.css">
-  <script defer src="js/data/site-data.js"></script>
-  <script defer src="js/main.js"></script>
+  <link rel='stylesheet' href='css/styles.css'>
+  <script defer src='js/data/site-data.js'></script>
+  <script defer src='js/main.js'></script>
 </head>
-<body class="page page-home" data-page="home">
-  <div class="site-shell">
-    <header class="home-hero">
-      <div class="hero-center">
-        <a class="logo-lockup" href="index.html" aria-label="Shadowself home">
-          <img class="logo-art" src="assets/logos/shadowself-logo-web.png" alt="Shadowself logo image">
+<body class='page page-home' data-page='home'>
+  <div class='site-shell site-shell-framed'>
+    <aside class='site-rail' aria-label='Primary navigation'>
+      <a class='rail-brand' href='index.html' aria-label='Return to Shadowself home'>
+        <img class='rail-brand-art' src='assets/logos/shadowself-logo-small-web.png' alt=''>
+      </a>
+      <nav class='rail-nav' aria-label='Site navigation'>
+        <a class='rail-nav-link' href='ai-disclosure.html' aria-label='AI Disclosure'>
+          <span class='rail-nav-label'>AI Disclosure</span>
         </a>
-        <p class="hero-lede">
-          AI-assisted video, salvaged audio, playable experiments, and whatever else crawls out of the lab next.
-        </p>
-        <div class="home-nav-row" aria-label="Primary navigation and site links">
-          <button class="home-nav-control" type="button" data-open-modal="ai-disclosure-modal" aria-label="AI Disclosure">
-            <img class="home-nav-art" src="assets/logos/ai-disclosure-button-web.png" alt="">
-          </button>
-          <a class="home-nav-link home-nav-link-section" href="media.html" aria-label="Media">
-            <img class="home-nav-art home-nav-art-section" src="assets/logos/media-logo-medium-web.png" alt="Media">
+        <a class='rail-nav-link' href='audio.html' aria-label='Audio'>
+          <span class='rail-nav-label'>Audio</span>
+        </a>
+        <a class='rail-nav-link' href='video.html' aria-label='Video'>
+          <span class='rail-nav-label'>Video</span>
+        </a>
+        <a class='rail-nav-link' href='games-software.html' aria-label='Games and software'>
+          <span class='rail-nav-label'>Games / Software</span>
+        </a>
+        <a class='rail-nav-link' href='updates.html' aria-label='Updates and brainfarts'>
+          <span class='rail-nav-label'>Updates</span>
+        </a>
+      </nav>
+    </aside>
+    <div class='site-content'>
+      <main class='page-main page-main-home'>
+        <section class='home-stage'>
+          <a class='home-stage-logo' href='index.html' aria-label='Shadowself home'>
+            <img class='home-stage-logo-art' src='assets/logos/shadowself-logo-web.png' alt='Shadowself logo image'>
           </a>
-          <a class="home-nav-link home-nav-link-section" href="games-software.html" aria-label="Games and software">
-            <img class="home-nav-art home-nav-art-section" src="assets/logos/games-software-logo-medium-web.png" alt="Games and software">
-          </a>
-          <a class="home-nav-link" href="updates.html" aria-label="Updates and brainfarts">
-            <img class="home-nav-art" src="assets/logos/updates-logo-button-web.png" alt="">
-          </a>
-        </div>
-      </div>
-    </header>
+          <p class='home-stage-lede'>
+            Games and software in various stages of jank, resurrected ancient recordings, and stupid videos.
+          </p>
+        </section>
+      </main>
+    </div>
   </div>
 </body>
 </html>
