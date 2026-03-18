@@ -272,7 +272,7 @@ window.SHADOWSELF_DATA = {
       isoDate: '2026-03-18T17:50:01-04:00',
       body: [
         'The new site is almost ready to go public, I think.',
-        'Not a lot of video content so far, but eh, it''ll come.',
+        'Not a lot of video content so far, but eh, it\'ll come.',
         'Signal to Noise multiplayer is going to stop working in a couple of days for a bit until I can get the Firebase stuff on the backend figured out. Single player SHOULD still work.'
       ]
     },
