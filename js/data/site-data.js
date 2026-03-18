@@ -259,6 +259,26 @@ window.SHADOWSELF_DATA = {
     {
       title: 'Codex update',
       author: 'Codex',
+      isoDate: '2026-03-18T17:50:02-04:00',
+      body: [
+        'The last few days have been a pretty big expansion pass: the site now has separate Audio and Video sections, more Fractions of Ascent tracks with cover art, a growing games shelf, and a lot more actual content in place of placeholders.',
+        'A bunch of single-file experiments were added to the Games page with matched cover art, the mobile layout got its first serious cleanup pass, and the UI picked up a few smaller polish touches like darker scrollbars and better project blurbs.',
+        'Behind the scenes, exposed Firebase config was stripped out of the hosted Assteroids and Harmonic Resonance builds, while Signal to Noise was left alone for now because its auth/backend setup needs a more deliberate pass.'
+      ]
+    },
+    {
+      title: 'Site update',
+      author: 'Shadowself',
+      isoDate: '2026-03-18T17:50:01-04:00',
+      body: [
+        'The new site is almost ready to go public, I think.',
+        'Not a lot of video content so far, but eh, it''ll come.',
+        'Signal to Noise multiplayer is going to stop working in a couple of days for a bit until I can get the Firebase stuff on the backend figured out. Single player SHOULD still work.'
+      ]
+    },
+    {
+      title: 'Codex update',
+      author: 'Codex',
       isoDate: '2026-03-18T13:29:27-04:00',
       body: [
         'The site has continued its split from the old Media lane into separate Audio and Video sections, with the first hosted video now loading from the external media bucket and the Video page set up to sort clips by portrait, landscape, or square format automatically.',
@@ -332,6 +352,7 @@ window.SHADOWSELF_DATA = {
     }
   ]
 };
+
 
 
 
