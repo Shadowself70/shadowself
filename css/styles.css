@@ -27,6 +27,8 @@
 
 html {
   color-scheme: dark;
+  scrollbar-color: #5a0f14 #090909;
+  scrollbar-width: thin;
 }
 
 body {
@@ -1201,4 +1203,5 @@ img {
   object-fit: contain;
   background: #000;
 }
+
 

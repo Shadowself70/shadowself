@@ -65,7 +65,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'signal-to-noise',
       title: 'Signal to Noise',
-      summary: '',
+      summary: 'A multiplayer word-guessing game much like Contexto. Prepare for snide remarks from the AI about your guesses.',
       imageDimensions: '1200 x 900 cover art or screenshot',
       imageSrc: 'assets/images/games/signaltonoise.png',
       launchUrl: 'games/signaltonoise.html',
@@ -80,7 +80,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'clarchon',
       title: 'Clarchon',
-      summary: '',
+      summary: 'Multiplayer game in the spirit of Archon, playable online with keyboard or gamepad.',
       imageDimensions: '1200 x 900 cover art or screenshot',
       imageSrc: 'assets/images/games/clarchon_logo.png',
       imageFit: 'contain',
@@ -161,6 +161,7 @@ window.SHADOWSELF_DATA = {
     }
   ]
 };
+
 
 
 
