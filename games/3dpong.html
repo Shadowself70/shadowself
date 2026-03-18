@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Pong (Wireframe Retro-Future - Chunk 1)</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: white;
+            font-family: 'Press Start 2P', cursive, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            cursor: none; /* Hide default cursor */
+        }
+        canvas {
+            display: block;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: bold;
+            color: #00ffff; /* Neon cyan */
+            text-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff; /* Neon glow */
+            pointer-events: none; /* Don't block mouse events */
+        }
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+        #controls button {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            background-color: #111;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 10px 15px;
+            margin-right: 10px;
+            text-shadow: 0 0 4px #00ffff;
+            box-shadow: 0 0 8px #00ffff;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+        #controls button:hover {
+            opacity: 1;
+            background-color: #00ffff;
+            color: #000;
+            text-shadow: none;
+        }
+        #controls button:disabled {
+            opacity: 0.3;
+            color: #555;
+            border-color: #555;
+            cursor: not-allowed;
+            background-color: #111;
+            text-shadow: none;
+            box-shadow: none;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap'); /* For score font */
+
+        /* Centered UI Message for Start/Game Over */
+        #uiMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ffff;
+            text-align: center;
+            display: none; /* Hidden by default */
+            z-index: 20;
+            text-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff;
+        }
+        #uiMessage h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+        #uiMessage p {
+            font-size: 20px;
+            margin-top: 10px;
+            color: #ffffff;
+            text-shadow: 0 0 5px #ffffff;
+        }
+    </style>
+    
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Tone.js Audio Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    
+    <!-- Firebase Libraries (for Chunk 2) -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+
+</head>
+<body>
+    <div id="score">0 - 0</div>
+    <div id="controls">
+        <button id="startButton">Start</button>
+        <button id="pauseButton">Pause</button>
+    </div>
+    <!-- UI Message Container -->
+    <div id="uiMessage">
+        <h1 id="uiTitle"></h1>
+        <p id="uiText"></p>
+    </div>
+    
+    <script type="module">
+        // This is a module script, so we can use top-level imports if we wanted
+        // But for simplicity, we'll keep using the global objects from the scripts
+        
+        window.onload = () => {
+            // --- Global Firebase Vars (for Chunk 2) ---
+            let db, auth, userId;
+            let gameId = 'default-pong-game'; 
+            
+            // --- Audio Setup (Tone.js) ---
+            let audioInitialized = false;
+            let ballOsc, ballWarble, ballRandomWarble, ballVolume;
+            let paddleHitSynth, wallHitSynth, missSynth;
+            
+            // --- Game Setup ---
+            let scene, camera, renderer, controls; // controls for dev camera
+            let paddle1, paddle2, ball;
+            let scoreElement, startButton, pauseButton, uiMessageDiv, uiTitle, uiText;
+            let particles = [];
+            const clock = new THREE.Clock();
+
+            // Graphics objects for dynamic updates
+            const baseWireframeColor = new THREE.Color(0x00ffff); // Base cyan
+            const glowWireframeColor = new THREE.Color(0xffffff); // Bright white for glow
+            
+            // Grid highlighters
+            let highlighterTop, highlighterBottom, highlighterLeft, highlighterRight;
+            const highlighterMat = new THREE.LineBasicMaterial({ 
+                color: 0xffffff, 
+                linewidth: 1, 
+                transparent: true, 
+                opacity: 0.15 // Fainter
+            });
+            
+            // Proximity square
+            let proximitySquare;
+            const proximityMat = new THREE.LineBasicMaterial({
+                color: 0xff0000, // Red
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.5
+            });
+
+            // Game state and logic variables
+            const gameLogic = {
+                ballSpeedMultiplier: 0.12, // 60% of 0.2
+                paddleHeight: 1.2, // Placeholder, will be calculated
+                paddleWidth: 1.2,  // Placeholder, will be calculated
+                paddleHitboxDepth: 0.2, // Logical depth for the 2D plane
+                paddleSpeed: 0.03, // This is fine, the lerp slows it down
+                bounds: { x: 5, y: 3.5, z: 15 }, // z is half-length
+                playerScore: 0,
+                aiScore: 0,
+                winningScore: 20, // Win condition
+                // 'startmenu', 'playing', 'paused', 'gameover'
+                state: 'startmenu', // Start at the menu
+                mouseY: 0, // Normalized mouse Y
+                mouseX: 0, // Normalized mouse X for paddle X-movement
+                paddle1VelocityY: 0, // To detect paddle motion for spin
+                paddle1VelocityX: 0,
+                lastPaddle1Y: 0,
+                lastPaddle1X: 0,
+                ballVelocity: new THREE.Vector3(0, 0, 0), // Will be set on serve
+                ballLastHitBy: null, // 'player1' or 'player2' or null
+                lastBallZ: 0 // For AI collision detection
+            };
+
+            function init() {
+                // --- Basic Scene Setup ---
+                scene = new THREE.Scene();
+                scene.fog = new THREE.Fog(0x000000, gameLogic.bounds.z * 1.5, gameLogic.bounds.z * 2.5); // Fog for depth
+
+                const aspect = window.innerWidth / window.innerHeight;
+                camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 100);
+                
+                // --- Dynamic Bounds Calculation ---
+                // Camera is *outside* the tunnel at z=20, looking in.
+                const cameraDistance = 5; // How far camera is from the paddle plane (z=15)
+                camera.position.set(0, 0, gameLogic.bounds.z + cameraDistance); // 15 + 5 = 20
+                camera.lookAt(0, 0, 0); // Looking down the Z-axis
+                
+                // The "Glass Screen" (paddle plane) is at z=15.
+                const paddleZ = gameLogic.bounds.z; 
+                const vFov = THREE.MathUtils.degToRad(camera.fov);
+                // Calculate visible height/width at the paddle's Z-position
+                const visibleHeight = 2 * Math.tan(vFov / 2) * cameraDistance; 
+                let visibleWidth = visibleHeight * camera.aspect;
+
+                if (isNaN(visibleWidth) || visibleWidth === 0) {
+                    console.warn("Visible width is NaN or 0, defaulting to 16:9 aspect.");
+                    const defaultAspect = 16 / 9;
+                    visibleWidth = visibleHeight * defaultAspect; 
+                    camera.aspect = defaultAspect;
+                    camera.updateProjectionMatrix();
+                }
+
+                // Set the game bounds to match the camera's view
+                gameLogic.bounds.y = visibleHeight / 2;
+                gameLogic.bounds.x = visibleWidth / 2;
+                
+                // Scale paddle to be a fraction of the view
+                gameLogic.paddleHeight = gameLogic.bounds.y * 0.6;
+                gameLogic.paddleWidth = gameLogic.bounds.x * 0.4;
+                // --- End Dynamic Bounds ---
+
+                
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+                
+                // --- Get UI Elements ---
+                scoreElement = document.getElementById('score');
+                startButton = document.getElementById('startButton');
+                pauseButton = document.getElementById('pauseButton');
+                uiMessageDiv = document.getElementById('uiMessage');
+                uiTitle = document.getElementById('uiTitle');
+                uiText = document.getElementById('uiText');
+                // --- End UI Elements ---
+
+                createWorld();
+                addLights();
+                
+                // --- Event Listeners ---
+                document.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('resize', onWindowResize);
+                
+                startButton.addEventListener('click', onStartClick);
+                pauseButton.addEventListener('click', onPauseClick);
+                
+                // Initial UI state
+                updateButtonUI();
+                showUIMessage("3D PONG", "Click Start to Play");
+
+                // Start the game loop
+                animate();
+            }
+
+            // --- Game State & UI Management ---
+
+            function onStartClick() {
+                // Audio must be started by user interaction
+                if (!audioInitialized) {
+                    // This function now *also* calls initAudio()
+                    initializeAudio(); 
+                }
+                
+                // Handle 'Start', 'Restart' (in-game), and 'Play Again' (game over)
+                switch(gameLogic.state) {
+                    case 'startmenu':
+                    case 'gameover':
+                        resetGame();
+                        startGame();
+                        break;
+                    case 'playing':
+                    case 'paused':
+                        // This is now a 'Restart' click
+                        resetGame();
+                        startGame();
+                        break;
+                }
+            }
+
+            function onPauseClick() {
+                if (gameLogic.state === 'playing') {
+                    gameLogic.state = 'paused';
+                    if (ballVolume) ballVolume.mute = true;
+                    showUIMessage("PAUSED", "");
+                } else if (gameLogic.state === 'paused') {
+                    gameLogic.state = 'playing';
+                    if (ballVolume) ballVolume.mute = false;
+                    showUIMessage("", "", false); // Hide message
+                }
+                updateButtonUI();
+            }
+            
+            function startGame() {
+                gameLogic.state = 'playing';
+                if (ballVolume) ballVolume.mute = false;
+                showUIMessage("", "", false); // Hide message
+                
+                // Serve the ball
+                if (gameLogic.ballVelocity.length() === 0) {
+                    resetBall(null);
+                }
+                updateButtonUI();
+            }
+
+            // Resets score and ball, but doesn't start play
+            function resetGame() {
+                gameLogic.playerScore = 0;
+                gameLogic.aiScore = 0;
+                scoreElement.innerText = `0 - 0`;
+                ball.position.set(0, 0, 0);
+                gameLogic.ballVelocity.set(0, 0, 0);
+                gameLogic.lastBallZ = 0;
+            }
+            
+            function checkWinCondition() {
+                let winner = null;
+                if (gameLogic.playerScore >= gameLogic.winningScore) {
+                    winner = "PLAYER 1";
+                } else if (gameLogic.aiScore >= gameLogic.winningScore) {
+                    winner = "CPU";
+                }
+                
+                if (winner) {
+                    gameLogic.state = 'gameover';
+                    if (ballVolume) ballVolume.mute = true;
+                    ball.position.set(0, 0, 0);
+                    gameLogic.ballVelocity.set(0, 0, 0);
+                    showUIMessage("GAME OVER", `${winner} WINS`);
+                    updateButtonUI();
+                    return true; // Game was won
+                }
+                return false; // Game continues
+            }
+
+            function updateButtonUI() {
+                switch(gameLogic.state) {
+                    case 'startmenu':
+                        startButton.innerText = "Start";
+                        pauseButton.innerText = "Pause";
+                        pauseButton.disabled = true;
+                        break;
+                    case 'playing':
+                        startButton.innerText = "Restart";
+                        pauseButton.innerText = "Pause";
+                        pauseButton.disabled = false;
+                        break;
+                    case 'paused':
+                        startButton.innerText = "Restart";
+                        pauseButton.innerText = "Unpause";
+                        pauseButton.disabled = false;
+                        break;
+                    case 'gameover':
+                        startButton.innerText = "Play Again";
+                        pauseButton.innerText = "Pause";
+                        pauseButton.disabled = true;
+                        break;
+                }
+            }
+
+            function showUIMessage(title, text, show = true) {
+                if (show) {
+                    uiTitle.innerText = title;
+                    uiText.innerText = text;
+                    uiMessageDiv.style.display = 'block';
+                } else {
+                    uiMessageDiv.style.display = 'none';
+                }
+            }
+
+            // --- Audio System Setup ---
+            async function initializeAudio() {
+                if (audioInitialized) return;
+                await Tone.start();
+                console.log("Audio Context Started");
+                initAudio(); // Setup our synths
+                audioInitialized = true;
+            }
+
+            function initAudio() {
+                // 1. Ball "Warble" Drone
+                ballVolume = new Tone.Volume(-50).toDestination(); // Start at -50dB
+                ballOsc = new Tone.Oscillator({
+                    type: "sawtooth",
+                    frequency: "F#2", // Low drone
+                }).connect(ballVolume);
+                
+                // "Warble" LFO
+                ballWarble = new Tone.LFO({
+                    frequency: "4n", // Quarter note warble
+                    min: -25, // Modulates frequency +- 25 cents
+                    max: 25
+                }).connect(ballOsc.detune); // Connect to detune for pitch warble
+
+                // "Weird Random" LFO (modulates the warble's frequency)
+                ballRandomWarble = new Tone.LFO({
+                    frequency: "2m", // Very slow, long modulation
+                    min: 0.5, // Makes warble faster
+                    max: 1.5  // Makes warble slower
+                }).connect(ballWarble.frequency); // Connect to the *warble's* frequency
+
+                ballOsc.start();
+                ballWarble.start();
+                ballRandomWarble.start();
+
+                // 2. Paddle "TOK!" Sound
+                paddleHitSynth = new Tone.PolySynth(Tone.MembraneSynth, {
+                    pitchDecay: 0.01,
+                    octaves: 4,
+                    envelope: { attack: 0.001, decay: 0.2, sustain: 0.01, release: 0.1 }
+                }).toDestination();
+                paddleHitSynth.set({ "maxPolyphony": 2 });
+
+                // 3. Wall "Zap!" Sound
+                const zapFilter = new Tone.Filter(1000, "lowpass").toDestination();
+                wallHitSynth = new Tone.PolySynth(Tone.NoiseSynth, {
+                    noise: { type: "pink" },
+                    envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 }
+                });
+                wallHitSynth.connect(zapFilter);
+                wallHitSynth.set({ "maxPolyphony": 4 });
+
+                // 4. "Miss" Sound (Glass Hit)
+                missSynth = new Tone.FMSynth({
+                    harmonicity: 1.2, // Dissonant
+                    modulationIndex: 10,
+                    oscillator: { type: "square" },
+                    envelope: { attack: 0.01, decay: 0.3, sustain: 0.01, release: 0.1 },
+                    modulationEnvelope: { attack: 0.01, decay: 0.2, sustain: 0.01, release: 0.1 }
+                }).toDestination();
+                missSynth.volume.value = -5;
+            }
+
+            function addLights() {
+                const ambientLight = new THREE.AmbientLight(0x404040, 2);
+                scene.add(ambientLight);
+
+                const pointLight = new THREE.PointLight(0x00ffff, 1, 50); // Cyan light
+                pointLight.position.set(0, 0, gameLogic.bounds.z + 5);
+                scene.add(pointLight);
+
+                const pointLight2 = new THREE.PointLight(0xff00ff, 0.8, 50); // Magenta light
+                pointLight2.position.set(0, 0, -gameLogic.bounds.z - 5);
+                scene.add(pointLight2);
+            }
+
+            function createWorld() {
+                // --- Materials ---
+                const paddle1Mat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+                const paddle2Mat = new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+                const ballMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+                // --- Geometries ---
+                const paddleGeo = new THREE.PlaneGeometry(gameLogic.paddleWidth, gameLogic.paddleHeight);
+                const ballGeo = new THREE.SphereGeometry(0.2, 16, 16);
+
+                // --- Player 1 Paddle with Crosshair ---
+                paddle1 = new THREE.Group();
+                const paddle1Mesh = new THREE.Mesh(paddleGeo, paddle1Mat);
+                paddle1.add(paddle1Mesh);
+
+                const crosshairMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+                const crosshairPoints = [];
+                crosshairPoints.push(new THREE.Vector3(0, -gameLogic.paddleHeight * 0.3, 0));
+                crosshairPoints.push(new THREE.Vector3(0, gameLogic.paddleHeight * 0.3, 0));
+                crosshairPoints.push(new THREE.Vector3(-gameLogic.paddleWidth * 0.3, 0, 0));
+                crosshairPoints.push(new THREE.Vector3(gameLogic.paddleWidth * 0.3, 0, 0));
+                const crosshairGeo = new THREE.BufferGeometry().setFromPoints(crosshairPoints);
+                const crosshair = new THREE.LineSegments(crosshairGeo, crosshairMat);
+                crosshair.position.z = 0.01; // Just in front
+                paddle1.add(crosshair);
+
+                paddle1.position.z = gameLogic.bounds.z; // At the "glass screen"
+                scene.add(paddle1);
+
+                // --- Player 2 Paddle (AI) ---
+                paddle2 = new THREE.Mesh(paddleGeo.clone(), paddle2Mat);
+                paddle2.position.z = -gameLogic.bounds.z; // At the back wall
+                scene.add(paddle2);
+
+                // --- Ball ---
+                ball = new THREE.Mesh(ballGeo, ballMat);
+                scene.add(ball);
+
+                // --- Wireframe Tunnel ---
+                // Grid density: 20 concentric rectangles, 80 lines along tunnel length
+                createCustomGrids(20, 80, 0.3);
+                
+                // --- Grid Highlighters ---
+                let points = [new THREE.Vector3(0, gameLogic.bounds.y, -gameLogic.bounds.z), new THREE.Vector3(0, gameLogic.bounds.y, gameLogic.bounds.z)];
+                let geo = new THREE.BufferGeometry().setFromPoints(points);
+                highlighterTop = new THREE.Line(geo, highlighterMat.clone());
+                scene.add(highlighterTop);
+
+                points = [new THREE.Vector3(0, -gameLogic.bounds.y, -gameLogic.bounds.z), new THREE.Vector3(0, -gameLogic.bounds.y, gameLogic.bounds.z)];
+                geo = new THREE.BufferGeometry().setFromPoints(points);
+                highlighterBottom = new THREE.Line(geo, highlighterMat.clone());
+                scene.add(highlighterBottom);
+
+                points = [new THREE.Vector3(-gameLogic.bounds.x, 0, -gameLogic.bounds.z), new THREE.Vector3(-gameLogic.bounds.x, 0, gameLogic.bounds.z)];
+                geo = new THREE.BufferGeometry().setFromPoints(points);
+                highlighterLeft = new THREE.Line(geo, highlighterMat.clone());
+                scene.add(highlighterLeft);
+
+                points = [new THREE.Vector3(gameLogic.bounds.x, 0, -gameLogic.bounds.z), new THREE.Vector3(gameLogic.bounds.x, 0, gameLogic.bounds.z)];
+                geo = new THREE.BufferGeometry().setFromPoints(points);
+                highlighterRight = new THREE.Line(geo, highlighterMat.clone());
+                scene.add(highlighterRight);
+                
+                // --- Proximity Square ---
+                const squarePoints = [];
+                squarePoints.push(new THREE.Vector3(-gameLogic.bounds.x, -gameLogic.bounds.y, 0));
+                squarePoints.push(new THREE.Vector3(gameLogic.bounds.x, -gameLogic.bounds.y, 0));
+                squarePoints.push(new THREE.Vector3(gameLogic.bounds.x, gameLogic.bounds.y, 0));
+                squarePoints.push(new THREE.Vector3(-gameLogic.bounds.x, gameLogic.bounds.y, 0));
+                const squareGeo = new THREE.BufferGeometry().setFromPoints(squarePoints);
+                proximitySquare = new THREE.LineLoop(squareGeo, proximityMat);
+                scene.add(proximitySquare);
+            }
+
+            function createCustomGrids(xDivs, zDivs, opacity) {
+                const gridColor = new THREE.Color(0x00ffff);
+                const gridMat = new THREE.LineBasicMaterial({
+                    color: gridColor,
+                    transparent: true,
+                    opacity: opacity
+                });
+
+                const halfX = gameLogic.bounds.x;
+                const halfY = gameLogic.bounds.y;
+                const halfZ = gameLogic.bounds.z;
+
+                // --- Floor and Ceiling Grids ---
+                let points = [];
+                // Lines along Z (concentric rectangles)
+                for (let i = 0; i <= xDivs; i++) {
+                    const x = -halfX + (i * (halfX * 2)) / xDivs;
+                    points.push(x, -halfY, -halfZ);
+                    points.push(x, -halfY, halfZ);
+                }
+                // Lines along X (tunnel length)
+                for (let i = 0; i <= zDivs; i++) {
+                    const z = -halfZ + (i * (halfZ * 2)) / zDivs;
+                    points.push(-halfX, -halfY, z);
+                    points.push(halfX, -halfY, z);
+                }
+                
+                let geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+                const floorGrid = new THREE.LineSegments(geo, gridMat);
+                scene.add(floorGrid);
+
+                const ceilingGrid = floorGrid.clone();
+                ceilingGrid.position.y = halfY * 2;
+                scene.add(ceilingGrid);
+
+                // --- Left and Right Wall Grids ---
+                points = [];
+                // Lines along Z (concentric rectangles)
+                for (let i = 0; i <= xDivs; i++) { // Re-using xDivs for Y divisions
+                    const y = -halfY + (i * (halfY * 2)) / xDivs;
+                    points.push(-halfX, y, -halfZ);
+                    points.push(-halfX, y, halfZ);
+                }
+                // Lines along Y (tunnel length)
+                for (let i = 0; i <= zDivs; i++) {
+                    const z = -halfZ + (i * (halfZ * 2)) / zDivs;
+                    points.push(-halfX, -halfY, z);
+                    points.push(-halfX, halfY, z);
+                }
+
+                geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+                const leftGrid = new THREE.LineSegments(geo, gridMat);
+                scene.add(leftGrid);
+
+                const rightGrid = leftGrid.clone();
+                rightGrid.position.x = halfX * 2;
+                scene.add(rightGrid);
+            }
+            
+            // Serves the ball
+            function resetBall(lastScorer) {
+                // Don't reset ball if game is over
+                if (gameLogic.state === 'gameover') return;
+                
+                gameLogic.state = 'paused'; // Pause briefly
+                ball.position.set(0, 0, 0);
+                gameLogic.ballVelocity.set(0, 0, 0);
+                gameLogic.lastBallZ = 0;
+
+                // Serve to the loser (or P1 on start)
+                const serveDirectionZ = (lastScorer === 'player2') ? -1 : 1;
+                
+                // Decoupled Z-speed logic
+                gameLogic.ballVelocity.z = serveDirectionZ * gameLogic.ballSpeedMultiplier * 1.5; // Fixed high Z speed
+                gameLogic.ballVelocity.y = (Math.random() - 0.5) * gameLogic.ballSpeedMultiplier * 0.5;
+                gameLogic.ballVelocity.x = (Math.random() - 0.5) * gameLogic.ballSpeedMultiplier * 0.5;
+
+                setTimeout(() => {
+                    // Only resume play if we weren't manually paused or game didn't end
+                    if(gameLogic.state === 'paused') { 
+                        gameLogic.state = 'playing';
+                        if (ballVolume) ballVolume.mute = false;
+                        updateButtonUI();
+                    }
+                }, 1000); // 1 second pause before serve
+                
+                updateButtonUI();
+            }
+
+            // --- Game Loop ---
+            function animate() {
+                requestAnimationFrame(animate);
+
+                if (!renderer) return;
+                const delta = clock.getDelta();
+                const elapsedTime = clock.getElapsedTime();
+
+                if (gameLogic.state === 'playing') {
+                    updatePhysics(delta);
+                }
+                
+                updateVisuals();
+                updateGridHighlighters(elapsedTime);
+                updateProximitySquare(elapsedTime);
+                
+                if (audioInitialized) {
+                    updateBallVolume();
+                }
+                
+                renderer.render(scene, camera);
+
+                // Update and render particles
+                particles.forEach((p, index) => {
+                    p.position.add(p.velocity);
+                    p.material.opacity -= 0.02; // Fade out
+                    if (p.material.opacity <= 0) {
+                        scene.remove(p);
+                        particles.splice(index, 1); // Remove from array
+                    }
+                });
+            }
+
+            // --- Particle System ---
+            function createParticles(x, y, z, color) {
+                const particleCount = 10;
+                const particleMaterial = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 1 });
+                const particleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = new THREE.Mesh(particleGeometry, particleMaterial.clone());
+                    particle.position.set(x, y, z);
+                    particle.velocity = new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.1,
+                        (Math.random() - 0.5) * 0.1,
+                        (Math.random() - 0.5) * 0.1
+                    );
+                    scene.add(particle);
+                    particles.push(particle);
+                }
+            }
+
+            // --- Physics and Logic ---
+            function updatePhysics(deltaTime) {
+                if (!ball) return;
+                
+                gameLogic.lastBallZ = ball.position.z; // Store Z before moving
+
+                // Update Ball Position
+                ball.position.addScaledVector(gameLogic.ballVelocity, deltaTime * 60);
+
+                // --- Collision Detection ---
+
+                // 1. Walls (Top/Bottom/Left/Right)
+                const ballRadius = 0.2;
+                if (ball.position.y > (gameLogic.bounds.y - ballRadius) || ball.position.y < (-gameLogic.bounds.y + ballRadius)) {
+                    gameLogic.ballVelocity.y *= -1;
+                    ball.position.y = THREE.MathUtils.clamp(ball.position.y, -gameLogic.bounds.y + ballRadius, gameLogic.bounds.y - ballRadius);
+                    createParticles(ball.position.x, ball.position.y, ball.position.z, 0xffffff);
+                    if (audioInitialized) wallHitSynth.triggerAttackRelease("16n", Tone.now());
+                }
+                if (ball.position.x > (gameLogic.bounds.x - ballRadius) || ball.position.x < (-gameLogic.bounds.x + ballRadius)) {
+                    gameLogic.ballVelocity.x *= -1;
+                    ball.position.x = THREE.MathUtils.clamp(ball.position.x, -gameLogic.bounds.x + ballRadius, gameLogic.bounds.x - ballRadius);
+                    createParticles(ball.position.x, ball.position.y, ball.position.z, 0xffffff);
+                    if (audioInitialized) wallHitSynth.triggerAttackRelease("16n", Tone.now());
+                }
+
+
+                // 2. Paddles
+                const paddleHalfHeight = gameLogic.paddleHeight / 2;
+                const paddleHalfWidth = gameLogic.paddleWidth / 2;
+
+                if (!paddle1 || !paddle2) return;
+
+                // Player 1 Paddle ("Glass Screen")
+                const paddle1PlaneZ = gameLogic.bounds.z; // z = 15
+                // Check if ball *crossed* the plane this frame
+                if (gameLogic.ballVelocity.z > 0 && ball.position.z >= paddle1PlaneZ && gameLogic.lastBallZ < paddle1PlaneZ) {
+                    // Check if paddle is in the way
+                    if (ball.position.y < (paddle1.position.y + paddleHalfHeight) && ball.position.y > (paddle1.position.y - paddleHalfHeight) &&
+                        ball.position.x < (paddle1.position.x + paddleHalfWidth) && ball.position.x > (paddle1.position.x - paddleHalfWidth)) {
+                        
+                        // --- HIT ---
+                        gameLogic.ballVelocity.z = -gameLogic.ballSpeedMultiplier * 1.5; // Reverse Z, fixed high speed
+                        ball.position.z = paddle1PlaneZ - 0.01; // Push back from plane
+                        gameLogic.ballLastHitBy = 'player1';
+                        createParticles(ball.position.x, ball.position.y, paddle1PlaneZ, 0x00ffff); // Cyan
+                        if (audioInitialized) paddleHitSynth.triggerAttackRelease("C2", "8n", Tone.now()); // "TOK"
+
+                        // "Edge Hit" Y
+                        const hitOffsetY = (ball.position.y - paddle1.position.y) / paddleHalfHeight;
+                        gameLogic.ballVelocity.y = hitOffsetY * gameLogic.ballSpeedMultiplier * 1.5;
+                        // "Edge Hit" X
+                        const hitOffsetX = (ball.position.x - paddle1.position.x) / paddleHalfWidth;
+                        gameLogic.ballVelocity.x = hitOffsetX * gameLogic.ballSpeedMultiplier * 1.5;
+
+                        // "Motion Hit" (Spin)
+                        gameLogic.ballVelocity.y += gameLogic.paddle1VelocityY * 0.5;
+                        gameLogic.ballVelocity.x += gameLogic.paddle1VelocityX * 0.5;
+                        
+                    } else {
+                        // --- MISS (Score for AI) ---
+                        gameLogic.aiScore++;
+                        scoreElement.innerText = `${gameLogic.playerScore} - ${gameLogic.aiScore}`;
+                        createParticles(ball.position.x, ball.position.y, paddle1PlaneZ, 0xff0000); // Red "death"
+                        if (audioInitialized) missSynth.triggerAttackRelease("F#1", "8n", Tone.now()); // "Bad" sound
+                        
+                        if (!checkWinCondition()) {
+                            resetBall('player1'); // Serve to P1 (loser)
+                        }
+                    }
+                }
+                
+                // Player 2 Paddle (AI)
+                const paddle2PlaneZ = -gameLogic.bounds.z; // z = -15
+                // Check if ball *crossed* the AI plane
+                if (gameLogic.ballVelocity.z < 0 && ball.position.z <= paddle2PlaneZ && gameLogic.lastBallZ > paddle2PlaneZ) {
+                    if (ball.position.y < (paddle2.position.y + paddleHalfHeight) && ball.position.y > (paddle2.position.y - paddleHalfHeight) &&
+                        ball.position.x < (paddle2.position.x + paddleHalfWidth) && ball.position.x > (paddle2.position.x - paddleHalfWidth)) {
+                        
+                        // --- AI HIT ---
+                        gameLogic.ballVelocity.z = gameLogic.ballSpeedMultiplier * 1.5; // Reverse Z, fixed high speed
+                        ball.position.z = paddle2PlaneZ + 0.01; // Push back from plane
+                        gameLogic.ballLastHitBy = 'player2';
+                        createParticles(ball.position.x, ball.position.y, paddle2PlaneZ, 0xff00ff); // Magenta
+                        if (audioInitialized) paddleHitSynth.triggerAttackRelease("G1", "8n", Tone.now()); // AI lower "TOK"
+
+                        // AI "Edge Hit" Y
+                        const hitOffsetY = (ball.position.y - paddle2.position.y) / paddleHalfHeight;
+                        gameLogic.ballVelocity.y = hitOffsetY * gameLogic.ballSpeedMultiplier * 1.5;
+                        // AI "Edge Hit" X
+                        const hitOffsetX = (ball.position.x - paddle2.position.y) / paddleHalfWidth;
+                        gameLogic.ballVelocity.x = hitOffsetX * gameLogic.ballSpeedMultiplier * 1.5;
+
+                        // AI random "spin"
+                        gameLogic.ballVelocity.y += (Math.random() - 0.5) * 0.05;
+                        gameLogic.ballVelocity.x += (Math.random() - 0.5) * 0.05;
+                        
+                    } else {
+                         // --- AI MISS (Score for Player) ---
+                        gameLogic.playerScore++;
+                        scoreElement.innerText = `${gameLogic.playerScore} - ${gameLogic.aiScore}`;
+                        if (!checkWinCondition()) {
+                            resetBall('player2'); // Serve to P2 (loser)
+                        }
+                    }
+                }
+                
+                // Clamp ball speed (total velocity)
+                const currentSpeed = gameLogic.ballVelocity.length();
+                // Scaled max/min speeds to match new base speed
+                const maxSpeed = gameLogic.ballSpeedMultiplier * 2.5; // e.g., 0.12 * 2.5 = 0.3
+                const minSpeed = gameLogic.ballSpeedMultiplier * 1.0; // e.g., 0.12
+                
+                if (currentSpeed > maxSpeed) {
+                     gameLogic.ballVelocity.setLength(maxSpeed);
+                } else if (currentSpeed < minSpeed && gameLogic.state === 'playing') {
+                     gameLogic.ballVelocity.setLength(minSpeed);
+                }
+            }
+
+            // --- AI and Visual Updates ---
+            function updateVisuals() {
+                if (!paddle1 || !paddle2) return;
+
+                // Player 1 Paddle (Mouse)
+                // 60% of 0.2 = 0.12
+                const lerpFactor = 0.12; 
+                
+                const targetY = THREE.MathUtils.clamp(
+                    (gameLogic.mouseY * (gameLogic.bounds.y)),
+                    -gameLogic.bounds.y + gameLogic.paddleHeight / 2,
+                    gameLogic.bounds.y - gameLogic.paddleHeight / 2
+                );
+                const targetX = THREE.MathUtils.clamp(
+                    (gameLogic.mouseX * (gameLogic.bounds.x)),
+                    -gameLogic.bounds.x + gameLogic.paddleWidth / 2,
+                    gameLogic.bounds.x - gameLogic.paddleWidth / 2
+                );
+
+                // Calculate paddle velocity (for "spin")
+                gameLogic.paddle1VelocityY = (targetY - paddle1.position.y);
+                gameLogic.paddle1VelocityX = (targetX - paddle1.position.x);
+
+                // Smoothly move paddle 1
+                paddle1.position.y = THREE.MathUtils.lerp(paddle1.position.y, targetY, lerpFactor);
+                paddle1.position.x = THREE.MathUtils.lerp(paddle1.position.x, targetX, lerpFactor);
+
+                // Player 2 Paddle (AI) - Simple predictive AI
+                // 60% of 0.08 = 0.048
+                const aiLerpFactor = 0.048; 
+                
+                let aiTargetY = ball.position.y;
+                let aiTargetX = ball.position.x;
+
+                // Clamp AI target within bounds
+                aiTargetY = THREE.MathUtils.clamp(aiTargetY, -gameLogic.bounds.y + gameLogic.paddleHeight / 2, gameLogic.bounds.y - gameLogic.paddleHeight / 2);
+                aiTargetX = THREE.MathUtils.clamp(aiTargetX, -gameLogic.bounds.x + gameLogic.paddleWidth / 2, gameLogic.bounds.x - gameLogic.paddleWidth / 2);
+
+                // Smoothly move AI paddle
+                paddle2.position.y = THREE.MathUtils.lerp(paddle2.position.y, aiTargetY, aiLerpFactor);
+                paddle2.position.x = THREE.MathUtils.lerp(paddle2.position.x, aiTargetX, aiLerpFactor);
+            }
+
+            // --- Audio Volume Update ---
+            function updateBallVolume() {
+                if (!ballVolume || !ball) return;
+                
+                // Ball Z-position to gain (0.0 to 1.0)
+                // Fades to 0 at 75% of the way to the opponent (z = -7.5)
+                
+                const soundMaxZ = gameLogic.bounds.z; // +15 (loudest)
+                const soundMinZ = -gameLogic.bounds.z * 0.5; // -7.5 (silent)
+                const soundRange = soundMaxZ - soundMinZ; // 22.5
+                
+                const zNormalized = (ball.position.z - soundMinZ) / soundRange;
+                const gain = THREE.MathUtils.clamp(zNormalized, 0.0, 1.0);
+                
+                // Convert linear gain (0-1) to decibels
+                // Maps from -50dB (far) to -30dB (near)
+                const minDb = -50;
+                const maxDb = -30;
+                const volumeDb = (gain * (maxDb - minDb)) + minDb;
+                
+                ballVolume.volume.rampTo(volumeDb, 0.1); // Smooth volume change
+            }
+
+            // --- Grid Highlighter Effect ---
+            function updateGridHighlighters(elapsedTime) {
+                if (!ball || !highlighterTop) return;
+                
+                // 60% of 0.2 = 0.12
+                const lerpFactor = 0.12; 
+
+                // X-axis highlighters
+                highlighterTop.position.x = THREE.MathUtils.lerp(highlighterTop.position.x, ball.position.x, lerpFactor);
+                highlighterBottom.position.x = THREE.MathUtils.lerp(highlighterBottom.position.x, ball.position.x, lerpFactor);
+
+                // Y-axis highlighters
+                highlighterLeft.position.y = THREE.MathUtils.lerp(highlighterLeft.position.y, ball.position.y, lerpFactor);
+                highlighterRight.position.y = THREE.MathUtils.lerp(highlighterRight.position.y, ball.position.y, lerpFactor);
+
+                // Flicker & Color Cycling
+                const flicker = 0.15 + (Math.sin(elapsedTime * 30) + 1) / 2 * 0.1; 
+                const hue = (elapsedTime * 0.05) % 1; 
+                const color = new THREE.Color().setHSL(hue, 1, 0.5);
+                
+                highlighterTop.material.opacity = flicker;
+                highlighterTop.material.color = color;
+                
+                highlighterBottom.material.opacity = flicker;
+                highlighterBottom.material.color = color;
+
+                highlighterLeft.material.opacity = flicker;
+                highlighterLeft.material.color = color;
+
+                highlighterRight.material.opacity = flicker;
+                highlighterRight.material.color = color;
+            }
+            
+            // --- Proximity Square Effect ---
+            function updateProximitySquare(elapsedTime) {
+                if (!proximitySquare || !ball) return;
+                
+                // Square's Z position matches the ball's
+                proximitySquare.position.z = ball.position.z;
+                
+                // Flicker effect
+                proximitySquare.material.opacity = 0.4 + (Math.sin(elapsedTime * 20) + 1) / 2 * 0.3;
+            }
+
+            // --- Event Handlers ---
+            function onMouseMove(event) {
+                // Normalized mouse position (-1 to +1)
+                gameLogic.mouseY = -((event.clientY / window.innerHeight) * 2 - 1); // Invert Y
+                gameLogic.mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            }
+
+            function onWindowResize() {
+                // Recalculate Dynamic Bounds (MUST match init())
+                camera.aspect = window.innerWidth / window.innerHeight;
+                
+                const cameraDistance = 5;
+                const vFov = THREE.MathUtils.degToRad(camera.fov);
+                const visibleHeight = 2 * Math.tan(vFov / 2) * cameraDistance;
+                let visibleWidth = visibleHeight * camera.aspect;
+
+                if (isNaN(visibleWidth) || visibleWidth === 0) {
+                    console.warn("Resize: Visible width is NaN or 0, defaulting.");
+                    visibleWidth = visibleHeight * (16/9);
+                    camera.aspect = 16/9;
+                }
+
+                gameLogic.bounds.y = visibleHeight / 2;
+                gameLogic.bounds.x = visibleWidth / 2;
+
+                // --- DANGER: Full resize requires rebuilding the world ---
+                // A true resize would require rebuilding the paddle geometries
+                // and the custom grids. We'll just update the camera
+                // and renderer size and accept visual stretching for now.
+                
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            // --- Firebase Init (for Chunk 2) ---
+            async function initFirebase() {
+                try {
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                    // Use '||' to provide a fallback for local testing
+                    const firebaseConfigJson = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+                    const firebaseConfig = JSON.parse(firebaseConfigJson);
+                    
+                    if (!firebaseConfig.apiKey) {
+                        console.warn("Firebase config not found. Running in offline mode.");
+                        return; 
+                    }
+
+                    // Use the compat libraries
+                    firebase.initializeApp(firebaseConfig);
+                    db = firebase.firestore();
+                    auth = firebase.auth();
+                    
+                    // Set log level for debugging
+                    firebase.firestore.setLogLevel('debug');
+
+                    let userCredential;
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        userCredential = await auth.signInWithCustomToken(__initial_auth_token);
+                    } else {
+                        console.warn("No initial auth token, signing in anonymously.");
+                        userCredential = await auth.signInAnonymously();
+                    }
+                    
+                    userId = userCredential.user.uid;
+                    console.log("Firebase Auth Ready. User ID:", userId);
+                    // In Chunk 2, we will start setting up game state syncing here
+
+                } catch (error) { 
+                    console.error("Firebase Init Error:", error);
+                    console.log("Failed to init Firebase. Check config and auth token.");
+                }
+            }
+
+            // Start the game and Firebase
+            init();
+            initFirebase(); 
+        };
+    </script>
+</body>
+</html>

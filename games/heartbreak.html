@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heartbreak - The Friend Zone (v1)</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #050011; user-select: none; }
+        canvas { display: block; }
+        
+        #ui {
+            position: absolute;
+            top: 50px; /* Moved down to avoid overlapping the health bar */
+            left: 20px;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            pointer-events: none;
+            text-shadow: 0 0 5px #00ffcc;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        #boss-bars {
+            position: absolute;
+            top: 10px; /* Moved up for better clearance */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            max-width: 80%; 
+            display: none; 
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* Media Query for Mobile */
+        @media (max-width: 600px) {
+            #ui {
+                top: 50px; 
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 12px;
+            }
+            #boss-bars {
+                top: 10px;
+            }
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 10px;
+            border: 1px solid #444;
+            background: rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .bar-label {
+            position: absolute;
+            left: 5px;
+            top: -2px;
+            font-size: 9px;
+            color: white;
+            font-family: sans-serif;
+            z-index: 2;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 1px black;
+        }
+        #boss-hp-fill {
+            width: 100%;
+            height: 100%;
+            background-color: #ff0044;
+            transition: width 0.1s linear;
+        }
+
+        #overlay, #level-splash, #loading {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 20;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #level-splash {
+            background: rgba(255, 0, 68, 0.2);
+            backdrop-filter: blur(5px);
+            z-index: 25;
+        }
+        
+        #loading {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: #000; color: #0f0; display: flex;
+            justify-content: center; align-items: center;
+            font-family: monospace; z-index: 100;
+            text-align: center;
+        }
+
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+        
+        #damage {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: red;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s;
+            z-index: 15;
+        }
+        #recharge {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 5px;
+            background: #333;
+            border: 1px solid #555;
+        }
+        #recharge-fill {
+            width: 100%;
+            height: 100%;
+            background: #00ffff;
+            transform-origin: left;
+            transform: scaleX(1);
+            transition: transform 0.05s linear;
+        }
+    </style>
+    
+    <!-- 1. Standard CDN Import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" 
+            onerror="document.getElementById('loading').innerHTML='ERROR: Failed to load Three.js<br>Check connection.'"></script>
+</head>
+<body>
+    <div id="loading">LOADING ENGINE...</div>
+
+    <div id="ui" style="display:none">
+        ARROWS: Move | SPACE: Fire<br>
+        <span id="score">SCORE: 0</span> | <span id="lives">LIVES: 3</span> | <span id="level-display">LVL: 1</span>
+    </div>
+
+    <div id="boss-bars">
+        <div class="bar-container">
+            <span class="bar-label">Innocent Heart Integrity</span>
+            <div id="boss-hp-fill"></div>
+        </div>
+    </div>
+    
+    <div id="recharge"><div id="recharge-fill"></div></div>
+    <div id="damage"></div>
+
+    <div id="level-splash" style="display:none;">
+        <div class="congrats-text" style="color: #00ffcc; font-size: 32px; margin-bottom: 10px; text-shadow: 0 0 10px cyan;">HEART BROKEN</div>
+        <div style="font-size: 18px; max-width: 600px; margin-bottom: 20px;">
+            Congratulations! You have successfully devastated your friend.<br>
+            They trusted you, and you crushed them.
+        </div>
+        <div class="blink">PRESS SPACE TO CONTINUE</div>
+    </div>
+
+    <div id="overlay" style="display:none;">
+        <div id="overlay-title" style="color: white; font-size: 40px; margin-bottom: 20px; text-shadow: 0 0 10px #00ffcc;">HEARTBREAK</div>
+        <div id="overlay-sub" class="blink" style="font-size: 16px; margin-top: 10px;">PRESS SPACE TO START</div>
+        <div style="font-size: 14px; margin-top: 30px; color: #aaa; line-height: 1.5; max-width: 600px;">
+            TARGET: Your Best Friend's Heart<br><br>
+            1. Smash the YELLOW OUTER SATELLITES.<br>
+            2. Smash the PURPLE INNER SATELLITES.<br>
+            3. Crack the BLUE ARMOR.<br>
+            4. Destroy the RED HEART.<br><br>
+            "It's not you, it's me."
+        </div>
+    </div>
+
+    <script>
+        // 2. POLLING WAITER
+        function waitForThree() {
+            if (typeof THREE !== 'undefined') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('ui').style.display = 'block';
+                document.getElementById('overlay').style.display = 'flex';
+                initGame();
+            } else {
+                setTimeout(waitForThree, 100);
+            }
+        }
+        waitForThree();
+
+        // 3. MAIN GAME LOGIC
+        function initGame() {
+            // --- CONFIGURATION ---
+            const TUNNEL_RADIUS = 10;
+            const TUNNEL_LENGTH = 60;
+            const LANE_COUNT = 16; 
+            const BULLET_SPEED = 1.4; 
+            const ENEMY_BULLET_SPEED = 0.15; // SLOW START
+            
+            const STARTING_HP = 100; 
+            let MAX_CORE_HP = STARTING_HP; 
+            const PLATE_HP = 4;       
+            const SHIELD_HP = 2; 
+            const BASE_ADVANCE_SPEED = 0.015; 
+            const FIRE_RATE = 180; 
+            const INVULNERABILITY_TIME = 2000;
+            const STOPPING_DISTANCE = -10; 
+            
+            // --- GAME VARIABLES ---
+            let gameActive = false;
+            let level = 1;
+            let score = 0;
+            let playerLives = 3;
+            let coreHP = MAX_CORE_HP;
+            let stunTimer = 0; 
+            
+            let bullets = [];
+            let enemyBullets = [];
+            let particles = []; 
+            
+            let shieldLayers = []; 
+            // Note: We no longer use activeTargets list for physics, we iterate layers directly
+
+            let playerAngle = -Math.PI / 2; 
+            let lastShotTime = 0;
+            let lastEnemyShotTime = 0;
+            let invulnerableUntil = 0;
+            const keys = {};
+
+            let beat1Triggered = false;
+            let beat2Triggered = false;
+
+            // --- AUDIO SYSTEM ---
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            let audioCtx;
+
+            function initAudio() {
+                if (!audioCtx) audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            }
+
+            function playTone(type, freq, endFreq, vol, dur) {
+                if(!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                if(endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + dur/2);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            }
+
+            function playNoise(dur) {
+                if(!audioCtx) return;
+                const buf = audioCtx.createBuffer(1, audioCtx.sampleRate*dur, audioCtx.sampleRate);
+                const d = buf.getChannelData(0);
+                for(let i=0; i<d.length; i++) d[i] = Math.random()*2-1;
+                const src = audioCtx.createBufferSource();
+                src.buffer = buf;
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+dur);
+                src.connect(gain);
+                gain.connect(audioCtx.destination);
+                src.start();
+            }
+
+            const sfx = {
+                laser: () => playTone('sawtooth', 800, 100, 0.1, 0.2),
+                shieldHit: () => playTone('square', 600, 400, 0.05, 0.1),
+                shieldBreak: () => playTone('triangle', 1000, 100, 0.1, 0.2),
+                coreHit: () => playTone('sawtooth', 100, 300, 0.1, 0.2),
+                heartbeat: () => playTone('triangle', 60, 40, 0.5, 0.2),
+                explosion: () => playNoise(0.5),
+                playerHit: () => playTone('sawtooth', 150, 50, 0.2, 0.4),
+                levelUp: () => { if(audioCtx) { [440,554,659,880].forEach((f,i)=>setTimeout(()=>playTone('square', f, f, 0.05, 0.3), i*100)); } }
+            };
+
+            // --- THREE.JS SETUP ---
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050011, 0.015);
+
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 15);
+            camera.lookAt(0, 0, -60);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // --- ASSETS ---
+            const tunnelGroup = new THREE.Group();
+            const materialLine = new THREE.LineBasicMaterial({ color: 0x4400ff });
+            
+            for (let i = 0; i < LANE_COUNT; i++) {
+                const angle = (i / LANE_COUNT) * Math.PI * 2;
+                const px = Math.cos(angle) * TUNNEL_RADIUS;
+                const py = Math.sin(angle) * TUNNEL_RADIUS;
+                const points = [
+                    new THREE.Vector3(px, py, 0),
+                    new THREE.Vector3(px * 0.01, py * 0.01, -TUNNEL_LENGTH) 
+                ];
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                tunnelGroup.add(new THREE.Line(geometry, materialLine));
+            }
+
+            const ringsModel = [];
+            const ringMaterial = new THREE.LineBasicMaterial({ color: 0x220088 });
+            for(let j=0; j<12; j++) {
+                const ringGeo = new THREE.RingGeometry(TUNNEL_RADIUS - 0.1, TUNNEL_RADIUS + 0.1, LANE_COUNT);
+                ringGeo.rotateZ(Math.PI / LANE_COUNT); 
+                const ringMesh = new THREE.Mesh(ringGeo, ringMaterial);
+                ringMesh.position.z = -j * (TUNNEL_LENGTH / 12);
+                tunnelGroup.add(ringMesh);
+                ringsModel.push(ringMesh);
+            }
+            scene.add(tunnelGroup);
+
+            // --- BOSS CONSTRUCTION ---
+            const bossGroup = new THREE.Group();
+            
+            // Helper: Fibonacci Sphere Distribution
+            function getFibonacciSpherePoints(count, radius) {
+                const points = [];
+                const phi = Math.PI * (3 - Math.sqrt(5)); 
+
+                for (let i = 0; i < count; i++) {
+                    const y = 1 - (i / (count - 1)) * 2; 
+                    const r = Math.sqrt(1 - y * y); 
+                    const theta = phi * i; 
+
+                    const x = Math.cos(theta) * r;
+                    const z = Math.sin(theta) * r;
+
+                    points.push(new THREE.Vector3(x * radius, y * radius, z * radius));
+                }
+                return points;
+            }
+
+            // Create a layer of floating plates
+            function createShieldLayer(radius, color, count, boxSize, hp, typeName) {
+                const layer = new THREE.Group();
+                layer.userData = { 
+                    radius: radius, 
+                    rotSpeedX: (Math.random() * 0.005), 
+                    rotSpeedY: (Math.random() * 0.005),
+                    rotSpeedZ: (Math.random() * 0.005) 
+                };
+                
+                const points = getFibonacciSpherePoints(count, radius);
+
+                points.forEach(pos => {
+                    const plateGeo = new THREE.BoxGeometry(boxSize, boxSize, 0.2);
+                    // Use Basic Material for assured visibility
+                    const plateMat = new THREE.MeshBasicMaterial({ 
+                        color: color, 
+                        side: THREE.DoubleSide 
+                    });
+                    const plate = new THREE.Mesh(plateGeo, plateMat);
+                    
+                    plate.position.copy(pos);
+                    plate.lookAt(pos.clone().multiplyScalar(2)); 
+                    
+                    plate.userData = { hp: hp, maxHp: hp, type: typeName, active: true };
+                    
+                    const edgeGeo = new THREE.EdgesGeometry(plateGeo);
+                    const edgeMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+                    plate.add(new THREE.LineSegments(edgeGeo, edgeMat));
+
+                    layer.add(plate);
+                });
+                return layer;
+            }
+
+            // Create the tight armor shell (Blue)
+            function createArmorLayer() {
+                const armor = new THREE.Group();
+                armor.userData = { radius: 3.0, rotSpeedX: 0.002, rotSpeedY: 0.002, rotSpeedZ: 0 };
+                
+                // Use Icosahedron vertices for the tight shell
+                const refGeo = new THREE.IcosahedronGeometry(3.0, 0);
+                const positions = refGeo.getAttribute('position');
+                
+                for(let i=0; i<positions.count; i++) {
+                    const v = new THREE.Vector3(positions.getX(i), positions.getY(i), positions.getZ(i));
+                    const plateGeo = new THREE.BoxGeometry(2.2, 2.2, 0.2);
+                    // Basic Material for visibility
+                    const plateMat = new THREE.MeshBasicMaterial({ color: 0x00aaff, side: THREE.DoubleSide });
+                    const plate = new THREE.Mesh(plateGeo, plateMat.clone());
+                    
+                    plate.position.copy(v);
+                    plate.lookAt(v.clone().multiplyScalar(2));
+                    
+                    plate.userData = { hp: PLATE_HP, active: true };
+                    
+                    const edge = new THREE.Mesh(
+                        new THREE.BoxGeometry(2.25, 2.25, 0.25),
+                        new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true })
+                    );
+                    plate.add(edge);
+                    
+                    armor.add(plate);
+                }
+                return armor;
+            }
+
+            function initBossDefenses() {
+                shieldLayers.forEach(l => bossGroup.remove(l));
+                shieldLayers = [];
+                activeTargets = [heartMesh];
+
+                // 1. Yellow Satellites (Radius 6)
+                const l1 = createShieldLayer(6.0, 0xffaa00, 30, 1.2, SHIELD_HP, 'shield');
+                bossGroup.add(l1); shieldLayers.push(l1);
+
+                // 2. Purple Satellites (Radius 4.5)
+                const l2 = createShieldLayer(4.5, 0xff00ff, 24, 1.4, SHIELD_HP, 'shield');
+                bossGroup.add(l2); shieldLayers.push(l2);
+
+                // 3. Blue Armor (Radius 3.0)
+                const l3 = createArmorLayer();
+                bossGroup.add(l3); shieldLayers.push(l3);
+            }
+
+            // 3. The HEART
+            let heartMesh, coreWire;
+            function createHeartModel() {
+                const geometry = new THREE.IcosahedronGeometry(1.8, 2); 
+                const material = new THREE.MeshBasicMaterial( { color: 0xff2266 } );
+                heartMesh = new THREE.Mesh( geometry, material );
+                
+                const wireGeo = new THREE.WireframeGeometry(geometry);
+                const wireMat = new THREE.LineBasicMaterial({ color: 0xffcccc, transparent: true, opacity: 0.5 });
+                coreWire = new THREE.LineSegments(wireGeo, wireMat);
+                heartMesh.add(coreWire);
+                
+                bossGroup.add( heartMesh );
+            }
+            createHeartModel();
+
+            const bossLight = new THREE.PointLight(0xff0000, 2, 50);
+            bossGroup.add(bossLight);
+
+            bossGroup.position.z = -45; 
+            scene.add(bossGroup);
+
+            // Player
+            const playerPivot = new THREE.Group(); 
+            const playerShip = new THREE.Group();  
+            
+            const hullMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            const wingMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+
+            const lWingGeo = new THREE.ConeGeometry(0.2, 1.5, 4);
+            lWingGeo.rotateX(Math.PI / 2);
+            const lWing = new THREE.Mesh(lWingGeo, wingMat);
+            lWing.position.set(-0.4, 0, 0);
+            lWing.rotation.z = 0.2; 
+            playerShip.add(lWing);
+
+            const rWingGeo = new THREE.ConeGeometry(0.2, 1.5, 4);
+            rWingGeo.rotateX(Math.PI / 2);
+            const rWing = new THREE.Mesh(rWingGeo, wingMat);
+            rWing.position.set(0.4, 0, 0);
+            rWing.rotation.z = -0.2; 
+            playerShip.add(rWing);
+
+            const cockpitGeo = new THREE.BoxGeometry(0.3, 0.2, 0.8);
+            const cockpit = new THREE.Mesh(cockpitGeo, hullMat);
+            playerShip.add(cockpit);
+
+            playerShip.position.y = TUNNEL_RADIUS;
+            playerShip.rotation.z = Math.PI; 
+            playerShip.rotation.x = 0.2; 
+
+            playerPivot.add(playerShip);
+            scene.add(playerPivot);
+
+            // --- PARTICLES ---
+            const particleGeo = new THREE.TetrahedronGeometry(0.1, 0); 
+            const particleMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff, 
+                transparent: true
+            });
+
+            function createDebris(pos, color, count=8, speed=0.3) {
+                const pMat = particleMat.clone();
+                pMat.color.setHex(color);
+                
+                for(let i=0; i<count; i++) {
+                    const mesh = new THREE.Mesh(particleGeo, pMat);
+                    mesh.position.copy(pos);
+                    const vel = new THREE.Vector3(
+                        (Math.random() - 0.5) * speed,
+                        (Math.random() - 0.5) * speed,
+                        (Math.random() - 0.5) * speed
+                    );
+                    
+                    mesh.userData = {
+                        vel: vel,
+                        life: 1.0,
+                        decay: 0.04 + Math.random() * 0.03
+                    };
+                    scene.add(mesh);
+                    particles.push(mesh);
+                }
+            }
+            
+            function createSparks(pos, color) {
+                createDebris(pos, color, 4, 0.2);
+            }
+
+            // --- INPUT ---
+            document.getElementById('overlay').addEventListener('click', () => {
+                if(!gameActive) {
+                    initAudio();
+                    restartGame();
+                }
+            });
+            
+            document.getElementById('level-splash').addEventListener('click', () => {
+                nextLevel();
+            });
+
+            window.addEventListener('keydown', (e) => {
+                keys[e.code] = true;
+                if (e.code === 'Space') {
+                    if (!gameActive) {
+                        if (document.getElementById('overlay').style.display !== 'none') {
+                            initAudio();
+                            restartGame();
+                        } 
+                        else if (document.getElementById('level-splash').style.display !== 'none') {
+                            nextLevel();
+                        }
+                    }
+                }
+            });
+
+            window.addEventListener('keyup', (e) => keys[e.code] = false);
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            function restartGame() {
+                gameActive = true;
+                level = 1;
+                score = 0;
+                playerLives = 3;
+                MAX_CORE_HP = STARTING_HP; 
+                playerAngle = -Math.PI / 2; 
+                startLevel(true);
+            }
+            
+            function nextLevel() {
+                level++;
+                document.getElementById('level-splash').style.display = 'none';
+                MAX_CORE_HP += 20;
+                playerLives = Math.min(5, playerLives + 1);
+                startLevel(false); 
+            }
+
+            function startLevel(resetPos) {
+                gameActive = true;
+                coreHP = MAX_CORE_HP;
+                bossGroup.position.z = -50;
+                invulnerableUntil = Date.now() + 2000;
+                lastShotTime = Date.now() + 500; 
+                
+                if(resetPos) playerAngle = -Math.PI/2;
+                
+                initBossDefenses();
+                heartMesh.visible = true;
+                
+                bullets.forEach(b => scene.remove(b)); bullets = [];
+                enemyBullets.forEach(b => scene.remove(b)); enemyBullets = [];
+                particles.forEach(p => scene.remove(p)); particles = [];
+
+                updateUI();
+                document.getElementById('boss-bars').style.display = 'flex';
+                document.getElementById('overlay').style.display = 'none';
+            }
+
+            function levelComplete() {
+                gameActive = false;
+                coreHP = 0; 
+                updateUI();
+                sfx.levelUp();
+                document.getElementById('level-splash').style.display = 'flex';
+            }
+
+            function gameOver() {
+                gameActive = false;
+                document.getElementById('overlay').style.display = 'flex';
+                document.getElementById('overlay-title').innerHTML = "<div class='game-over-text'>HEARTBREAK</div>GAME OVER";
+                document.getElementById('overlay-sub').innerText = "Final Score: " + score;
+                document.getElementById('boss-bars').style.display = 'none';
+            }
+
+            function updateUI() {
+                const pct = Math.max(0, (coreHP / MAX_CORE_HP) * 100);
+                document.getElementById('boss-hp-fill').style.width = pct + "%";
+                document.getElementById('score').innerText = "SCORE: " + score;
+                document.getElementById('lives').innerText = "LIVES: " + playerLives;
+                document.getElementById('level-display').innerText = "LVL: " + level;
+            }
+
+            // Ray-Sphere Intersection Helper
+            function getRaySphereIntersection(rayOrigin, rayDir, sphereCenter, sphereRadius) {
+                const m = new THREE.Vector3().subVectors(rayOrigin, sphereCenter);
+                const b = m.dot(rayDir);
+                const c = m.dot(m) - sphereRadius * sphereRadius;
+                if (c > 0 && b > 0) return null; 
+                const discr = b*b - c;
+                if (discr < 0) return null; 
+                let t = -b - Math.sqrt(discr);
+                if (t < 0) t = -b + Math.sqrt(discr); 
+                if (t < 0) return null; 
+                return new THREE.Vector3().copy(rayOrigin).add(rayDir.clone().multiplyScalar(t));
+            }
+
+            function createBullet() {
+                sfx.laser(); 
+                const geo = new THREE.SphereGeometry(0.15, 8, 8);
+                const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+                const bullet = new THREE.Mesh(geo, mat);
+
+                playerPivot.updateMatrixWorld(true); 
+
+                const startPos = new THREE.Vector3();
+                playerShip.getWorldPosition(startPos);
+                bullet.position.copy(startPos);
+
+                const target = bossGroup.position.clone();
+                const velocity = new THREE.Vector3().subVectors(target, bullet.position).normalize().multiplyScalar(BULLET_SPEED);
+                
+                bullet.userData = { velocity: velocity, prevPos: startPos.clone() };
+                scene.add(bullet);
+                bullets.push(bullet);
+            }
+
+            const enemyBulletShape = new THREE.Shape();
+            const bx = 0, by = 0;
+            enemyBulletShape.moveTo( bx + 2.5, by + 2.5 );
+            enemyBulletShape.bezierCurveTo( bx + 2.5, by + 2.5, bx + 2.0, by, bx, by );
+            enemyBulletShape.bezierCurveTo( bx - 3.0, by, bx - 3.0, by + 3.5, bx - 3.0, by + 3.5 );
+            enemyBulletShape.bezierCurveTo( bx - 3.0, by + 5.5, bx - 1.0, by + 7.7, bx + 2.5, by + 9.5 );
+            enemyBulletShape.bezierCurveTo( bx + 6.0, by + 7.7, bx + 8.0, by + 5.5, bx + 8.0, by + 3.5 );
+            enemyBulletShape.bezierCurveTo( bx + 8.0, by + 3.5, bx + 8.0, by, bx + 5.0, by );
+            enemyBulletShape.bezierCurveTo( bx + 3.5, by, bx + 2.5, by + 2.5, bx + 2.5, by + 2.5 );
+            const heartBulletGeo = new THREE.ExtrudeGeometry( enemyBulletShape, { depth: 1, bevelEnabled: false } );
+            heartBulletGeo.scale(0.04, 0.04, 0.04);
+            heartBulletGeo.center();
+
+            function createEnemyBullet() {
+                const mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                const bullet = new THREE.Mesh(heartBulletGeo, mat);
+                bullet.position.copy(bossGroup.position);
+                
+                const randomAngle = (Math.floor(Math.random() * LANE_COUNT) / LANE_COUNT) * Math.PI * 2;
+                const destX = Math.cos(randomAngle) * TUNNEL_RADIUS;
+                const destY = Math.sin(randomAngle) * TUNNEL_RADIUS;
+                
+                const target = new THREE.Vector3(destX, destY, 0);
+                const velocity = new THREE.Vector3().subVectors(target, bullet.position).normalize().multiplyScalar(ENEMY_BULLET_SPEED + (level * 0.05));
+                
+                bullet.userData = { velocity: velocity };
+                bullet.rotation.z = Math.PI; 
+                scene.add(bullet);
+                enemyBullets.push(bullet);
+            }
+
+            // --- MAIN LOOP ---
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                bossGroup.updateMatrixWorld(true);
+
+                if (gameActive) {
+                    const now = Date.now();
+
+                    if (now < invulnerableUntil) {
+                        playerShip.visible = Math.floor(now / 100) % 2 === 0;
+                    } else {
+                        playerShip.visible = true;
+                    }
+
+                    const speed = 0.06;
+                    if (keys['ArrowLeft'] || keys['KeyA']) playerAngle -= speed;
+                    if (keys['ArrowRight'] || keys['KeyD']) playerAngle += speed;
+                    playerPivot.rotation.z = playerAngle - Math.PI / 2;
+                    playerPivot.updateMatrixWorld(true);
+
+                    if (keys['Space']) {
+                        if (now - lastShotTime > FIRE_RATE) { 
+                            createBullet();
+                            lastShotTime = now;
+                        }
+                    }
+                    
+                    const charge = Math.min(1, (now - lastShotTime) / FIRE_RATE);
+                    document.getElementById('recharge-fill').style.transform = `scaleX(${charge})`;
+                    if(charge >= 1) document.getElementById('recharge-fill').style.background = '#00ffff';
+                    else document.getElementById('recharge-fill').style.background = '#aa0000';
+
+                    // 2. Boss Logic
+                    bossGroup.rotation.x += 0.001;
+                    bossGroup.rotation.y += 0.002;
+                    
+                    shieldLayers.forEach((layer, idx) => {
+                        if(layer) {
+                            layer.rotation.x += layer.userData.rotSpeedX;
+                            layer.rotation.y += layer.userData.rotSpeedY;
+                            layer.rotation.z += layer.userData.rotSpeedZ;
+                        }
+                    });
+
+                    if (stunTimer > 0) {
+                        stunTimer--;
+                    } else {
+                        if(bossGroup.position.z < STOPPING_DISTANCE) {
+                            bossGroup.position.z += BASE_ADVANCE_SPEED;
+                        }
+                    }
+                    
+                    const fireRate = Math.max(200, 600 - (level * 50)); 
+                    if (now - lastEnemyShotTime > fireRate) {
+                        createEnemyBullet();
+                        lastEnemyShotTime = now;
+                    }
+                }
+
+                // 3. Bullet Updates
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    const b = bullets[i];
+                    
+                    const prevPos = b.userData.prevPos ? b.userData.prevPos.clone() : b.position.clone();
+                    b.userData.prevPos = b.position.clone();
+                    b.position.add(b.userData.velocity);
+
+                    const distPrev = prevPos.distanceTo(bossGroup.position);
+                    const distCurr = b.position.distanceTo(bossGroup.position);
+                    const bulletDir = b.userData.velocity.clone().normalize();
+                    
+                    let collisionHandled = false;
+
+                    // Iterate Layers (Outer to Inner)
+                    for(let layerIndex = 0; layerIndex < shieldLayers.length; layerIndex++) {
+                        const layer = shieldLayers[layerIndex];
+                        if(!layer) continue;
+                        
+                        const r = layer.userData.radius;
+                        
+                        // Check if bullet crossed this layer's radius
+                        if(distPrev > r && distCurr <= r) {
+                            
+                            const hitPoint = getRaySphereIntersection(prevPos, bulletDir, bossGroup.position, r);
+                            
+                            if(hitPoint) {
+                                for(let p of layer.children) {
+                                    if(!p.userData.active) continue;
+                                    
+                                    const plateWorldPos = new THREE.Vector3();
+                                    p.getWorldPosition(plateWorldPos);
+                                    
+                                    if(hitPoint.distanceTo(plateWorldPos) < 2.0) {
+                                        // HIT!
+                                        p.userData.hp--;
+                                        sfx.shieldHit();
+                                        createSparks(hitPoint, 0xffff00);
+                                        
+                                        const oldCol = p.material.color.getHex();
+                                        p.material.color.setHex(0xffffff);
+                                        setTimeout(() => { if(p.userData.active) p.material.color.setHex(oldCol); }, 50);
+
+                                        if(p.userData.hp <= 0) {
+                                            sfx.shieldBreak();
+                                            p.userData.active = false;
+                                            p.visible = false;
+                                            createDebris(plateWorldPos, oldCol);
+                                        }
+                                        collisionHandled = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if(collisionHandled) break;
+                    }
+                    
+                    if(collisionHandled) {
+                        scene.remove(b);
+                        bullets.splice(i, 1);
+                        continue;
+                    }
+
+                    // --- HEART CHECK ---
+                    if(distCurr <= 1.8) {
+                        scene.remove(b);
+                        bullets.splice(i, 1);
+                        
+                        if (gameActive) {
+                            score += 20;
+                            coreHP--;
+                            updateUI();
+                            sfx.coreHit();
+                            createDebris(b.position, 0xff2266);
+                            
+                            const originalColor = heartMesh.material.color.getHex();
+                            heartMesh.material.color.setHex(0xffffff); 
+                            setTimeout(() => heartMesh.material.color.setHex(originalColor), 50);
+                            
+                            stunTimer = 10; 
+                            
+                            if(coreHP <= 0) {
+                                sfx.explosion(); sfx.explosion(); 
+                                levelComplete();
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (b.position.z < -TUNNEL_LENGTH - 10) {
+                        scene.remove(b);
+                        bullets.splice(i, 1);
+                    }
+                }
+
+                // 4. Enemy Bullet Updates
+                const playerWorldPos = new THREE.Vector3();
+                playerShip.getWorldPosition(playerWorldPos);
+
+                for (let i = enemyBullets.length - 1; i >= 0; i--) {
+                    const b = enemyBullets[i];
+                    b.position.add(b.userData.velocity);
+                    b.rotation.z += 0.1;
+                    
+                    if (b.position.distanceTo(playerWorldPos) < 1.5) {
+                        if(Date.now() >= invulnerableUntil) {
+                            sfx.playerHit();
+                            playerLives--;
+                            updateUI();
+                            invulnerableUntil = Date.now() + INVULNERABILITY_TIME;
+                            const dmg = document.getElementById('damage');
+                            dmg.style.opacity = 0.5;
+                            setTimeout(() => dmg.style.opacity = 0, 100);
+                            
+                            if(playerLives <= 0) gameOver();
+                        }
+                        scene.remove(b);
+                        enemyBullets.splice(i, 1);
+                    }
+                    else if(b.position.z > 5) {
+                        scene.remove(b);
+                        enemyBullets.splice(i, 1);
+                    }
+                }
+
+                // 5. Particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.position.add(p.userData.vel);
+                    p.userData.life -= 0.02;
+                    p.scale.setScalar(p.userData.life);
+                    if(p.userData.life <= 0) {
+                        scene.remove(p);
+                        particles.splice(i, 1);
+                    }
+                }
+
+                // 6. Tunnel & Heart Beat (Lub-Dub)
+                const time = Date.now();
+                const hpRatio = Math.max(0, coreHP / MAX_CORE_HP);
+                const bpm = 60 + (1 - hpRatio) * 120; 
+                const beatPeriod = 60000 / bpm; 
+                const phase = (time % beatPeriod) / beatPeriod; 
+                
+                let beatScale = 1.0;
+                if (phase < 0.15) {
+                    if (!beat1Triggered && gameActive) { sfx.heartbeat(); beat1Triggered = true; }
+                    beatScale = 1.0 + Math.sin(phase * Math.PI / 0.15) * 0.15;
+                } else if (phase > 0.2 && phase < 0.35) {
+                    if (!beat2Triggered && gameActive) { sfx.heartbeat(); beat2Triggered = true; }
+                    beatScale = 1.0 + Math.sin((phase - 0.2) * Math.PI / 0.15) * 0.1;
+                } else {
+                    if (phase > 0.5) { beat1Triggered = false; beat2Triggered = false; }
+                }
+                
+                heartMesh.scale.set(1 + beatScale*0.1, 1 + beatScale*0.1, 1 + beatScale*0.1);
+                
+                ringsModel.forEach(ring => {
+                    ring.position.z += 0.2; 
+                    if(ring.position.z > 0) ring.position.z = -TUNNEL_LENGTH;
+                    const scale = Math.max(0.01, 1 - (Math.abs(ring.position.z) / TUNNEL_LENGTH));
+                    ring.scale.set(scale, scale, 1);
+                });
+                
+                tunnelGroup.rotation.z = Math.sin(time * 0.0002) * 0.2;
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+        }
+    </script>
+</body>
+</html>

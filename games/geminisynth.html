@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ge-MINI Synth</title>
+    <style>
+        /* Define our color palette for consistency */
+        :root {
+            --bg-darkest: #101010;
+            --bg-dark: #222222;
+            --bg-medium: #333333;
+            --bg-light: #444444;
+            --text-color: #e0e0e0;
+            --text-muted: #aaaaaa;
+            
+            /* UPDATED: Red & Black Motif */
+            --accent-color: #E53E3E; /* A strong, clear red */
+            --accent-glow: rgba(229, 62, 62, 0.4);
+            --active-color: #E53E3E; /* Was yellow */
+            --playhead-color: rgba(229, 62, 62, 0.3); /* Red playhead */
+
+            /* NEW: Drum Accent Color */
+            --active-color-accent: #FF7575; /* Brighter red for accents */
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            /* UPDATED: Use flex-column to allow instructions below */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; 
+            min-height: 98vh; 
+            background: radial-gradient(ellipse at center, var(--bg-light) 0%, var(--bg-darkest) 100%);
+            color: var(--text-color);
+            padding: 20px;
+        }
+        
+        #app-container { 
+            background: var(--bg-dark); 
+            padding: 2rem; 
+            border-radius: 12px; 
+            border: 1px solid var(--bg-light);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5); 
+            position: relative; 
+            width: 90%; /* Give it a max-width for larger screens */
+            max-width: 900px;
+            box-sizing: border-box;
+        }
+        
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .title-block {
+            text-align: left;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 0; /* Reduced margin */
+        }
+
+        /* NEW: Byline style */
+        .byline {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        #sequencer-canvas {
+            border: 1px solid var(--bg-light);
+            border-radius: 4px;
+            margin-top: 20px;
+            cursor: pointer;
+            background: var(--bg-darkest);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            /* Make canvas responsive */
+            width: 100%;
+            height: auto;
+        }
+        
+        /* NEW: Drum Canvas Style */
+        #drum-canvas {
+            border: 1px solid var(--bg-light);
+            border-top: 1px solid var(--bg-medium); /* Lighter top border */
+            border-radius: 4px;
+            margin-top: 10px; /* Space between grids */
+            cursor: pointer;
+            background: var(--bg-darkest);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            width: 100%;
+            height: auto;
+        }
+        
+        /* --- NEW: Transpose Controls --- */
+        #transpose-controls {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr); /* 12 buttons */
+            gap: 2px;
+            margin-top: 10px;
+        }
+        .transpose-btn {
+            font-size: 0.75rem;
+            padding: 8px 4px;
+            background: var(--bg-darkest);
+            color: var(--text-muted);
+            border: 1px solid var(--bg-light);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .transpose-btn.sharp {
+            background: var(--bg-light);
+            color: var(--text-color);
+            z-index: 2;
+            margin: 0 -5px; /* Overlap */
+            border-color: var(--bg-darkest);
+        }
+        .transpose-btn:hover {
+            background: var(--bg-medium);
+        }
+        .transpose-btn.active {
+            background: var(--accent-color);
+            color: var(--text-color);
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--accent-glow);
+            border-color: var(--accent-color);
+        }
+        /* --- End Transpose Controls --- */
+
+
+        #synth-controls {
+            display: grid;
+            /* Responsive grid columns */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px 30px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid var(--bg-light);
+        }
+        
+        .control-group { 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .button-control-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; 
+        }
+
+        .button-control-group button {
+            font-size: 1rem;
+            padding: 8px 16px; 
+            cursor: pointer;
+            background: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.2s ease; 
+            width: 100%;
+        }
+        .button-control-group button:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-color);
+            background: #444;
+        }
+        .button-control-group button:active {
+            transform: scale(0.98); 
+            background: var(--accent-color);
+        }
+
+        .control-group label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        
+        /* --- Slider Styles --- */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 6px;
+            background: var(--bg-darkest);
+            border: 1px solid var(--bg-light);
+            border-radius: 3px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -10.5px; 
+            height: 27px;
+            width: 27px;
+            background: var(--bg-light);
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+        input[type="range"]:hover::-webkit-slider-thumb {
+            background: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-glow);
+        }
+        input[type="range"]::-moz-range-track {
+            height: 6px;
+            background: var(--bg-darkest);
+            border: 1px solid var(--bg-light);
+            border-radius: 3px;
+        }
+        input[type="range"]::-moz-range-thumb {
+            height: 23px; 
+            width: 23px;
+            background: var(--bg-light);
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+        input[type="range"]:hover::-moz-range-thumb {
+            background: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-glow);
+        }
+        /* --- End Slider Styles --- */
+
+        .control-group select { 
+            font-size: 1rem; 
+            padding: 8px;
+            background: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid #555;
+            border-radius: 4px;
+            transition: all 0.2s ease; 
+        }
+        .control-group select:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-color);
+        }
+        
+        .control-group span { 
+            font-size: 0.8rem; 
+            color: var(--text-muted); 
+            text-align: center;
+            margin-top: 4px;
+        }
+        
+        #transport-controls {
+            display: grid;
+            /* UPDATED: 3 columns + 1 auto */
+            grid-template-columns: 1fr 1fr auto;
+            gap: 20px 30px;
+            align-items: flex-end;
+            margin-top: 20px;
+        }
+        
+        .transport-group {
+            flex-grow: 1;
+            min-width: 150px; 
+        }
+
+        /* REVERTED: Original BPM styles */
+        .bpm-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bpm-controls input[type="range"] {
+            flex-grow: 1;
+        }
+        /* REVERTED: Removed #bpm-input styles */
+        
+        
+        #transport-controls button { 
+            font-size: 1.2rem; 
+            padding: 10px 20px; 
+            cursor: pointer;
+            background: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.2s ease; 
+            height: 40px; 
+            box-sizing: border-box;
+            width: auto; /* REVERTED */
+        }
+        #transport-controls button:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-color);
+            background: #444;
+        }
+        #transport-controls button:active {
+            transform: scale(0.98); 
+            background: var(--accent-color);
+        }
+
+        /* --- REMOVED Help Modal Styles --- */
+
+        /* --- NEW: Instructions <details> Styles --- */
+        #instructions {
+            width: 90%;
+            max-width: 900px; /* Match app container */
+            margin-top: 20px;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            border: 1px solid var(--bg-light);
+            box-sizing: border-box;
+        }
+
+        #instructions summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            list-style: none; /* Remove default triangle */
+        }
+        
+        #instructions summary::-webkit-details-marker {
+            display: none; /* Hide for Webkit */
+        }
+
+        #instructions summary::before {
+            content: '?';
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            color: var(--text-muted);
+            margin-right: 10px;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+        }
+
+        #instructions[open] summary::before {
+            content: 'X';
+            background: var(--accent-color);
+            color: var(--text-color);
+        }
+
+        #instructions-content {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+            border-top: 1px solid var(--bg-light);
+        }
+
+        #instructions-content ul {
+            padding-left: 20px;
+            color: var(--text-muted);
+        }
+        #instructions-content li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        #instructions-content strong {
+            color: var(--text-color);
+        }
+
+        /* --- NEW: Step Toggle Switch Styles --- */
+        .toggle-switch-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle-switch-container label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-light);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-color);
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: var(--accent-color);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- NEW: Header Controls Wrapper -->
+        <div class="header-controls">
+            <div class="title-block">
+                <h2>Ge-MINI Synth</h2>
+                <p class="byline">By Shadowself and Gemini</p>
+            </div>
+            
+            <!-- NEW: Step Toggle Switch -->
+            <div class="toggle-switch-container">
+                <label for="step-toggle">16</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="step-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <label for="step-toggle">32</label>
+            </div>
+        </div>
+        
+        <canvas id="sequencer-canvas"></canvas>
+        <!-- NEW: Drum Canvas -->
+        <canvas id="drum-canvas"></canvas>
+
+        <!-- NEW: Transpose Controls -->
+        <div id="transpose-controls">
+            <button class="transpose-btn active" data-transpose="0">C</button>
+            <button class="transpose-btn sharp" data-transpose="1">C#</button>
+            <button class="transpose-btn" data-transpose="2">D</button>
+            <button class="transpose-btn sharp" data-transpose="3">D#</button>
+            <button class="transpose-btn" data-transpose="4">E</button>
+            <button class="transpose-btn" data-transpose="5">F</button>
+            <button class="transpose-btn sharp" data-transpose="6">F#</button>
+            <button class="transpose-btn" data-transpose="7">G</button>
+            <button class="transpose-btn sharp" data-transpose="8">G#</button>
+            <button class="transpose-btn" data-transpose="9">A</button>
+            <button class="transpose-btn sharp" data-transpose="10">A#</button>
+            <button class="transpose-btn" data-transpose="11">B</button>
+        </div>
+
+        
+        <!-- === UPDATED: SYNTH CONTROLS LAYOUT === -->
+        <div id="synth-controls">
+            
+            <div class="control-group">
+                <label for="wave-type">Waveform</label>
+                <select id="wave-type">
+                    <option value="sawtooth" selected>Sawtooth</option>
+                    <option value="square">Square</option>
+                    <option value="sine">Sine</option>
+                    <option value="triangle">Triangle</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="octave-select">Octave</label>
+                <select id="octave-select">
+                    <option value="-2">Octave 1</option>
+                    <option value="-1">Octave 2</option>
+                    <option value="0" selected>Octave 3</option>
+                    <option value="1">Octave 4</option>
+                    <option value="2">Octave 5</option>
+                </select>
+            </div>
+
+            <!-- NEW: CLEAR Button -->
+            <div class="button-control-group">
+                <label>&nbsp;</label> <!-- Spacer for alignment -->
+                <button id="clear-button">CLEAR GRID</button>
+            </div>
+            
+            <!-- Master Volume Control -->
+            <div class="control-group">
+                <label for="master-volume">Volume</label>
+                <input type="range" id="master-volume" min="0" max="1" value="0.5" step="0.01">
+                <span id="volume-value">50%</span>
+            </div>
+
+            <!-- Filter Row -->
+            <div class="control-group">
+                <label for="filter-cutoff">Cutoff</label>
+                <input type="range" id="filter-cutoff" min="0" max="100" value="100">
+                <span id="cutoff-value">3500 Hz</span>
+            </div>
+
+            <div class="control-group">
+                <label for="cutoff-automation">Cutoff LFO</label>
+                <select id="cutoff-automation">
+                    <option value="0" selected>Off</option>
+                    <option value="0.7">Slow</option>
+                    <option value="2.0">Medium</option>
+                    <option value="4.0">Fast</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="filter-resonance">Resonance</label>
+                <input type="range" id="filter-resonance" min="0" max="20" value="0" step="0.1">
+                <span id="resonance-value">0.0</span>
+            </div>
+
+            <div class="control-group">
+                <label for="resonance-automation">Resonance LFO</label>
+                <select id="resonance-automation">
+                    <option value="0" selected>Off</option>
+                    <option value="0.1">Slow</option>
+                    <option value="0.3">Medium</option>
+                    <option value="0.7">Fast</option>
+                </select>
+            </div>
+
+            <!-- ADSR Row -->
+            <div class="control-group">
+                <label for="env-attack">Attack</label>
+                <input type="range" id="env-attack" min="0.01" max="2.0" value="0.01" step="0.01">
+                <span id="attack-value">0.01 s</span>
+            </div>
+
+            <div class="control-group">
+                <label for="env-decay">Decay</label>
+                <input type="range" id="env-decay" min="0.01" max="2.0" value="0.1" step="0.01">
+                <span id="decay-value">0.1 s</span>
+            </div>
+
+            <div class="control-group">
+                <label for="env-sustain">Sustain</label>
+                <input type="range" id="env-sustain" min="0.0" max="1.0" value="0.5" step="0.01">
+                <span id="sustain-value">0.5</span>
+            </div>
+
+            <div class="control-group">
+                <label for="env-release">Release</label>
+                <input type="range" id="env-release" min="0.01" max="2.0" value="0.2" step="0.01">
+                <span id="release-value">0.2 s</span>
+            </div>
+
+            <!-- ADSR LFO Row -->
+            <div class="control-group">
+                <label for="attack-automation">Attack LFO</label>
+                <select id="attack-automation">
+                    <option value="0" selected>Off</option>
+                    <option value="0.01">Slow</option>
+                    <option value="0.05">Medium</option>
+                    <option value="0.1">Fast</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="decay-automation">Decay LFO</label>
+                <select id="decay-automation">
+                    <option value="0" selected>Off</option>
+                    <option value="0.01">Slow</option>
+                    <option value="0.05">Medium</option>
+                    <option value="0.1">Fast</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="sustain-automation">Sustain LFO</label>
+                <select id="sustain-automation">
+                    <option value="0" selected>Off</option>
+                    <option value="0.01">Slow</option>
+                    <option value="0.05">Medium</option>
+                    <option value="0.1">Fast</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="release-automation">Release LFO</label>
+                <select id="release-automation">
+                    <option value="0" selected>Off</option>
+                    <option value="0.01">Slow</option>
+                    <option value="0.05">Medium</option>
+                    <option value="0.1">Fast</option>
+                </select>
+            </div>
+            
+            <!-- NEW: Noise Slider (MOVED) -->
+            <div class="control-group">
+                <label for="noise-level">Noise</label>
+                <input type="range" id="noise-level" min="0" max="0.2" value="0" step="0.01">
+                <span id="noise-value">0.0</span>
+            </div>
+
+            <!-- NEW: Noise LFO (MOVED) -->
+            <div class="control-group">
+                <label for="noise-automation">Noise LFO</label>
+                <select id="noise-automation">
+                    <option value="0" selected>Off</option>
+                    <option value="0.01">Slow</option>
+                    <option value="0.02">Medium</option>
+                    <option value="0.04">Fast</option>
+                </select>
+            </div>
+            
+            <!-- *** MOVED: Spread slider *** -->
+            <div class="control-group">
+                <label for="stereo-spread">Spread</label>
+                <input type="range" id="stereo-spread" min="0" max="2.0" value="0" step="0.01">
+                <span id="spread-value">0.0 cents</span>
+            </div>
+            
+            <!-- *** MOVED: Vibrato Slider *** -->
+            <div class="control-group">
+                <label for="vibrato-slider">Vibrato</label>
+                <input type="range" id="vibrato-slider" min="0" max="20" value="0" step="0.5"> <!-- 0-20 cents depth -->
+                <span id="vibrato-value">0.0 cents</span>
+            </div>
+
+
+        </div>
+        <!-- === END SYNTH CONTROLS === -->
+        
+        <!-- === REVERTED: TRANSPORT CONTROLS === -->
+        <div id="transport-controls">
+            
+            <!-- Vibrato MOVED -->
+
+            <div class="control-group transport-group">
+                <label for="bpm">BPM:</label>
+                <div class="bpm-controls">
+                    <input type="range" id="bpm" min="60" max="240" value="120">
+                    <span id="bpm-value">120</span>
+                </div>
+            </div>
+
+            <button id="play-pause-button">Play</button>
+        </div>
+    </div>
+
+    <!-- REMOVED Help Modal HTML -->
+    
+    <!-- NEW: Instructions HTML using <details> -->
+    <details id="instructions">
+        <summary>Instructions</summary>
+        <div id="instructions-content">
+            <ul>
+                <!-- UPDATED: Instructions text -->
+                <li><strong>Play/Pause:</strong> Starts or stops the sequencer.</li>
+                <li><strong>Keyboard:</strong> Play a melody with your computer keyboard (QWERTY row for white keys, number row for black keys).</li>
+                <li><strong>16/32 Toggle:</strong> Switches the grid between 16 and 32 steps.</li>
+                <li><strong>Sequencer Grid:</strong> Click any square to turn a note ON (red) or OFF. The sequence plays from left to right.</li>
+                <li><strong>Drum Sequencer Grid:</strong> The 4 rows below the synth grid control the drums. Click once for ON (dark red), twice for an ACCENT (bright red), and a third time for OFF.</li>
+                <li><strong>Note Labels:</strong> The labels on the left (C5, B4...) show the pitch for each row.</li>
+                <li><strong>Transpose:</strong> The 'C', 'C#', 'D'... buttons will shift the pitch of the *synth* grid up. 'C' is the default.</li>
+                <li><strong>Clear Grid:</strong> Wipes all notes from *both* the synth and drum grids.</li>
+                <li><strong>Waveform:</strong> Changes the basic sound (timbre) of the oscillator.</li>
+                <li><strong>Noise / Noise LFO:</strong> Blends white noise into the sound. The LFO automates the noise level.</li>
+                <li><strong>Octave:</strong> Shifts the pitch of all notes on the grid up or down.</li>
+                <li><strong>Volume:</strong> Controls the final master volume of the synth.</li>
+                <li><strong>BPM:</strong> Controls the speed.</li>
+                <li><strong>Cutoff / Resonance:</strong> Controls the filter. <strong>Cutoff</strong> makes the sound darker (left) or brighter (right). <strong>Resonance</strong> adds a "squelchy" peak at the cutoff frequency.</li>
+                <li><strong>ADSR (Attack, Decay, Sustain, Release):</strong> Shapes the volume of each note.</li>
+                <li><strong>LFOs (Cutoff, Res, ADSR, Noise):</strong> Automatically "wiggles" the control above it. 'Slow', 'Medium', or 'Fast' controls the speed of the random movement.</li>
+                <li><strong>Spread:</strong> Makes the sound stereo. 0 is mono (center). Higher values make the sound wider and richer.</li>
+                <li><strong>Vibrato:</strong> Adds a pitch wobble (like a singer's voice) to the synth notes for a richer sound.</li>
+            </ul>
+        </div>
+    </details>
+
+    
+    <script>
+        // --- 1. SETUP THE AUDIO ---
+        let audioContext;
+        let isPlaying = false;
+        let currentStep = 0;
+        let bpm = 120;
+        let timerId;
+        
+        let masterGain;
+        let whiteNoiseBuffer; 
+
+        let cutoffLfoTargetValue = 50; 
+        let resLfoTargetValue = 0; 
+        let attackLfoTargetValue = 0.01;
+        let decayLfoTargetValue = 0.1;
+        let sustainLfoTargetValue = 0.5;
+        let releaseLfoTargetValue = 0.2;
+        let noiseLfoTargetValue = 0; 
+        let transposeOffset = 0;
+
+        // --- NEW: Keyboard Melody State ---
+        const activeMelodyNotes = {}; // Stores { midiNote: [osc, gain] }
+        // C4 = 60, C#4 = 61, D4 = 62 ...
+        const keyMap = {
+            'a': 60, // C4
+            'w': 61, // C#4
+            's': 62, // D4
+            'e': 63, // D#4
+            'd': 64, // E4
+            'f': 65, // F4
+            't': 66, // F#4
+            'g': 67, // G4
+            'y': 68, // G#4
+            'h': 69, // A4
+            'u': 70, // A#4
+            'j': 71, // B4
+            'k': 72, // C5
+            'o': 73, // C#5
+            'l': 74, // D5
+            'p': 75, // D#5
+            ';': 76, // E5
+            "'": 77, // F5
+        };
+
+        // --- 2. SETUP THE GRID & NOTES ---
+        let numSteps = 32; // Default to 32
+        const numNotes = 13; 
+        const labelWidth = 50;
+        
+        const baseNoteFrequencies = [
+            523.25, // C5
+            493.88, // B4
+            466.16, // A#4
+            440.00, // A4
+            415.30, // G#4
+            392.00, // G4
+            369.99, // F#4
+            349.23, // F4
+            329.63, // E4
+            311.13, // D#4
+            293.66, // D4
+            277.18, // C#4
+            261.63  // C4
+        ];
+        
+        const baseNoteLabels = [
+            'C5', 'B4', 'A#4', 'A4', 'G#4', 'G4', 'F#4', 'F4', 'E4', 'D#4', 'D4', 'C#4', 'C4'
+        ];
+        
+        const isSharp = [
+            false, false, true, false, true, false, true, false, false, true, false, true, false
+        ];
+        
+        let gridData = []; // Changed to let
+        
+        // NEW: Drum grid variables
+        const numDrumNotes = 4;
+        const drumLabels = ['Kick', 'Snare', 'Hat C', 'Hat O'];
+        let drumGridData = [];
+        
+        function initializeGrids() { // Renamed from initializeGridData
+            const oldGridData = JSON.parse(JSON.stringify(gridData));
+            const oldSteps = oldGridData.length > 0 ? oldGridData[0].length : 0;
+            
+            gridData.length = 0; 
+            
+            for (let n = 0; n < numNotes; n++) {
+                gridData.push(new Array(numSteps).fill(0));
+                if (oldSteps > 0) {
+                    for (let s = 0; s < Math.min(oldSteps, numSteps); s++) {
+                        if (oldGridData[n] && oldGridData[n][s] !== undefined) {
+                            gridData[n][s] = oldGridData[n][s];
+                        }
+                    }
+                }
+            }
+
+            // NEW: Initialize drum grid
+            const oldDrumGridData = JSON.parse(JSON.stringify(drumGridData));
+            const oldDrumSteps = oldDrumGridData.length > 0 ? oldDrumGridData[0].length : 0;
+            
+            drumGridData.length = 0;
+
+            for (let n = 0; n < numDrumNotes; n++) {
+                drumGridData.push(new Array(numSteps).fill(0));
+                if (oldDrumSteps > 0) {
+                    for (let s = 0; s < Math.min(oldDrumSteps, numSteps); s++) {
+                        if (oldDrumGridData[n] && oldDrumGridData[n][s] !== undefined) {
+                            drumGridData[n][s] = oldDrumGridData[n][s];
+                        }
+                    }
+                }
+            }
+        }
+        initializeGrids(); // Initial setup for both
+
+        // --- 3. SETUP THE CANVAS ---
+        const synthCanvas = document.getElementById('sequencer-canvas'); // Renamed
+        const synthCtx = synthCanvas.getContext('2d'); // Renamed
+        const drumCanvas = document.getElementById('drum-canvas'); // NEW
+        const drumCtx = drumCanvas.getContext('2d'); // NEW
+        
+        let stepSize = 15; // Default, will be recalculated
+        const stepGap = 5;
+        // Canvas width/height will be set in drawGrids()
+        
+        // --- 4. GET ALL SYNTH CONTROL ELEMENTS ---
+        const waveTypeSelect = document.getElementById('wave-type');
+        const octaveSelect = document.getElementById('octave-select'); 
+        const cutoffSlider = document.getElementById('filter-cutoff');
+        const resonanceSlider = document.getElementById('filter-resonance');
+        const cutoffValueLabel = document.getElementById('cutoff-value');
+        const resonanceValueLabel = document.getElementById('resonance-value');
+        const attackSlider = document.getElementById('env-attack');
+        const decaySlider = document.getElementById('env-decay');
+        const sustainSlider = document.getElementById('env-sustain');
+        const releaseSlider = document.getElementById('env-release');
+        const attackValueLabel = document.getElementById('attack-value');
+        const decayValueLabel = document.getElementById('decay-value');
+        const sustainValueLabel = document.getElementById('sustain-value');
+        const releaseValueLabel = document.getElementById('release-value');
+        const cutoffAutomationSelect = document.getElementById('cutoff-automation');
+        const resonanceAutomationSelect = document.getElementById('resonance-automation');
+        const spreadSlider = document.getElementById('stereo-spread'); 
+        const spreadValueLabel = document.getElementById('spread-value'); 
+        const attackAutomationSelect = document.getElementById('attack-automation');
+        const decayAutomationSelect = document.getElementById('decay-automation');
+        const sustainAutomationSelect = document.getElementById('sustain-automation');
+        const releaseAutomationSelect = document.getElementById('release-automation'); 
+        const volumeSlider = document.getElementById('master-volume');
+        const volumeValueLabel = document.getElementById('volume-value');
+        const clearButton = document.getElementById('clear-button');
+        const stepToggle = document.getElementById('step-toggle'); 
+        const noiseSlider = document.getElementById('noise-level'); 
+        const noiseValueLabel = document.getElementById('noise-value'); 
+        const noiseAutomationSelect = document.getElementById('noise-automation'); 
+        const bpmSlider = document.getElementById('bpm'); 
+        const bpmValue = document.getElementById('bpm-value'); 
+        const playButton = document.getElementById('play-pause-button');
+        const transposeButtons = document.querySelectorAll('.transpose-btn'); 
+        const vibratoSlider = document.getElementById('vibrato-slider'); // NEW
+        const vibratoValueLabel = document.getElementById('vibrato-value'); // NEW
+
+
+        // --- 5. THE SYNTHESIZER 'playNote' FUNCTION ---
+        
+        function createWhiteNoise(audioCtx) {
+            const bufferSize = 2 * audioCtx.sampleRate;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            return buffer;
+        }
+
+        // --- NEW: Helper function for MIDI to Frequency ---
+        function midiToFreq(midi) {
+            return Math.pow(2, (midi - 69) / 12) * 440;
+        }
+
+        // --- NEW: Melody Note Functions ---
+        function playMelodyNote(midiNote) {
+            if (!audioContext) {
+                 // --- Initialize AudioContext ---
+                audioContext = new AudioContext();
+                masterGain = audioContext.createGain();
+                masterGain.gain.setValueAtTime(parseFloat(volumeSlider.value), 0);
+                masterGain.connect(audioContext.destination);
+                whiteNoiseBuffer = createWhiteNoise(audioContext);
+            }
+            
+            const now = audioContext.currentTime;
+            const freq = midiToFreq(midiNote);
+            
+            const osc = audioContext.createOscillator();
+            osc.type = 'triangle'; // Pleasant melody sound
+            osc.frequency.setValueAtTime(freq, now);
+
+            const gain = audioContext.createGain();
+            gain.gain.cancelScheduledValues(now);
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.5, now + 0.05); // Quick attack
+            
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start(now);
+
+            // Store references to stop it later
+            activeMelodyNotes[midiNote] = [osc, gain];
+        }
+
+        function stopMelodyNote(midiNote) {
+            if (!activeMelodyNotes[midiNote]) return;
+
+            const [osc, gain] = activeMelodyNotes[midiNote];
+            const now = audioContext.currentTime;
+            
+            gain.gain.cancelScheduledValues(now);
+            gain.gain.setTargetAtTime(0, now, 0.1); // Short release
+            osc.stop(now + 0.5); // Stop oscillator after release
+
+            delete activeMelodyNotes[midiNote];
+        }
+
+        // --- Sequencer Note Function ---
+        function playNote(baseFrequency) {
+            if (!audioContext) return;
+            
+            // --- UPDATED: Apply transpose offset ---
+            const semitoneOffset = transposeOffset;
+            const transposedFrequency = baseFrequency * Math.pow(2, semitoneOffset / 12);
+            
+            const octaveShift = parseFloat(octaveSelect.value);
+            const finalFrequency = transposedFrequency * Math.pow(2, octaveShift); // Use transposed freq
+            const spread = parseFloat(spreadSlider.value); 
+            const detuneAmount = spread / 2; 
+
+            const waveType = waveTypeSelect.value;
+            const noiseLevel = parseFloat(noiseSlider.value); 
+            const cutoff = getLogFrequency(cutoffSlider.value);
+            const resonance = parseFloat(resonanceSlider.value);
+            const attackTime = parseFloat(attackSlider.value);
+            const decayTime = parseFloat(decaySlider.value);
+            const sustainLevel = parseFloat(sustainSlider.value);
+            const releaseTime = parseFloat(releaseSlider.value);
+            const now = audioContext.currentTime;
+
+            // --- NEW: Vibrato LFO ---
+            const vibratoDepth = parseFloat(vibratoSlider.value);
+            const vibratoLFO = audioContext.createOscillator();
+            vibratoLFO.type = 'sine';
+            vibratoLFO.frequency.setValueAtTime(6, now); // 6 Hz wobble
+            const vibratoGain = audioContext.createGain();
+            vibratoGain.gain.setValueAtTime(vibratoDepth, now); // Depth in cents
+            vibratoLFO.connect(vibratoGain);
+
+
+            // --- Create Noise Source (NEW) ---
+            const noiseSource = audioContext.createBufferSource();
+            noiseSource.buffer = whiteNoiseBuffer;
+            noiseSource.loop = true;
+            const noiseGain = audioContext.createGain();
+            noiseGain.gain.setValueAtTime(noiseLevel, now);
+
+            noiseSource.connect(noiseGain);
+
+            // --- Create Left Channel ---
+            const oscLeft = audioContext.createOscillator();
+            oscLeft.type = waveType;
+            oscLeft.frequency.setValueAtTime(finalFrequency - detuneAmount, now); 
+            vibratoGain.connect(oscLeft.detune); // Connect LFO to detune
+
+            const filterLeft = audioContext.createBiquadFilter();
+            filterLeft.type = 'lowpass';
+            filterLeft.frequency.setValueAtTime(cutoff, now);
+            filterLeft.Q.setValueAtTime(resonance, now);
+
+            const gainLeft = audioContext.createGain();
+            gainLeft.gain.cancelScheduledValues(now);
+            gainLeft.gain.setValueAtTime(0, now);
+            gainLeft.gain.linearRampToValueAtTime(1.0, now + attackTime);
+            gainLeft.gain.linearRampToValueAtTime(sustainLevel, now + attackTime + decayTime);
+            gainLeft.gain.setTargetAtTime(0, now + attackTime + decayTime, releaseTime / 5);
+            
+            const pannerLeft = audioContext.createStereoPanner();
+            pannerLeft.pan.setValueAtTime(-1, now); 
+
+            oscLeft.connect(filterLeft);
+            noiseGain.connect(filterLeft); 
+            filterLeft.connect(gainLeft);
+            gainLeft.connect(pannerLeft);
+            pannerLeft.connect(masterGain);
+
+            // --- Create Right Channel ---
+            const oscRight = audioContext.createOscillator();
+            oscRight.type = waveType;
+            oscRight.frequency.setValueAtTime(finalFrequency + detuneAmount, now); 
+            vibratoGain.connect(oscRight.detune); // Connect LFO to detune
+
+            const filterRight = audioContext.createBiquadFilter();
+            filterRight.type = 'lowpass';
+            filterRight.frequency.setValueAtTime(cutoff, now);
+            filterRight.Q.setValueAtTime(resonance, now);
+
+            const gainRight = audioContext.createGain();
+            gainRight.gain.cancelScheduledValues(now);
+            gainRight.gain.setValueAtTime(0, now);
+            gainRight.gain.linearRampToValueAtTime(1.0, now + attackTime);
+            gainRight.gain.linearRampToValueAtTime(sustainLevel, now + attackTime + decayTime);
+            gainRight.gain.setTargetAtTime(0, now + attackTime + decayTime, releaseTime / 5);
+
+            const pannerRight = audioContext.createStereoPanner();
+            pannerRight.pan.setValueAtTime(1, now); 
+
+            oscRight.connect(filterRight);
+            noiseGain.connect(filterRight); 
+            filterRight.connect(gainRight);
+            gainRight.connect(pannerRight);
+            pannerRight.connect(masterGain);
+
+            // --- Start/Stop All ---
+            const totalDuration = attackTime + decayTime + releaseTime;
+            vibratoLFO.start(now); // NEW
+            oscLeft.start(now);
+            oscRight.start(now);
+            noiseSource.start(now); 
+            vibratoLFO.stop(now + totalDuration + 0.1); // NEW
+            oscLeft.stop(now + totalDuration + 0.1); 
+            oscRight.stop(now + totalDuration + 0.1); 
+            noiseSource.stop(now + totalDuration + 0.1); 
+        }
+        
+        // --- NEW: Drum sound functions ---
+        
+        function playKick(isAccented) {
+            if (!audioContext) return;
+            const now = audioContext.currentTime;
+            const velocity = isAccented ? 1.0 : 0.7; // <-- Accent logic
+            
+            // Oscillator for the "boom"
+            const osc = audioContext.createOscillator();
+            osc.type = 'sine';
+            // Pitch Envelope
+            osc.frequency.setValueAtTime(150, now); // Start high
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.1); // Drop quickly
+
+            // Volume Envelope
+            const gain = audioContext.createGain();
+            gain.gain.setValueAtTime(velocity, now); // Use velocity
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+            osc.connect(gain);
+            gain.connect(masterGain); // Connect to master
+            
+            osc.start(now);
+            osc.stop(now + 0.4);
+        }
+
+        function playSnare(isAccented) {
+            if (!audioContext) return;
+            const now = audioContext.currentTime;
+            const velocity = isAccented ? 1.0 : 0.7; // <-- Accent logic
+
+            // Noise part
+            const noiseSource = audioContext.createBufferSource();
+            noiseSource.buffer = whiteNoiseBuffer;
+            noiseSource.loop = true;
+            
+            const noiseFilter = audioContext.createBiquadFilter();
+            noiseFilter.type = 'highpass';
+            noiseFilter.frequency.setValueAtTime(1500, now);
+
+            const noiseGain = audioContext.createGain();
+            // Volume Envelope for noise
+            noiseGain.gain.setValueAtTime(velocity, now); // Use velocity
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            
+            noiseSource.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(masterGain);
+
+            // Oscillator "body" part
+            const osc = audioContext.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(100, now);
+            
+            const oscGain = audioContext.createGain();
+            oscGain.gain.setValueAtTime(velocity * 0.7, now); // Use velocity (slightly lower)
+            oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+            osc.connect(oscGain);
+            oscGain.connect(masterGain);
+
+            // Start/Stop
+            osc.start(now);
+            noiseSource.start(now);
+            osc.stop(now + 0.2);
+            noiseSource.stop(now + 0.2);
+        }
+
+        function playHat(type, isAccented) {
+            if (!audioContext) return;
+            const now = audioContext.currentTime;
+            const velocity = isAccented ? 0.5 : 0.3; // <-- Accent logic
+            
+            const releaseTime = (type === 'open') ? 0.4 : 0.05;
+
+            const noiseSource = audioContext.createBufferSource();
+            noiseSource.buffer = whiteNoiseBuffer;
+            noiseSource.loop = true;
+
+            const noiseFilter = audioContext.createBiquadFilter();
+            noiseFilter.type = 'highpass';
+            noiseFilter.frequency.setValueAtTime(5000, now); // Very high freq
+
+            const noiseGain = audioContext.createGain();
+            noiseGain.gain.setValueAtTime(velocity, now); // Use velocity
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + releaseTime);
+
+            noiseSource.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(masterGain);
+
+            noiseSource.start(now);
+            noiseSource.stop(now + releaseTime);
+        }
+
+
+        function getLogFrequency(sliderValue) {
+            const minFreq = 200;
+            const maxFreq = 3500;
+            const minLog = Math.log(minFreq);
+            const maxLog = Math.log(maxFreq);
+            const scale = (maxLog - minLog) / 100;
+            const freq = Math.exp(minLog + scale * sliderValue);
+            return freq;
+        }
+
+        // --- 6. CREATE THE SEQUENCER LOGIC ---
+
+        function scheduleNextStep() {
+            const secondsPerStep = (60.0 / bpm) / 4.0; 
+
+            if (isPlaying) {
+                
+                // --- LFO Logic (all existing LFOs) ---
+                const cutoffAutomationSpeed = parseFloat(cutoffAutomationSelect.value);
+                if (cutoffAutomationSpeed > 0) {
+                    let currentValue = parseFloat(cutoffSlider.value);
+                    if (Math.abs(currentValue - cutoffLfoTargetValue) < cutoffAutomationSpeed * 2) {
+                        cutoffLfoTargetValue = Math.random() * 100;
+                    }
+                    let newValue = currentValue < cutoffLfoTargetValue ? currentValue + cutoffAutomationSpeed : currentValue - cutoffAutomationSpeed;
+                    if (newValue > 100) newValue = 100;
+                    if (newValue < 0) newValue = 0;
+                    cutoffSlider.value = newValue;
+                    cutoffValueLabel.textContent = `${getLogFrequency(newValue).toFixed(0)} Hz`;
+                }
+                const resonanceAutomationSpeed = parseFloat(resonanceAutomationSelect.value);
+                if (resonanceAutomationSpeed > 0) {
+                    let currentResValue = parseFloat(resonanceSlider.value);
+                    if (Math.abs(currentResValue - resLfoTargetValue) < resonanceAutomationSpeed * 2) {
+                        const currentCutoffPos = parseFloat(cutoffSlider.value);
+                        const maxResFactor = (100 - currentCutoffPos) / 100;
+                        const maxAllowedRes = maxResFactor * 20;
+                        resLfoTargetValue = Math.random() * maxAllowedRes;
+                    }
+                    let newResValue = currentResValue < resLfoTargetValue ? currentResValue + resonanceAutomationSpeed : currentResValue - resonanceAutomationSpeed;
+                    if (newResValue > 20) newResValue = 20;
+                    if (newResValue < 0) newResValue = 0;
+                    resonanceSlider.value = newResValue;
+                    resonanceValueLabel.textContent = newResValue.toFixed(1);
+                }
+                const attackAutomationSpeed = parseFloat(attackAutomationSelect.value);
+                if (attackAutomationSpeed > 0) {
+                    let currentValue = parseFloat(attackSlider.value);
+                    if (Math.abs(currentValue - attackLfoTargetValue) < attackAutomationSpeed * 2) {
+                        attackLfoTargetValue = 0.01 + (Math.random() * 0.49); 
+                    }
+                    let newValue = currentValue < attackLfoTargetValue ? currentValue + attackAutomationSpeed : currentValue - attackAutomationSpeed;
+                    if (newValue > 2.0) newValue = 2.0;
+                    if (newValue < 0.01) newValue = 0.01;
+                    attackSlider.value = newValue;
+                    attackValueLabel.textContent = `${newValue.toFixed(2)} s`;
+                }
+                const decayAutomationSpeed = parseFloat(decayAutomationSelect.value);
+                if (decayAutomationSpeed > 0) {
+                    let currentValue = parseFloat(decaySlider.value);
+                    if (Math.abs(currentValue - decayLfoTargetValue) < decayAutomationSpeed * 2) {
+                        decayLfoTargetValue = 0.1 + (Math.random() * 0.9); 
+                    }
+                    let newValue = currentValue < decayLfoTargetValue ? currentValue + decayAutomationSpeed : currentValue - decayAutomationSpeed;
+                    if (newValue > 2.0) newValue = 2.0;
+                    if (newValue < 0.01) newValue = 0.01;
+                    decaySlider.value = newValue;
+                    decayValueLabel.textContent = `${newValue.toFixed(2)} s`;
+                }
+                const sustainAutomationSpeed = parseFloat(sustainAutomationSelect.value);
+                if (sustainAutomationSpeed > 0) {
+                    let currentValue = parseFloat(sustainSlider.value);
+                    if (Math.abs(currentValue - sustainLfoTargetValue) < sustainAutomationSpeed * 2) {
+                        sustainLfoTargetValue = 0.3 + (Math.random() * 0.5); 
+                    }
+                    let newValue = currentValue < sustainLfoTargetValue ? currentValue + sustainAutomationSpeed : currentValue - sustainAutomationSpeed;
+                    if (newValue > 1.0) newValue = 1.0;
+                    if (newValue < 0.0) newValue = 0.0;
+                    sustainSlider.value = newValue;
+                    sustainValueLabel.textContent = newValue.toFixed(2);
+                }
+                const releaseAutomationSpeed = parseFloat(releaseAutomationSelect.value);
+                if (releaseAutomationSpeed > 0) {
+                    let currentValue = parseFloat(releaseSlider.value);
+                    if (Math.abs(currentValue - releaseLfoTargetValue) < releaseAutomationSpeed * 2) {
+                        releaseLfoTargetValue = 0.1 + (Math.random() * 1.1); 
+                    }
+                    let newValue = currentValue < releaseLfoTargetValue ? currentValue + releaseAutomationSpeed : currentValue - releaseAutomationSpeed;
+                    if (newValue > 2.0) newValue = 2.0;
+                    if (newValue < 0.01) newValue = 0.01;
+                    releaseSlider.value = newValue;
+                    releaseValueLabel.textContent = `${newValue.toFixed(2)} s`;
+                }
+                // UPDATED: Noise LFO Logic
+                const noiseAutomationSpeed = parseFloat(noiseAutomationSelect.value);
+                if (noiseAutomationSpeed > 0) {
+                    let currentValue = parseFloat(noiseSlider.value);
+                    if (Math.abs(currentValue - noiseLfoTargetValue) < noiseAutomationSpeed * 2) {
+                        noiseLfoTargetValue = Math.random() * 0.2; 
+                    }
+                    let newValue = currentValue < noiseLfoTargetValue ? currentValue + noiseAutomationSpeed : currentValue - noiseAutomationSpeed;
+                    if (newValue > 0.2) newValue = 0.2;
+                    if (newValue < 0.0) newValue = 0.0;
+                    noiseSlider.value = newValue;
+                    noiseValueLabel.textContent = newValue.toFixed(2);
+                }
+
+                // --- Note Playing Logic ---
+                for (let noteIndex = 0; noteIndex < numNotes; noteIndex++) {
+                    if (gridData[noteIndex][currentStep] === 1) {
+                        playNote(baseNoteFrequencies[noteIndex]);
+                    }
+                }
+                
+                // --- UPDATED: Drum Playing Logic ---
+                const kickAccent = drumGridData[0][currentStep] === 2;
+                if (drumGridData[0][currentStep] > 0) {
+                    playKick(kickAccent);
+                }
+                const snareAccent = drumGridData[1][currentStep] === 2;
+                if (drumGridData[1][currentStep] > 0) {
+                    playSnare(snareAccent);
+                }
+                const hatCAccent = drumGridData[2][currentStep] === 2;
+                if (drumGridData[2][currentStep] > 0) {
+                    playHat('closed', hatCAccent);
+                }
+                const hatOAccent = drumGridData[3][currentStep] === 2;
+                if (drumGridData[3][currentStep] > 0) {
+                    playHat('open', hatOAccent);
+                }
+                
+                currentStep = (currentStep + 1) % numSteps; 
+            }
+            
+            drawGrids(); // UPDATED
+            timerId = setTimeout(scheduleNextStep, secondsPerStep * 1000);
+        }
+        
+        // --- 7. CANVAS DRAWING AND CLICK HANDLING ---
+        
+        // NEW: Master drawing function
+        function drawGrids() {
+            // Calculate size based on synth canvas's parent
+            const containerWidth = synthCanvas.parentElement.clientWidth;
+            const containerPadding = parseFloat(getComputedStyle(synthCanvas.parentElement).paddingLeft) * 2;
+            const availableWidth = containerWidth - containerPadding;
+            
+            // Update global stepSize
+            stepSize = (availableWidth - labelWidth - (stepGap * (numSteps + 1))) / numSteps;
+
+            // Call individual draw functions
+            drawSynthGrid();
+            drawDrumGrid();
+        }
+        
+        function drawSynthGrid() {
+            // Set canvas buffer size
+            synthCanvas.width = labelWidth + (stepSize * numSteps) + (stepGap * (numSteps + 1));
+            synthCanvas.height = (stepSize * numNotes) + (stepGap * (numNotes + 1));
+            
+            synthCtx.clearRect(0, 0, synthCanvas.width, synthCanvas.height);
+            
+            const octaveShift = parseInt(octaveSelect.value, 10);
+            const noteLabels = baseNoteLabels.map(label => {
+                const noteName = label.slice(0, -1);
+                const noteOctave = parseInt(label.slice(-1), 10);
+                return `${noteName}${noteOctave + octaveShift}`;
+            });
+
+            const activeColor = '#E53E3E';
+            const lightRowBg = '#3a3a3a'; 
+            const darkRowBg = '#2a2a2a';  
+            const labelColor = '#aaa';    
+            const playheadColor = 'rgba(229, 62, 62, 0.3)';
+
+            for (let note = 0; note < numNotes; note++) {
+                const y = stepGap + note * (stepSize + stepGap);
+                
+                synthCtx.fillStyle = labelColor;
+                synthCtx.font = '12px sans-serif';
+                synthCtx.textAlign = 'right';
+                synthCtx.textBaseline = 'middle';
+                synthCtx.fillText(noteLabels[note], labelWidth - 5, y + (stepSize / 2)); 
+
+                for (let step = 0; step < numSteps; step++) {
+                    const x = labelWidth + stepGap + step * (stepSize + stepGap);
+
+                    if (isSharp[note]) {
+                        synthCtx.fillStyle = lightRowBg; 
+                    } else {
+                        synthCtx.fillStyle = darkRowBg;
+                    }
+                    
+                    if (gridData[note] && gridData[note][step] === 1) {
+                        synthCtx.fillStyle = activeColor;
+                    }
+                    
+                    synthCtx.fillRect(x, y, stepSize, stepSize);
+                }
+            }
+
+            if (isPlaying) {
+                const x = labelWidth + stepGap + currentStep * (stepSize + stepGap);
+                synthCtx.fillStyle = playheadColor;
+                synthCtx.fillRect(x - (stepGap/2), 0, stepSize + stepGap, synthCanvas.height);
+            }
+        }
+        
+        // NEW: Drum Grid Drawing Function
+        function drawDrumGrid() {
+            // Set canvas buffer size
+            drumCanvas.width = labelWidth + (stepSize * numSteps) + (stepGap * (numSteps + 1));
+            drumCanvas.height = (stepSize * numDrumNotes) + (stepGap * (numDrumNotes + 1));
+
+            drumCtx.clearRect(0, 0, drumCanvas.width, drumCanvas.height);
+
+            const activeColorNormal = '#E53E3E'; // var(--active-color)
+            const activeColorAccent = '#FF7575'; // var(--active-color-accent)
+            const lightRowBg = '#3a3a3a'; 
+            const darkRowBg = '#2a2a2a';  
+            const labelColor = '#aaa';    
+            const playheadColor = 'rgba(229, 62, 62, 0.3)';
+
+            for (let note = 0; note < numDrumNotes; note++) {
+                const y = stepGap + note * (stepSize + stepGap);
+                
+                drumCtx.fillStyle = labelColor;
+                drumCtx.font = '12px sans-serif';
+                drumCtx.textAlign = 'right';
+                drumCtx.textBaseline = 'middle';
+                drumCtx.fillText(drumLabels[note], labelWidth - 5, y + (stepSize / 2)); 
+
+                for (let step = 0; step < numSteps; step++) {
+                    const x = labelWidth + stepGap + step * (stepSize + stepGap);
+
+                    // Alternating background for drums
+                    drumCtx.fillStyle = (note % 2 === 0) ? darkRowBg : lightRowBg;
+                    
+                    // UPDATED: Check for accent state
+                    const drumState = drumGridData[note] ? drumGridData[note][step] : 0;
+                    if (drumState === 1) {
+                        drumCtx.fillStyle = activeColorNormal;
+                    } else if (drumState === 2) {
+                        drumCtx.fillStyle = activeColorAccent;
+                    }
+                    
+                    drumCtx.fillRect(x, y, stepSize, stepSize);
+                }
+            }
+
+            if (isPlaying) {
+                const x = labelWidth + stepGap + currentStep * (stepSize + stepGap);
+                drumCtx.fillStyle = playheadColor;
+                drumCtx.fillRect(x - (stepGap/2), 0, stepSize + stepGap, drumCanvas.height);
+            }
+        }
+        
+        synthCanvas.addEventListener('click', (e) => { // Renamed canvas
+            const rect = synthCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (x < labelWidth) { 
+                return;
+            }
+            
+            // Global stepSize is used here
+
+            for (let note = 0; note < numNotes; note++) {
+                for (let step = 0; step < numSteps; step++) { 
+                    
+                    const boxX = labelWidth + stepGap + step * (stepSize + stepGap);
+                    const boxY = stepGap + note * (stepSize + stepGap);
+
+                    if (x >= boxX && x <= boxX + stepSize && 
+                        y >= boxY && y <= boxY + stepSize) {
+                        
+                        gridData[note][step] = gridData[note][step] === 0 ? 1 : 0;
+                        drawGrids(); // UPDATED
+                        return;
+                    }
+                }
+            }
+        });
+        
+        // NEW: Drum Canvas Click Listener
+        drumCanvas.addEventListener('click', (e) => {
+            const rect = drumCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (x < labelWidth) { 
+                return;
+            }
+            
+            // Global stepSize is used here
+
+            for (let note = 0; note < numDrumNotes; note++) {
+                for (let step = 0; step < numSteps; step++) { 
+                    
+                    const boxX = labelWidth + stepGap + step * (stepSize + stepGap);
+                    const boxY = stepGap + note * (stepSize + stepGap);
+
+                    if (x >= boxX && x <= boxX + stepSize && 
+                        y >= boxY && y <= boxY + stepSize) {
+                        
+                        // UPDATED: Cycle 0 -> 1 -> 2 -> 0
+                        const currentState = drumGridData[note][step];
+                        if (currentState === 0) {
+                            drumGridData[note][step] = 1; // Normal
+                        } else if (currentState === 1) {
+                            drumGridData[note][step] = 2; // Accent
+                        } else {
+                            drumGridData[note][step] = 0; // Off
+                        }
+                        
+                        drawGrids(); // UPDATED
+                        return;
+                    }
+                }
+            }
+        });
+
+
+        // --- 8. HANDLE UI (BUTTONS AND SLIDERS) ---
+        
+        playButton.addEventListener('click', () => {
+            if (!audioContext) {
+                audioContext = new AudioContext();
+                // Create and connect master gain node
+                masterGain = audioContext.createGain();
+                masterGain.gain.setValueAtTime(parseFloat(volumeSlider.value), 0);
+                masterGain.connect(audioContext.destination);
+                // Create noise buffer
+                whiteNoiseBuffer = createWhiteNoise(audioContext); // NEW
+            }
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playButton.textContent = 'Pause';
+                currentStep = 0; 
+                scheduleNextStep();
+            } else {
+                playButton.textContent = 'Play';
+                clearTimeout(timerId); 
+                drawGrids(); // UPDATED
+            }
+        });
+
+        // REVERTED: Simple BPM listener
+        bpmSlider.addEventListener('input', (e) => {
+            bpm = parseInt(e.target.value, 10);
+            bpmValue.textContent = bpm;
+        });
+        
+        // --- 9. Event Listeners for new synth controls ---
+        
+        // Event listener for Volume
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = parseFloat(e.target.value);
+            if (masterGain) {
+                masterGain.gain.setValueAtTime(volume, audioContext.currentTime);
+            }
+            volumeValueLabel.textContent = `${Math.round(volume * 100)}%`;
+        });
+
+        // Event listener for Clear Button
+        clearButton.addEventListener('click', () => {
+            // Clear both grids
+            for (let n = 0; n < numNotes; n++) {
+                gridData[n].fill(0); 
+            }
+            for (let n = 0; n < numDrumNotes; n++) {
+                drumGridData[n].fill(0);
+            }
+            drawGrids(); // UPDATED
+        });
+
+        octaveSelect.addEventListener('change', drawGrids); // UPDATED
+
+        // Event listener for Step Toggle
+        stepToggle.addEventListener('change', (e) => {
+            numSteps = e.target.checked ? 32 : 16;
+            
+            initializeGrids(); // UPDATED
+            
+            // Reset playhead
+            currentStep = 0;
+            
+            drawGrids(); // UPDATED
+        });
+
+        cutoffSlider.addEventListener('input', (e) => {
+            cutoffValueLabel.textContent = `${getLogFrequency(e.target.value).toFixed(0)} Hz`;
+        });
+        resonanceSlider.addEventListener('input', (e) => {
+            resonanceValueLabel.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        attackSlider.addEventListener('input', (e) => {
+            attackValueLabel.textContent = `${parseFloat(e.target.value).toFixed(2)} s`;
+        });
+        
+        decaySlider.addEventListener('input', (e) => {
+            decayValueLabel.textContent = `${parseFloat(e.target.value).toFixed(2)} s`;
+        });
+        
+        sustainSlider.addEventListener('input', (e) => {
+            sustainValueLabel.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        releaseSlider.addEventListener('input', (e) => {
+            releaseValueLabel.textContent = `${parseFloat(e.target.value).toFixed(2)} s`;
+        });
+
+        // Event listener for Spread slider
+        spreadSlider.addEventListener('input', (e) => {
+            spreadValueLabel.textContent = `${parseFloat(e.target.value).toFixed(1)} cents`;
+        });
+
+        // NEW: Event listener for Noise slider
+        noiseSlider.addEventListener('input', (e) => {
+            noiseValueLabel.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // NEW: Event listener for Vibrato slider
+        vibratoSlider.addEventListener('input', (e) => {
+            vibratoValueLabel.textContent = `${parseFloat(e.target.value).toFixed(1)} cents`;
+        });
+
+        // NEW: Event listener for Transpose buttons
+        transposeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                // Remove active class from all
+                transposeButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                const clickedButton = e.target;
+                clickedButton.classList.add('active');
+                
+                // Update global transpose offset
+                transposeOffset = parseInt(clickedButton.dataset.transpose, 10);
+            });
+        });
+        
+        // --- NEW: Keyboard Listeners ---
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return; // Prevent holding a key down from re-triggering
+            const midiNote = keyMap[e.key];
+            
+            if (midiNote && !activeMelodyNotes[midiNote]) {
+                // *** FIX: Initialize AudioContext if it doesn't exist ***
+                if (!audioContext) {
+                    audioContext = new AudioContext();
+                    masterGain = audioContext.createGain();
+                    masterGain.gain.setValueAtTime(parseFloat(volumeSlider.value), 0);
+                    masterGain.connect(audioContext.destination);
+                    whiteNoiseBuffer = createWhiteNoise(audioContext);
+                }
+                playMelodyNote(midiNote);
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const midiNote = keyMap[e.key];
+            if (midiNote && activeMelodyNotes[midiNote]) {
+                stopMelodyNote(midiNote);
+            }
+        });
+
+
+        // --- 10. INITIAL DRAW & RESIZE HANDLING ---
+        window.addEventListener('resize', drawGrids); // UPDATED
+        
+        // Initial Draw
+        setTimeout(drawGrids, 0); // UPDATED
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonic Resonance</title>
+    <!-- Tailwind CSS for utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js for WebGL context management -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Tone.js for web audio synthesis -->
+    <script src="https://unpkg.com/tone@14.8.49/build/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+        }
+        canvas {
+            display: block;
+        }
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* New layout container - positioned absolutely inside #overlay */
+        #main-layout {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column; /* Mobile first: stack vertically */
+            align-items: center;
+            justify-content: center;
+            padding: 4.5rem 1rem 1rem 1rem; /* Padding for status/mute bars */
+            gap: 1rem;
+            pointer-events: none; /* Pass clicks through, except to children */
+            box-sizing: border-box; /* Ensure padding is included */
+            
+            /* FIX: Allow vertical scrolling if content overflows on short screens */
+            overflow-y: auto;
+            overscroll-behavior-y: contain; /* Prevent full-page pull-to-refresh */
+        }
+        
+        /* Desktop layout */
+        @media (min-width: 1024px) { /* lg breakpoint */
+            #main-layout {
+                flex-direction: row; /* Desktop: side-by-side */
+                justify-content: space-evenly;
+                align-items: center;
+                gap: 2rem;
+                padding: 1rem;
+                overflow-y: hidden; /* No scrolling needed on desktop */
+            }
+        }
+
+
+        #game-grid {
+            /* Now positioned by flexbox, not absolute */
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 0.5rem;
+            width: 90%;
+            max-width: 600px;
+            aspect-ratio: 1 / 1; /* Keep it square */
+            pointer-events: auto; /* IMPORTANT: Allows clicking */
+            z-index: 8;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.5s ease;
+            order: 2; /* Show below scoreboard on mobile */
+            flex-shrink: 0; /* Prevent grid from shrinking */
+        }
+
+        @media (min-width: 1024px) {
+            #game-grid {
+                order: 1; /* Show on left on desktop */
+                width: 100%; /* Fill available flex space */
+            }
+        }
+
+        .tile {
+            background-color: rgba(50, 50, 100, 0.6);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem; /* Mobile-first font size */
+            color: #E2E8F0;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s, transform 0.1s, opacity 0.5s;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        /* Responsive font size for tiles */
+        @media (min-width: 640px) { /* sm breakpoint */
+            .tile {
+                font-size: 2.5rem;
+            }
+        }
+        
+        .tile:hover:not(.matched) {
+            background-color: rgba(90, 90, 150, 0.8);
+        }
+        .tile.flipped {
+            background-color: rgba(120, 120, 200, 0.9);
+            color: #FFF;
+        }
+        .tile.matched {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .tile-content {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tile.flipped .tile-content {
+            visibility: visible;
+            opacity: 1;
+        }
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 20;
+            pointer-events: auto;
+            transition: opacity 0.5s;
+        }
+        #start-game-button {
+            padding: 1rem 3rem;
+            background-color: #6C5CE7;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            box-shadow: 0 4px #4D41A8;
+            transition: all 0.15s ease.
+        }
+        #start-game-button:hover {
+            background-color: #7D6FEF;
+        }
+        #start-game-button:active {
+            box-shadow: 0 1px #4D41A8;
+            transform: translateY(3px);
+        }
+        #error-display {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 0.5rem;
+            background-color: #DC2626; /* Red-700 */
+            color: white;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+            z-index: 50;
+        }
+        #status-bar {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+        #scoreboard-container {
+            /* Positioned by flexbox, not absolute */
+            position: relative;
+            width: 90%;
+            max-width: 300px;
+            background-color: rgba(30, 0, 60, 0.8);
+            backdrop-filter: blur(5px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            color: white;
+            z-index: 9;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            flex-shrink: 0; /* Don't shrink */
+            order: 1; /* Show above grid on mobile */
+        }
+
+        @media (min-width: 1024px) {
+            #scoreboard-container {
+                order: 2; /* Show on right on desktop */
+                width: 300px;
+                max-width: 300px;
+            }
+        }
+        
+        #scoreboard-container h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #E0B0FF;
+            margin-bottom: 0.5rem;
+        }
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .score-entry:last-child {
+            border-bottom: none;
+        }
+        .rank {
+            font-weight: 700;
+            color: #C0C0FF;
+            width: 30px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .name {
+            flex-grow: 1;
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .detail {
+            font-size: 0.8rem;
+            color: #BBB;
+            text-align: right;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-left: 0.5rem;
+        }
+        #controls-bar {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            z-index: 11;
+            pointer-events: auto;
+        }
+        #mute-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #mute-button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        #mute-button.muted {
+            background-color: rgba(200, 50, 50, 0.5);
+            border-color: rgba(200, 50, 50, 0.8);
+        }
+        
+        .prompt-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 30;
+            text-align: center;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background-color: rgba(30, 0, 60, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 40px rgba(108, 92, 231, 0.5);
+            max-width: 90%;
+            width: 400px;
+        }
+        .modal-content h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #6C5CE7;
+        }
+        .modal-content input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            border: 2px solid #6C5CE7;
+            background-color: #1a0033;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+        }
+        .modal-content button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin: 0.5rem;
+        }
+        #submit-name-button {
+            background-color: #6C5CE7;
+            color: white;
+        }
+        #skip-name-button {
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- VISIBLE ERROR BAR (NEW) -->
+    <div id="error-display" style="display: none;"></div>
+    
+    <!-- WebGL Canvas will be injected here by Three.js -->
+    <div id="overlay">
+        <!-- Status Bar -->
+        <div id="status-bar">
+            <span id="score-display">Matches: 0 / 8 | Moves: 0</span>
+            <span id="game-status"></span>
+        </div>
+
+        <!-- Mute Button Container -->
+        <div id="controls-bar">
+            <button id="mute-button">SOUND ON</button>
+        </div>
+
+        <!-- Main Layout Container -->
+        <div id="main-layout">
+            <!-- Scoreboard (will be re-ordered by CSS) -->
+            <div id="scoreboard-container">
+                <h2>Top 10 Clarity Scores</h2>
+                <div id="high-scores-list">
+                    <!-- Scores injected here -->
+                    <p class="text-gray-400 text-sm" id="scores-loading">Loading scores...</p>
+                </div>
+            </div>
+
+            <!-- Game Grid Container (will be re-ordered by CSS) -->
+            <div id="game-grid" style="opacity: 0; pointer-events: none;">
+                <!-- Tiles generated by JS -->
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h1>Harmonic Resonance</h1>
+            <p class="mb-6 text-lg text-gray-400">Match the pairs to clear the vibe and achieve perfect clarity.</p>
+            <button id="start-game-button">START VIBE</button>
+        </div>
+
+        <!-- Name Submission Modal -->
+        <div id="name-prompt-modal" class="prompt-modal">
+            <div class="modal-content">
+                <h3>Harmony Achieved!</h3>
+                <p>Your Score: <span id="final-score-text"></span></p>
+                <p>Enter your name for the scoreboard (max 15 chars):</p>
+                <input type="text" id="name-input" maxlength="15" placeholder="Enter Name">
+                <div>
+                    <!-- Note: onclick listeners now call window.submitScore -->
+                    <button id="submit-name-button" onclick="window.submitScore(false)">Submit Score</button>
+                    <button id="skip-name-button" onclick="window.submitScore('Guest')">Skip (Post as 'Guest')</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Modal (Hidden by default) -->
+        <div id="game-over-modal" class="prompt-modal">
+            <div class="modal-content">
+                <h3 id="game-over-title">Harmony Achieved!</h3>
+                <p id="game-over-stats"></p>
+                <button id="restart-button">RESTART VIBE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript Module -->
+    <script type="module">
+        // Use the project ID as the app ID for database paths
+        const appId = "harmonicresonance-afd4e";
+        
+        // --- IMPORTANT ---
+        // The __firebase_config variable is injected by the preview environment.
+        // To publish this app, you MUST create your own Firebase project
+        // and paste your Firebase config object below.
+        
+        // (No longer used, config is now hardcoded in initFirebaseAndAuth)
+
+
+        // --- FIREBASE MODULE IMPORTS (Use direct imports in a module script) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import { getFirestore, collection, query, limit, addDoc, onSnapshot, serverTimestamp, orderBy, setLogLevel, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
+
+        // --- FIREBASE GLOBALS ---
+        let db, auth;
+        let userId = 'loading'; // Will be set after auth completes
+        let isAuthReady = false;
+
+        // --- GAME GLOBALS ---
+        let scene, camera, renderer, geometry, material, mesh;
+        let uniforms;
+        let drone, matchSynth, winSynth;
+        let isPaused = false;
+        let isMuted = false;
+        let isGameOver = true;
+
+        // Game State
+        let tiles = [];
+        let firstTile = null;
+        let secondTile = null;
+        let matchesFound = 0;
+        let totalMoves = 0;
+        const totalPairs = 8;
+        let currentScore = 0;
+        let finalMoves = 0;
+        let chaosFactor = 1.0;
+
+        /* Emojis for Vibe */
+        const tileSymbols = ["🎵", "🎹", "✨", "🔮", "🌙", "🌟", "🪐", "🚀"];
+
+        // --- ERROR DISPLAY ---
+        function showError(message) {
+            const errorBar = document.getElementById('error-display');
+            errorBar.textContent = `Error: ${message}`;
+            errorBar.style.display = 'block';
+            console.error(`VISIBLE ERROR: ${message}`);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                errorBar.style.display = 'none';
+            }, 10000);
+        }
+
+
+        // --- SCOREBOARD SETUP ---
+
+        // Helper to get the correct Firestore path for the public scoreboard
+        function getScoreboardCollectionRef() {
+            if (!db || !isAuthReady) return null;
+            // Public data path: /artifacts/{appId}/public/data/{your_collection_name}
+            return collection(db, `artifacts/${appId}/public/data/high_scores`);
+        }
+
+        // Real-time listener for the scoreboard
+        function setupScoreboardListener() {
+            if (!isAuthReady || !db) return;
+
+            const collectionRef = getScoreboardCollectionRef();
+            if (!collectionRef) {
+                console.error("Scoreboard listener: Collection ref is null.");
+                return;
+            }
+            
+            // FIX: Removed orderBy('score') to avoid index requirement.
+            // We will sort the results manually in the snapshot.
+            const q = query(collectionRef, limit(10));
+
+            // onSnapshot provides real-time updates
+            onSnapshot(q, (snapshot) => {
+                const scoresList = document.getElementById('high-scores-list');
+                scoresList.innerHTML = ''; // Clear loading message
+
+                if (snapshot.empty) {
+                    scoresList.innerHTML = `<p class="text-gray-400 text-sm">Be the first to set a score!</p>`;
+                    return;
+                }
+
+                // FIX: Sort the results here (in JS) instead of in the query
+                const scores = snapshot.docs.map(doc => doc.data());
+                scores.sort((a, b) => b.score - a.score); // Sort by score descending
+
+                scores.forEach((data, index) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'score-entry';
+                    entry.innerHTML = `
+                        <span class="rank">${index + 1}.</span>
+                        <span class="name">${data.playerName || 'GUEST'}</span>
+                        <span class="detail">${data.score} (${data.moves} moves)</span>
+                    `;
+                    scoresList.appendChild(entry);
+                });
+            }, (error) => {
+                // This console error handles any future issues.
+                showError("Could not fetch scores. Check Firebase Security Rules.");
+                console.error("Error fetching scores:", error);
+                const scoresList = document.getElementById('high-scores-list');
+                scoresList.innerHTML = `<p class="text-red-400 text-sm">Error: Could not load scores. Check security rules.</p>`;
+            });
+        }
+
+        // --- FIREBASE INIT AND AUTHENTICATION ---
+
+        async function initFirebaseAndAuth() {
+            
+            // Your web app's Firebase configuration
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            const firebaseConfig = {
+                apiKey: "AIzaSyC5KhBpSofg1h4klmpKCnryqc7c7CWPRqM",
+                authDomain: "harmonicresonance-afd4e.firebaseapp.com",
+                projectId: "harmonicresonance-afd4e",
+                storageBucket: "harmonicresonance-afd4e.firebasestorage.app",
+                messagingSenderId: "765444499363",
+                appId: "1:765444499363:web:fdac0e577aecdb645adc16",
+                measurementId: "G-PGY7K2GMXB"
+              };
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                const analytics = getAnalytics(app);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('error'); // Set logging level
+
+                // Authentication:
+                await signInAnonymously(auth);
+
+                // Wait for auth state to settle
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                    } else {
+                        userId = crypto.randomUUID();
+                    }
+                    isAuthReady = true;
+                    console.log(`Auth Ready. User ID: ${userId}`);
+                    setupScoreboardListener(); // Start listening for scores only after auth is ready
+                });
+
+            } catch (error) {
+                const message = error.message || "Unknown Firebase setup error.";
+                showError(`Setup Failed: ${message}`);
+                document.getElementById('scoreboard-container').innerHTML = `<h2 class="text-red-500">Error</h2><p class="text-gray-400">Firebase Error: Scoreboard disabled.</p>`;
+            }
+        }
+
+        // --- SHADER CODE (With evolving color palette) ---
+
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform float u_time;
+            uniform float u_chaos_factor;
+            uniform vec2 u_resolution;
+            uniform vec2 u_mouse;
+            varying vec2 vUv;
+
+            vec3 hash( vec3 p ) {
+                p = vec3( dot(p,vec3(127.1,311.7, 74.7)),
+                          dot(p,vec3(269.5,183.3,246.1)),
+                          dot(p,vec3(113.5,271.9,124.6)));
+
+                return -1.0 + 2.0 * fract(sin(p)*43758.5453123);
+            }
+
+
+            float noise(vec3 p) {
+                vec3 pi = floor(p);
+                vec3 pf = p - pi;
+
+                vec3 w = pf * pf * (3.0 - 2.0 * pf);
+
+                return mix(mix(mix( dot(hash(pi + vec3(0,0,0)), pf - vec3(0,0,0)),
+                                dot(hash(pi + vec3(1,0,0)), pf - vec3(1,0,0)), w.x),
+                            mix( dot(hash(pi + vec3(0,1,0)), pf - vec3(0,1,0)),
+                                dot(hash(pi + vec3(1,1,0)), pf - vec3(1,1,0)), w.x), w.y),
+                        mix(mix( dot(hash(pi + vec3(0,0,1)), pf - vec3(0,0,1)),
+                                dot(hash(pi + vec3(1,0,1)), pf - vec3(1,0,1)), w.x),
+                            mix( dot(hash(pi + vec3(0,1,1)), pf - vec3(0,1,1)),
+                                dot(hash(pi + vec3(1,1,1)), pf - vec3(1,1,1)), w.x), w.y), w.z);
+            }
+
+            // Function to generate color based on offset UV
+            vec3 getColor(vec2 uv, vec2 offset) {
+                vec2 q = uv * 3.0; // Scale up the coordinate space
+                q.x += u_time * 0.1 * u_chaos_factor; // Speed based on chaos
+
+                // Create noise input with offset
+                vec3 noiseInput = vec3(q, u_time * 0.2 * u_chaos_factor);
+
+                // Use the noise value for coloring/intensity
+                float n = noise(noiseInput * 3.0 + offset.x) * 0.5 + noise(noiseInput * 6.0 + offset.y) * 0.25;
+                n = pow(n * 2.0, 1.5); // Add contrast
+
+                // *** NEW: Evolving Color Palette ***
+                // Base colors: Deep Violet to Magenta (Chaos = 1.0)
+                vec3 colorA_chaos = vec3(0.1, 0.0, 0.3);
+                vec3 colorB_chaos = vec3(0.5, 0.2, 0.7);
+                
+                // Harmony colors: Dark Gold to Bright Orange/Gold (Chaos = 0.0)
+                vec3 colorA_harmony = vec3(0.4, 0.2, 0.0);
+                vec3 colorB_harmony = vec3(0.8, 0.5, 0.1);
+
+                // Interpolate between chaos and harmony based on u_chaos_factor
+                vec3 colorA = mix(colorA_harmony, colorA_chaos, u_chaos_factor);
+                vec3 colorB = mix(colorB_harmony, colorB_chaos, u_chaos_factor);
+                // ************************************
+
+                // Mix colors based on noise value and apply a sine wave to make it pulse
+                vec3 finalColor = mix(colorA, colorB, n * (0.8 + 0.2 * sin(u_time * 0.5)));
+
+                return finalColor * (n + 0.2);
+            }
+
+
+            void main() {
+                vec2 uv = vUv;
+
+                // --- Visual Wake Effect ---
+                // Calculate distance from mouse (u_mouse is normalized 0-1)
+                vec2 mouseUV = u_mouse * u_resolution / u_resolution.xy;
+                float dist = distance(uv, mouseUV);
+                
+                // Maximize wake effect when chaos is high
+                float wakeIntensity = (1.0 - dist) * 0.2 * u_chaos_factor;
+
+                // Create chromatic aberration offsets
+                // The offset size is directly controlled by the chaos factor
+                float offsetMagnitude = 0.005 * u_chaos_factor + wakeIntensity;
+
+                vec2 offsetR = vec2(offsetMagnitude, 0.0);
+                vec2 offsetG = vec2(-offsetMagnitude * 0.5, offsetMagnitude * 0.866 * 0.5); // Triangle pattern
+                vec2 offsetB = vec2(-offsetMagnitude * 0.5, -offsetMagnitude * 0.866 * 0.5);
+
+                // Sample colors with offsets
+                vec3 colR = getColor(uv + offsetR, offsetR * 10.0);
+                vec3 colG = getColor(uv + offsetG, offsetG * 10.0);
+                vec3 colB = getColor(uv + offsetB, offsetB * 10.0);
+
+                // Combine the channels
+                vec3 finalColor = vec3(colR.r, colR.r, colR.r);
+
+                // Add a vignette effect for mood
+                float vignette = smoothstep(0.0, 0.8, length(uv - 0.5) * 1.5);
+                finalColor *= (1.0 - vignette);
+
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
+
+        // --- THREE.JS INIT ---
+
+        function init() {
+            const container = document.body;
+
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.Camera(); // Use a basic Camera for 2D shader
+            camera.position.z = 1;
+
+            // Renderer setup
+            try {
+                renderer = new THREE.WebGLRenderer();
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                container.appendChild(renderer.domElement);
+            } catch (e) {
+                console.error("Failed to initialize WebGLRenderer:", e);
+                // Fallback for no WebGL
+                document.body.innerHTML = '<div style="color: white; background-color: #000; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-size: 1.2rem; text-align: center; padding: 1rem;"><h1>Error: Could not initialize WebGL.</h1><p>Please use a modern browser (like Chrome, Firefox, or Safari) and ensure WebGL is enabled.</p></div>';
+                return; // Stop execution
+            }
+
+
+            // Shader Uniforms
+            uniforms = {
+                u_time: { type: "f", value: 1.0 },
+                u_resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                u_chaos_factor: { type: "f", value: chaosFactor },
+                u_mouse: { type: "v2", value: new THREE.Vector2(0.5, 0.5) }
+            };
+
+            // Mesh setup (a simple plane covering the screen)
+            geometry = new THREE.PlaneGeometry(2, 2);
+            material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader
+            });
+            mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            // Event listeners
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('touchstart', onTouchMove, { passive: false });
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+
+
+            animate(); // Start the render loop
+        }
+
+        function onWindowResize() {
+            uniforms.u_resolution.value.x = window.innerWidth;
+            uniforms.u_resolution.value.y = window.innerHeight;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onMouseMove(event) {
+            // Update mouse position normalized to 0-1
+            uniforms.u_mouse.value.x = event.clientX / window.innerWidth;
+            // Invert Y for shader space
+            uniforms.u_mouse.value.y = 1.0 - (event.clientY / window.innerHeight);
+        }
+
+        function onTouchMove(event) {
+            // Use the first touch point
+            if (event.touches.length > 0) {
+                const touch = event.touches[0];
+                uniforms.u_mouse.value.x = touch.clientX / window.innerWidth;
+                uniforms.u_mouse.value.y = 1.0 - (touch.clientY / window.innerHeight);
+            }
+        }
+
+        function animate(timestamp) {
+            requestAnimationFrame(animate);
+
+            if (!isPaused) {
+                uniforms.u_time.value = timestamp / 1000.0;
+                uniforms.u_chaos_factor.value = chaosFactor;
+                renderer.render(scene, camera);
+            }
+        }
+
+        // --- TONE.JS AUDIO SETUP ---
+
+        async function initAudio() {
+            await Tone.start();
+            console.log("Audio Context Started.");
+
+            // 1. Ambient Drone (Sine/Noise mix)
+            drone = new Tone.NoiseSynth({
+                noise: { type: "brown" },
+                envelope: { attack: 4, decay: 4, sustain: 1, release: 8 }
+            }).toDestination();
+            drone.volume.value = -30; // Starts very quietly
+            drone.triggerAttack();
+
+            // 2. Match Reward Synth (Lush and simple)
+            matchSynth = new Tone.PolySynth(Tone.AMSynth, {
+                oscillator: { type: "sine" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.5, release: 1.0 },
+                volume: -10
+            }).chain(new Tone.Freeverb({ roomSize: 0.8, dampening: 3000 }), Tone.Destination);
+
+            // 3. Victory Synth (Happy tune)
+            winSynth = new Tone.Synth({
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.02, decay: 0.4, sustain: 0.1, release: 0.5 },
+                volume: -5
+            }).chain(new Tone.Reverb(1).toDestination());
+        }
+
+        // Function to play a melodic reward chord (now randomized)
+        function playMatchSound() {
+            const chords = [
+                ["C4", "E4", "G4"], // C Major
+                ["F4", "A4", "C5"], // F Major
+                ["G4", "B4", "D5"], // G Major
+                ["D4", "F#4", "A4"] // D Major
+            ];
+            const randomChord = chords[Math.floor(Math.random() * chords.length)];
+            matchSynth.triggerAttackRelease(randomChord, '1m');
+        }
+
+        // Function to play the final happy tune
+        function playVictoryTune() {
+            const sequence = [
+                { note: "G4", duration: "8n", time: 0 },
+                { note: "A4", duration: "8n", time: "8n" },
+                { note: "B4", duration: "8n", time: "4n" },
+                { note: "C5", duration: "4n", time: "2n" },
+            ];
+
+            const synthPart = new Tone.Part((time, value) => {
+                winSynth.triggerAttackRelease(value.note, value.duration, time);
+            }, sequence).start(Tone.now());
+
+            synthPart.loop = false;
+        }
+
+        // --- GAME LOGIC ---
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function createGame() {
+            isGameOver = false;
+            matchesFound = 0;
+            totalMoves = 0;
+            firstTile = null;
+            secondTile = null;
+            chaosFactor = 1.0;
+            updateStatusBar();
+
+            const symbols = shuffle([...tileSymbols, ...tileSymbols]);
+            tiles = [];
+            const grid = document.getElementById('game-grid');
+            grid.innerHTML = '';
+
+            symbols.forEach((symbol, index) => {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.dataset.symbol = symbol;
+                tile.dataset.index = index;
+                tile.innerHTML = `<span class="tile-content">${symbol}</span>`;
+                tile.addEventListener('click', () => handleTileClick(tile));
+                grid.appendChild(tile);
+                tiles.push(tile);
+            });
+        }
+
+        function handleTileClick(tile) {
+            if (isPaused || isGameOver || tile.classList.contains('matched') || tile.classList.contains('flipped')) {
+                return;
+            }
+
+            // Flip the tile
+            tile.classList.add('flipped');
+
+            if (!firstTile) {
+                firstTile = tile;
+            } else if (!secondTile) {
+                totalMoves++;
+                secondTile = tile;
+                isPaused = true; // Pause interaction until check is complete
+
+                updateStatusBar();
+
+                if (firstTile.dataset.symbol === secondTile.dataset.symbol) {
+                    // Match!
+                    matchesFound++;
+                    playMatchSound();
+
+                    // Reduce chaos factor (visual noise and ambient volume)
+                    chaosFactor = 1.0 - (matchesFound / totalPairs);
+                    drone.volume.rampTo(-30 - (30 * (1.0 - chaosFactor)), 0.5); // Drone gets quieter
+
+                    // Lock tiles in place
+                    setTimeout(() => {
+                        firstTile.classList.add('matched');
+                        secondTile.classList.add('matched');
+                        firstTile.classList.remove('flipped');
+                        secondTile.classList.remove('flipped');
+
+                        resetTurn();
+
+                        if (matchesFound === totalPairs) {
+                            gameOver();
+                        }
+                    }, 500);
+
+                } else {
+                    // Mismatch
+                    setTimeout(() => {
+                        firstTile.classList.remove('flipped');
+                        secondTile.classList.remove('flipped');
+                        resetTurn();
+                    }, 1000);
+                }
+            }
+        }
+
+        function resetTurn() {
+            firstTile = null;
+            secondTile = null;
+            isPaused = false;
+        }
+
+        function updateStatusBar() {
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.textContent = `Matches: ${matchesFound} / ${totalPairs} | Moves: ${totalMoves}`;
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            isPaused = true;
+            playVictoryTune();
+
+            // Calculate score (Less moves = Higher score)
+            // Base score 1000 - (10 * moves)
+            currentScore = Math.max(100, 1000 - (10 * totalMoves));
+            finalMoves = totalMoves;
+
+            const gameOverTitle = document.getElementById('game-over-title');
+            const gameOverStats = document.getElementById('game-over-stats');
+            gameOverTitle.textContent = "Harmony Achieved!";
+            gameOverStats.innerHTML = `Final Score: ${currentScore}<br>Total Moves: ${finalMoves}`;
+
+            // Hide game grid, show name prompt
+            document.getElementById('game-grid').style.opacity = '0';
+            document.getElementById('game-grid').style.pointerEvents = 'none';
+
+            // Show name prompt modal
+            document.getElementById('final-score-text').textContent = `${currentScore} (${finalMoves} moves)`;
+            document.getElementById('name-prompt-modal').style.display = 'flex';
+        }
+
+        function restartGame() {
+            // Hide all modals
+            document.getElementById('name-prompt-modal').style.display = 'none';
+            document.getElementById('game-over-modal').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            document.getElementById('start-screen').style.opacity = '1';
+            document.getElementById('start-screen').style.pointerEvents = 'auto';
+
+
+            // Reset audio state
+            if (drone) {
+                drone.volume.rampTo(-30, 0.5);
+            }
+            // Reset visual state
+            chaosFactor = 1.0;
+            uniforms.u_chaos_factor.value = 1.0;
+
+            // Reset game board
+            document.getElementById('game-grid').style.opacity = '0';
+            document.getElementById('game-grid').style.pointerEvents = 'none';
+
+            // Prepare for next game
+            createGame();
+        }
+
+
+        // --- NAME CENSORSHIP LOGIC ---
+
+        function censorName(name) {
+            // 1. Trim and enforce max length
+            let censored = name.trim().substring(0, 15);
+
+            // If name is empty after trim/limit, default to Guest
+            if (!censored) return 'Guest';
+
+            // 2. Comprehensive vulgarity/hate speech filter
+            const vulgarWords = [
+                "fuck", "shit", "ass", "cunt", "piss", "tits", "cock", "dick", "bitch", "whore",
+                "nigger", "chink", "kike", "gook", "spic", "fag", "tranny", "incel", "virgin", "retard",
+                "ghetto", "wop", "coon", "queer", "slut"
+            ];
+
+            // Replace whole words, case-insensitive
+            for (const word of vulgarWords) {
+                const regex = new RegExp(`\\b${word}\\b`, 'gi');
+                censored = censored.replace(regex, '****');
+            }
+
+            // 3. Basic sanitization against injection
+            censored = censored.replace(/[<>"']/g, '');
+
+            // 4. Default to Guest if name is *only* censored characters
+            if (censored.replace(/\*/g, '').trim() === '') {
+                return 'Guest';
+            }
+
+            return censored;
+        }
+
+        // --- SCORE SUBMISSION ---
+
+        async function saveScore(score, moves, name) {
+            if (!isAuthReady || !db) {
+                showError("Cannot save score: Firebase is not connected or user is not authorized.");
+                return;
+            }
+
+            const collectionRef = getScoreboardCollectionRef();
+            if (!collectionRef) {
+                showError("Cannot save score: Collection reference failed.");
+                return;
+            }
+            const censoredName = censorName(name);
+
+            try {
+                await addDoc(collectionRef, {
+                    score: score,
+                    moves: moves,
+                    playerName: censoredName,
+                    playerId: userId,
+                    timestamp: serverTimestamp()
+                });
+                console.log("Score added successfully.");
+            } catch (e) {
+                const message = e.message || "Failed to write score (Permissions?).";
+                showError(`Save Failed: ${message}`);
+                console.error("Error adding document: ", e);
+            }
+        }
+
+        /* NEW: Admin function to clear the scoreboard */
+        async function _adminClearScoreboard() {
+            if (!isAuthReady || !db) {
+                console.error("ADMIN: Firebase not ready. Cannot clear scores.");
+                return;
+            }
+
+            console.warn("ADMIN: Clearing all high scores...");
+            const collectionRef = getScoreboardCollectionRef();
+            if (!collectionRef) {
+                 console.error("ADMIN: Collection ref is null.");
+                 return;
+            }
+            const q = query(collectionRef);
+            const querySnapshot = await getDocs(q);
+
+            // Delete each document one by one
+            const deletePromises = [];
+            querySnapshot.forEach((doc) => {
+                deletePromises.push(deleteDoc(doc.ref));
+            });
+
+            await Promise.all(deletePromises);
+            console.warn("ADMIN: All scores cleared.");
+            
+            // Re-show game over modal for final message
+            document.getElementById('game-over-title').textContent = "ADMIN: Scoreboard Wiped.";
+            document.getElementById('game-over-stats').innerHTML = `The high scores list has been reset. Vibe clean.`;
+            document.getElementById('game-over-modal').style.display = 'flex';
+        }
+
+
+        // Make submitScore globally accessible for the onclick attribute
+        window.submitScore = function(skipName) {
+            let playerName = skipName;
+            if (skipName === false) { // Submit button clicked
+                const nameInput = document.getElementById('name-input');
+                playerName = nameInput.value || 'Guest'; // Default to guest if empty
+            }
+
+            // Check for secret admin code
+            if (playerName === "_ADMIN_CLEAR_ALL_") {
+                // Use a simple confirm dialog for admin action
+                if (confirm("Are you sure you want to clear the entire scoreboard? This cannot be undone.")) {
+                    _adminClearScoreboard();
+                }
+            } else {
+                // Save the score with the (potentially censored) name
+                saveScore(currentScore, finalMoves, playerName);
+            }
+
+            // Hide name prompt and show generic game over modal
+            document.getElementById('name-prompt-modal').style.display = 'none';
+
+            // Only show the restart button if an admin wipe wasn't initiated
+            if (playerName !== "_ADMIN_CLEAR_ALL_") {
+                document.getElementById('game-over-modal').style.display = 'flex';
+            }
+        };
+
+
+        // --- INIT FUNCTIONS AND EVENT LISTENERS ---
+
+        function handleStart() {
+            const startScreen = document.getElementById('start-screen');
+            startScreen.style.opacity = '0';
+            startScreen.style.pointerEvents = 'none';
+
+            document.getElementById('game-grid').style.opacity = '1';
+            document.getElementById('game-grid').style.pointerEvents = 'auto';
+
+            if (Tone.context.state !== 'running') {
+                Tone.context.resume().then(() => {
+                    initAudio();
+                });
+            } else {
+                if (!drone) { // Only init if it hasn't been done
+                    initAudio();
+                }
+            }
+            
+            isPaused = false; // Unpause rendering
+            createGame();
+        }
+
+        // Global listener for Mute Toggle
+        window.toggleMute = function() {
+            isMuted = !isMuted;
+            // This is the global volume control for all of Tone.js
+            Tone.Destination.mute = isMuted;
+
+            const muteButton = document.getElementById('mute-button');
+            if (isMuted) {
+                muteButton.textContent = "SOUND OFF";
+                muteButton.classList.add('muted');
+            } else {
+                muteButton.textContent = "SOUND ON";
+                muteButton.classList.remove('muted');
+            }
+        }
+
+
+        window.onload = function() {
+            // Initialization Sequence
+            initFirebaseAndAuth(); // Initialize Firebase first
+            init(); // Initialize Three.js
+
+            // Attach listeners
+            document.getElementById('start-game-button').addEventListener('click', handleStart);
+            document.getElementById('mute-button').addEventListener('click', window.toggleMute); 
+            document.getElementById('restart-button').addEventListener('click', restartGame);
+            
+            // Initial game setup (hidden)
+            createGame();
+        }
+
+    </script>
+</body>
+</html>

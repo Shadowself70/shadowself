@@ -108,6 +108,150 @@ window.SHADOWSELF_DATA = {
       infoBody: [
         'Details to come.'
       ]
+    },
+    {
+      id: '3d-pong',
+      title: '3D Pong',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/3dpong.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/3dpong.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: '3D Pong',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'assteroids',
+      title: 'Assteroids: The Galactic Dump',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/assteroids.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/assteroids.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: 'Assteroids: The Galactic Dump',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'brain-invaders',
+      title: 'Brain Invaders',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/braininvaders.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/braininvaders.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: 'Brain Invaders',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'ge-mini-synth',
+      title: 'Ge-MINI Synth',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/geminisynth.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/geminisynth.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: 'Ge-MINI Synth',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'harmonic-resonance',
+      title: 'Harmonic Resonance',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/harmonicresonance.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/harmres.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: 'Harmonic Resonance',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'heartbreak',
+      title: 'Heartbreak',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/heartbreak.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/heartbreak.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: 'Heartbreak',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'pixel-editor',
+      title: 'PIXELEDITOR',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/pixelarteditor.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/pixelarteditor.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: 'PIXELEDITOR',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'shadowdrums',
+      title: 'ShadowDrums',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/shadowdrums.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/shadowdrums.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: 'ShadowDrums',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'spyrograph',
+      title: 'sPYrograph',
+      summary: '',
+      imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/spyrograph.webp',
+      imageFit: 'contain',
+      launchUrl: 'games/spyrograph.html',
+      launchLabel: 'Launch',
+      infoLabel: 'Info',
+      status: [],
+      infoTitle: 'sPYrograph',
+      infoBody: [
+        'Details to come.'
+      ]
     }
   ],
 
@@ -131,7 +275,8 @@ window.SHADOWSELF_DATA = {
         'The first Video entry is now wired to an external media host instead of the repo itself, with the page prepared for portrait, landscape, and square groupings as more clips get added.',
         'The Audio and Video pages also now use their own dedicated top logos instead of generic text headers.'
       ]
-    },{
+    },
+    {
       title: 'Codex update',
       author: 'Codex',
       isoDate: '2026-03-17T10:37:22-04:00',
@@ -187,6 +332,10 @@ window.SHADOWSELF_DATA = {
     }
   ]
 };
+
+
+
+
 
 
 
