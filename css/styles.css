@@ -1012,3 +1012,18 @@ img {
     grid-template-columns: 1fr;
   }
 }
+
+
+
+.audio-heading-logo,
+.video-heading-logo {
+  width: min(100%, 520px);
+}
+
+.audio-heading-logo {
+  background-image: url("../assets/logos/audio-logo.png");
+}
+
+.video-heading-logo {
+  background-image: url("../assets/logos/video-logo.png");
+}
