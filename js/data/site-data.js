@@ -33,15 +33,15 @@ window.SHADOWSELF_DATA = {
     },
     {
       id: 'last-of-our-kind-annas-song',
-      title: 'Last of Our Kind (Anna''s Song)',
+      title: 'Last of Our Kind (Anna\'s Song)',
       description: 'Fractions of Ascent',
       coverDimensions: '1024 x 1024 cover art',
       coverArtSrc: 'assets/images/song icons/annas song.png',
-      audioSrc: 'assets/audio/Fractions of Ascent - Last of Our Kind (Anna''s Song).mp3',
+      audioSrc: 'assets/audio/Fractions of Ascent - Last of Our Kind (Anna\'s Song).mp3',
       tags: ['AI-assisted', 'audio restoration'],
       notes: '',
       infoLabel: 'Info',
-      infoTitle: 'Last of Our Kind (Anna''s Song)',
+      infoTitle: 'Last of Our Kind (Anna\'s Song)',
       infoBody: [
         'Details to come.'
       ]
@@ -152,6 +152,7 @@ window.SHADOWSELF_DATA = {
     }
   ]
 };
+
 
 
 
