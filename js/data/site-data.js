@@ -212,7 +212,7 @@ window.SHADOWSELF_DATA = {
     {
       id: '3d-pong',
       title: '3D Pong',
-      summary: '',
+      summary: 'A single player 3D Pong game. Multiplayer may be added in a future version.',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/3dpong.webp',
       imageFit: 'contain',
@@ -231,8 +231,8 @@ window.SHADOWSELF_DATA = {
     },
     {
       id: 'assteroids',
-      title: 'Assteroids: The Galactic Dump',
-      summary: '',
+      title: 'Assteroids',
+      summary: 'Like Asteroids, but more juvenile. Single player game. Gamepad support.',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/assteroids.png',
       imageFit: 'contain',
@@ -244,7 +244,7 @@ window.SHADOWSELF_DATA = {
       promoVideoOrientation: 'square',
       infoLabel: 'Info',
       status: [],
-      infoTitle: 'Assteroids: The Galactic Dump',
+      infoTitle: 'Assteroids',
       infoBody: [
         'Details to come.'
       ]
@@ -252,7 +252,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'brain-invaders',
       title: 'Brain Invaders',
-      summary: '',
+      summary: 'Stop those pesky bastards, they\'re attacking your brain! Single player game.',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/braininvaders.webp',
       imageFit: 'contain',
@@ -268,7 +268,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'ge-mini-synth',
       title: 'Ge-MINI Synth',
-      summary: '',
+      summary: 'A synthesizer with envelopes and filters, selectable waveforms, variable LFOs, etc. Includes basic drum machine.',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/geminisynth.webp',
       imageFit: 'contain',
@@ -284,7 +284,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'harmonic-resonance',
       title: 'Harmonic Resonance',
-      summary: '',
+      summary: 'A simple matching game with a scoreboard. Challenge your friends!',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/harmonicresonance.webp',
       imageFit: 'contain',
@@ -300,7 +300,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'heartbreak',
       title: 'Heartbreak',
-      summary: '',
+      summary: 'A very janky Tempest-like game. Probably not even worth playing.',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/heartbreak.webp',
       imageFit: 'contain',
@@ -316,7 +316,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'pixel-editor',
       title: 'PIXELEDITOR',
-      summary: '',
+      summary: 'Editor and animator, including onion skin and array output.',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/pixelarteditor.webp',
       imageFit: 'contain',
@@ -332,7 +332,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'shadowdrums',
       title: 'ShadowDrums',
-      summary: '',
+      summary: 'A simple drum machine.',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/shadowdrums.webp',
       imageFit: 'contain',
@@ -348,7 +348,7 @@ window.SHADOWSELF_DATA = {
     {
       id: 'spyrograph',
       title: 'sPYrograph',
-      summary: '',
+      summary: 'Originally built in Python, a Spirograph simulator with adjustable parts, solid colours, and colour patterns.',
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/spyrograph.webp',
       imageFit: 'contain',

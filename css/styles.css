@@ -8,8 +8,8 @@
   --accent: #621215;
   --accent-strong: #7a191d;
   --accent-shadow: rgba(98, 18, 21, 0.18);
-  --line: #331013;
-  --line-bright: #5a1719;
+  --line: #4a1418;
+  --line-bright: #812126;
   --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
   --display-font: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
   --body-font: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
@@ -312,7 +312,7 @@ img {
   align-items: center;
   min-height: 26px;
   padding: 0 10px;
-  background: rgba(98, 18, 21, 0.10);
+  background: #000;
   border: 1px solid var(--line);
 }
 
@@ -409,7 +409,7 @@ img {
   justify-content: center;
   padding: 0 16px;
   border: 1px solid var(--line-bright);
-  background: rgba(98, 18, 21, 0.14);
+  background: #000;
   color: var(--text);
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -419,12 +419,12 @@ img {
 
 .ui-button:hover,
 .ui-button:focus-visible {
-  background: rgba(98, 18, 21, 0.22);
+  background: rgba(0, 0, 0, 0.96);
 }
 
 .ui-button.secondary {
   border-color: var(--line);
-  background: transparent;
+  background: #000;
 }
 
 .update-post {
@@ -434,7 +434,7 @@ img {
   border: 0;
   border-top: 1px solid var(--line-bright);
   box-shadow: none;
-  background: transparent;
+  background: #000;
 }
 
 .update-post:first-child {
@@ -646,7 +646,7 @@ img {
   min-height: 26px;
   padding: 0 10px;
   border: 1px solid var(--line);
-  background: transparent;
+  background: #000;
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.16em;
@@ -657,7 +657,7 @@ img {
 .audio-info-button:hover,
 .audio-info-button:focus-visible {
   border-color: var(--line-bright);
-  background: rgba(98, 18, 21, 0.12);
+  background: rgba(0, 0, 0, 0.96);
   color: var(--text);
 }
 
@@ -783,7 +783,7 @@ img {
 .rail-nav-control:focus-visible,
 .rail-nav-link:hover,
 .rail-nav-link:focus-visible {
-  border-color: #7a191d;
+  border-color: #98262c;
   background: #16171a;
   transform: translateX(2px);
 }
