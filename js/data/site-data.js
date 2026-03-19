@@ -5,7 +5,7 @@ window.SHADOWSELF_DATA = {
         id: 'oh-hi-mark',
         title: 'Oh Hi Mark',
         description: '',
-        videoSrc: 'https://media.shadowself.ca/oh-hi-mark.mp4',
+        videoSrc: 'https://media.shadowself.ca/video/oh-hi-mark.mp4',
         orientationHint: 'portrait',
         placeholderDimensions: '1080 x 1920 portrait video',
         tags: [],
