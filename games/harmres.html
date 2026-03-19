@@ -417,28 +417,8 @@
 
     <!-- Main JavaScript Module -->
     <script type="module">
-        // Use the project ID as the app ID for database paths
-        const appId = "harmonicresonance-afd4e";
-        
-        // --- IMPORTANT ---
-        // The __firebase_config variable is injected by the preview environment.
-        // To publish this app, you MUST create your own Firebase project
-        // and paste your Firebase config object below.
-        
-        // (No longer used, config is now hardcoded in initFirebaseAndAuth)
-
-
-        // --- FIREBASE MODULE IMPORTS (Use direct imports in a module script) ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-        import { getFirestore, collection, query, limit, addDoc, onSnapshot, serverTimestamp, orderBy, setLogLevel, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
-
-        // --- FIREBASE GLOBALS ---
-        let db, auth;
-        let userId = 'loading'; // Will be set after auth completes
-        let isAuthReady = false;
-        const SCOREBOARD_ENABLED = false;
+        const SCOREBOARD_API_BASE = "https://harmres-scoreboard.shadowself.workers.dev";
+        const SCOREBOARD_ENABLED = !SCOREBOARD_API_BASE.includes("REPLACE_WITH_YOUR_WORKER_URL");
 
         // --- GAME GLOBALS ---
         let scene, camera, renderer, geometry, material, mesh;
@@ -460,7 +440,7 @@
         let chaosFactor = 1.0;
 
         /* Emojis for Vibe */
-        const tileSymbols = ["🎵", "🎹", "✨", "🔮", "🌙", "🌟", "🪐", "🚀"];
+        const tileSymbols = ["Ã°Å¸Å½Âµ", "Ã°Å¸Å½Â¹", "Ã¢Å“Â¨", "Ã°Å¸â€Â®", "Ã°Å¸Å’â„¢", "Ã°Å¸Å’Å¸", "Ã°Å¸ÂªÂ", "Ã°Å¸Å¡â‚¬"];
 
         // --- ERROR DISPLAY ---
         function showError(message) {
@@ -475,75 +455,61 @@
             }, 10000);
         }
 
-
         // --- SCOREBOARD SETUP ---
 
-        // Helper to get the correct Firestore path for the public scoreboard
-        function getScoreboardCollectionRef() {
-            if (!db || !isAuthReady) return null;
-            // Public data path: /artifacts/{appId}/public/data/{your_collection_name}
-            return collection(db, `artifacts/${appId}/public/data/high_scores`);
-        }
+        function renderScoreboardEntries(entries) {
+            const scoresList = document.getElementById('high-scores-list');
+            scoresList.innerHTML = '';
 
-        // Real-time listener for the scoreboard
-        function setupScoreboardListener() {
-            if (!isAuthReady || !db) return;
-
-            const collectionRef = getScoreboardCollectionRef();
-            if (!collectionRef) {
-                console.error("Scoreboard listener: Collection ref is null.");
+            if (!entries || entries.length === 0) {
+                scoresList.innerHTML = `<p class="text-gray-400 text-sm">Be the first to set a score!</p>`;
                 return;
             }
-            
-            // FIX: Removed orderBy('score') to avoid index requirement.
-            // We will sort the results manually in the snapshot.
-            const q = query(collectionRef, limit(10));
 
-            // onSnapshot provides real-time updates
-            onSnapshot(q, (snapshot) => {
-                const scoresList = document.getElementById('high-scores-list');
-                scoresList.innerHTML = ''; // Clear loading message
-
-                if (snapshot.empty) {
-                    scoresList.innerHTML = `<p class="text-gray-400 text-sm">Be the first to set a score!</p>`;
-                    return;
-                }
-
-                // FIX: Sort the results here (in JS) instead of in the query
-                const scores = snapshot.docs.map(doc => doc.data());
-                scores.sort((a, b) => b.score - a.score); // Sort by score descending
-
-                scores.forEach((data, index) => {
-                    const entry = document.createElement('div');
-                    entry.className = 'score-entry';
-                    entry.innerHTML = `
-                        <span class="rank">${index + 1}.</span>
-                        <span class="name">${data.playerName || 'GUEST'}</span>
-                        <span class="detail">${data.score} (${data.moves} moves)</span>
-                    `;
-                    scoresList.appendChild(entry);
-                });
-            }, (error) => {
-                // This console error handles any future issues.
-                showError("Could not fetch scores. Check Firebase Security Rules.");
-                console.error("Error fetching scores:", error);
-                const scoresList = document.getElementById('high-scores-list');
-                scoresList.innerHTML = `<p class="text-red-400 text-sm">Error: Could not load scores. Check security rules.</p>`;
+            entries.forEach((data, index) => {
+                const entry = document.createElement('div');
+                entry.className = 'score-entry';
+                entry.innerHTML = `
+                    <span class="rank">${index + 1}.</span>
+                    <span class="name">${data.playerName || 'GUEST'}</span>
+                    <span class="detail">${data.score} (${data.moves} moves)</span>
+                `;
+                scoresList.appendChild(entry);
             });
         }
 
-        // --- FIREBASE INIT AND AUTHENTICATION ---
+        async function setupScoreboardListener() {
+            const scoresList = document.getElementById('high-scores-list');
 
-        async function initFirebaseAndAuth() {
-            isAuthReady = false;
-            db = null;
-            auth = null;
-            userId = 'disabled';
-
-            const scoreboard = document.getElementById('scoreboard-container');
-            if (scoreboard) {
-                scoreboard.innerHTML = `<h2 class="text-red-500">Scoreboard Offline</h2><p class="text-gray-400">Online high scores are disabled for this hosted build.</p>`;
+            if (!SCOREBOARD_ENABLED) {
+                scoresList.innerHTML = `<p class="text-gray-400 text-sm">Online high scores are disabled until the Cloudflare Worker URL is configured.</p>`;
+                return;
             }
+
+            scoresList.innerHTML = `<p class="text-gray-400 text-sm">Loading scores...</p>`;
+
+            try {
+                const response = await fetch(`${SCOREBOARD_API_BASE}/harmres/leaderboard?limit=10`, {
+                    headers: {
+                        Accept: 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const payload = await response.json();
+                renderScoreboardEntries(payload.entries ?? []);
+            } catch (error) {
+                showError('Could not load scores from the Cloudflare scoreboard service.');
+                console.error('Error fetching scoreboard:', error);
+                scoresList.innerHTML = `<p class="text-red-400 text-sm">Error: Could not load scores.</p>`;
+            }
+        }
+
+        async function initScoreboard() {
+            await setupScoreboardListener();
         }
 
         // --- SHADER CODE (With evolving color palette) ---
@@ -992,68 +958,44 @@
             if (!SCOREBOARD_ENABLED) {
                 return;
             }
-            if (!isAuthReady || !db) {
-                showError("Cannot save score: Firebase is not connected or user is not authorized.");
-                return;
-            }
 
-            const collectionRef = getScoreboardCollectionRef();
-            if (!collectionRef) {
-                showError("Cannot save score: Collection reference failed.");
-                return;
-            }
             const censoredName = censorName(name);
 
             try {
-                await addDoc(collectionRef, {
-                    score: score,
-                    moves: moves,
-                    playerName: censoredName,
-                    playerId: userId,
-                    timestamp: serverTimestamp()
+                const response = await fetch(`${SCOREBOARD_API_BASE}/harmres/score`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    },
+                    body: JSON.stringify({
+                        score: score,
+                        moves: moves,
+                        playerName: censoredName
+                    })
                 });
-                console.log("Score added successfully.");
+
+                if (!response.ok) {
+                    let message = `HTTP ${response.status}`;
+                    try {
+                        const errorPayload = await response.json();
+                        message = errorPayload.error || message;
+                    } catch (_) {
+                        // Ignore JSON parsing errors on failed responses.
+                    }
+                    throw new Error(message);
+                }
+
+                console.log('Score added successfully.');
+                await setupScoreboardListener();
             } catch (e) {
-                const message = e.message || "Failed to write score (Permissions?).";
+                const message = e.message || "Failed to write score.";
                 showError(`Save Failed: ${message}`);
-                console.error("Error adding document: ", e);
+                console.error('Error adding score: ', e);
             }
         }
 
-        /* NEW: Admin function to clear the scoreboard */
-        async function _adminClearScoreboard() {
-            if (!isAuthReady || !db) {
-                console.error("ADMIN: Firebase not ready. Cannot clear scores.");
-                return;
-            }
-
-            console.warn("ADMIN: Clearing all high scores...");
-            const collectionRef = getScoreboardCollectionRef();
-            if (!collectionRef) {
-                 console.error("ADMIN: Collection ref is null.");
-                 return;
-            }
-            const q = query(collectionRef);
-            const querySnapshot = await getDocs(q);
-
-            // Delete each document one by one
-            const deletePromises = [];
-            querySnapshot.forEach((doc) => {
-                deletePromises.push(deleteDoc(doc.ref));
-            });
-
-            await Promise.all(deletePromises);
-            console.warn("ADMIN: All scores cleared.");
-            
-            // Re-show game over modal for final message
-            document.getElementById('game-over-title').textContent = "ADMIN: Scoreboard Wiped.";
-            document.getElementById('game-over-stats').innerHTML = `The high scores list has been reset. Vibe clean.`;
-            document.getElementById('game-over-modal').style.display = 'flex';
-        }
-
-
-        // Make submitScore globally accessible for the onclick attribute
-        window.submitScore = function(skipName) {
+        window.submitScore = async function(skipName) {
             if (!SCOREBOARD_ENABLED) {
                 document.getElementById('name-prompt-modal').style.display = 'none';
                 document.getElementById('game-over-modal').style.display = 'flex';
@@ -1061,31 +1003,15 @@
             }
 
             let playerName = skipName;
-            if (skipName === false) { // Submit button clicked
+            if (skipName === false) {
                 const nameInput = document.getElementById('name-input');
-                playerName = nameInput.value || 'Guest'; // Default to guest if empty
+                playerName = nameInput.value || 'Guest';
             }
 
-            // Check for secret admin code
-            if (playerName === "_ADMIN_CLEAR_ALL_") {
-                // Use a simple confirm dialog for admin action
-                if (confirm("Are you sure you want to clear the entire scoreboard? This cannot be undone.")) {
-                    _adminClearScoreboard();
-                }
-            } else {
-                // Save the score with the (potentially censored) name
-                saveScore(currentScore, finalMoves, playerName);
-            }
-
-            // Hide name prompt and show generic game over modal
+            await saveScore(currentScore, finalMoves, playerName);
             document.getElementById('name-prompt-modal').style.display = 'none';
-
-            // Only show the restart button if an admin wipe wasn't initiated
-            if (playerName !== "_ADMIN_CLEAR_ALL_") {
-                document.getElementById('game-over-modal').style.display = 'flex';
-            }
+            document.getElementById('game-over-modal').style.display = 'flex';
         };
-
 
         // --- INIT FUNCTIONS AND EVENT LISTENERS ---
 
@@ -1130,7 +1056,7 @@
 
         window.onload = function() {
             // Initialization Sequence
-            initFirebaseAndAuth(); // Initialize Firebase first
+            initScoreboard(); // Initialize scoreboard first
             init(); // Initialize Three.js
 
             // Attach listeners

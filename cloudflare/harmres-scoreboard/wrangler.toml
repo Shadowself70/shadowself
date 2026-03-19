@@ -1,0 +1,12 @@
+name = "harmres-scoreboard"
+main = "src/index.mjs"
+compatibility_date = "2026-03-19"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGINS = "https://newsite.shadowself.ca,https://shadowself.ca,https://shadowself70.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "harmres-scoreboard"
+database_id = "af561db9-3c1f-434b-9380-652b8d9faae8"
