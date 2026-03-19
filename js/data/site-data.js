@@ -74,7 +74,7 @@ window.SHADOWSELF_DATA = {
       infoBody: [
         'Details to come.'
       ]
-    }
+    },
     {
       id: 'come-out-of-your-shell',
       title: 'Come Out of Your Shell',
