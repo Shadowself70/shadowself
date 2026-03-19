@@ -34,6 +34,18 @@ window.SHADOWSELF_DATA = {
         notes: '',
         launchUrl: 'games/assteroids.html',
         launchLabel: 'Play the game'
+      },
+      {
+        id: '3d-pong-commercial',
+        title: '3D Pong Commercial',
+        description: '',
+        videoSrc: 'https://media.shadowself.ca/video/commercial-3d-pong.mp4',
+        orientationHint: 'square',
+        placeholderDimensions: '1920 x 1080 landscape video',
+        tags: [],
+        notes: '',
+        launchUrl: 'games/3dpong.html',
+        launchLabel: 'Play the game'
       }
     ]
   },
@@ -206,6 +218,10 @@ window.SHADOWSELF_DATA = {
       imageFit: 'contain',
       launchUrl: 'games/3dpong.html',
       launchLabel: 'Launch',
+      promoVideoSrc: 'https://media.shadowself.ca/video/commercial-3d-pong.mp4',
+      promoVideoTitle: '3D Pong Commercial',
+      promoVideoLabel: 'WATCH SLOP AD',
+      promoVideoOrientation: 'square',
       infoLabel: 'Info',
       status: [],
       infoTitle: '3D Pong',
