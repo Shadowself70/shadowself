@@ -183,10 +183,10 @@
             <!-- Touch Controls (Mobile Only) -->
             <div id="touchControls">
                 <div class="space-y-2">
-                    <button class="touch-button" id="touchUp">▲</button>
+                    <button class="touch-button" id="touchUp">â–²</button>
                     <div class="flex space-x-2">
-                        <button class="touch-button" id="touchLeft">◀</button>
-                        <button class="touch-button" id="touchRight">▶</button>
+                        <button class="touch-button" id="touchLeft">â—€</button>
+                        <button class="touch-button" id="touchRight">â–¶</button>
                     </div>
                 </div>
                 <button class="touch-button touch-shoot" id="touchShoot">FIRE</button>
@@ -984,18 +984,29 @@
         }
 
         // --- GAMEPAD SUPPORT ---
+        function clearGamepadInputs() {
+            keys['ArrowUp_gp'] = false;
+            keys['ArrowLeft_gp'] = false;
+            keys['ArrowRight_gp'] = false;
+            keys['space_gp'] = false;
+        }
+
+        function isBlockedGamepadDevice(gp) {
+            const id = (gp && gp.id ? gp.id : '').toLowerCase();
+            return id.includes('saitek');
+        }
+
         function pollGamepad() {
             if (!gamepad) {
-                // If no gamepad, ensure gamepad inputs are 'off'
-                keys['ArrowUp_gp'] = false;
-                keys['ArrowLeft_gp'] = false;
-                keys['ArrowRight_gp'] = false;
-                keys['space_gp'] = false;
+                clearGamepadInputs();
                 return;
             }
 
             const gp = navigator.getGamepads()[gamepad.index];
-            if (!gp) return;
+            if (!gp || isBlockedGamepadDevice(gp)) {
+                clearGamepadInputs();
+                return;
+            }
 
             // --- Gamepad D-pad (Buttons 12-15) ---
             const dpadLeft = gp.buttons[14] && gp.buttons[14].pressed;
@@ -1188,7 +1199,7 @@
 
             // Draw Lives
             ctx.textAlign = 'left';
-            const lifeIcon = "🍑"; // Using a peach emoji as a butt icon
+            const lifeIcon = "ðŸ‘"; // Using a peach emoji as a butt icon
             let livesText = "";
             for (let i = 0; i < lives; i++) {
                 livesText += lifeIcon;
@@ -1325,13 +1336,20 @@
         
         // Gamepad Listeners
         window.addEventListener("gamepadconnected", (e) => {
+            if (isBlockedGamepadDevice(e.gamepad)) {
+                console.log("Ignored blocked gamepad:", e.gamepad.id);
+                return;
+            }
             console.log("Gamepad connected:", e.gamepad.id);
             gamepad = e.gamepad;
         });
 
         window.addEventListener("gamepaddisconnected", (e) => {
             console.log("Gamepad disconnected:", e.gamepad.id);
-            gamepad = null;
+            if (gamepad && e.gamepad.index === gamepad.index) {
+                gamepad = null;
+                clearGamepadInputs();
+            }
         });
 
 
