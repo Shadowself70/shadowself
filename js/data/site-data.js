@@ -75,6 +75,66 @@ window.SHADOWSELF_DATA = {
         'Details to come.'
       ]
     }
+    {
+      id: 'come-out-of-your-shell',
+      title: 'Come Out of Your Shell',
+      description: 'Fractions of Ascent',
+      coverDimensions: '360 x 360 embedded cover art',
+      coverArtSrc: 'assets/images/song icons/come out of your shell.jpg',
+      audioSrc: 'assets/audio/Fractions of Ascent - Come Out of Your Shell.mp3',
+      tags: ['AI-assisted', 'audio restoration'],
+      notes: '',
+      infoLabel: 'Info',
+      infoTitle: 'Come Out of Your Shell',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'cyclops',
+      title: 'Cyclops',
+      description: 'Fractions of Ascent',
+      coverDimensions: '360 x 360 embedded cover art',
+      coverArtSrc: 'assets/images/song icons/cyclops.jpg',
+      audioSrc: 'assets/audio/Fractions of Ascent - Cyclops.mp3',
+      tags: ['AI-assisted', 'audio restoration'],
+      notes: '',
+      infoLabel: 'Info',
+      infoTitle: 'Cyclops',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'wrapped-in-rainbows-fractional-mix',
+      title: 'Wrapped in Rainbows (fractional mix)',
+      description: 'Fractions of Ascent',
+      coverDimensions: '360 x 360 embedded cover art',
+      coverArtSrc: 'assets/images/song icons/wrapped in rainbows fractional mix.jpg',
+      audioSrc: 'assets/audio/Fractions of Ascent - Wrapped in Rainbows (fractional mix).mp3',
+      tags: ['AI-assisted', 'audio restoration'],
+      notes: '',
+      infoLabel: 'Info',
+      infoTitle: 'Wrapped in Rainbows (fractional mix)',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
+      id: 'wrapped-in-rainbows',
+      title: 'Wrapped in Rainbows',
+      description: 'Fractions of Ascent',
+      coverDimensions: '360 x 360 embedded cover art',
+      coverArtSrc: 'assets/images/song icons/wrapped in rainbows.jpg',
+      audioSrc: 'assets/audio/Fractions of Ascent - Wrapped in Rainbows.mp3',
+      tags: ['AI-assisted', 'audio restoration'],
+      notes: '',
+      infoLabel: 'Info',
+      infoTitle: 'Wrapped in Rainbows',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
   ],
 
   projects: [
