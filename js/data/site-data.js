@@ -10,6 +10,30 @@ window.SHADOWSELF_DATA = {
         placeholderDimensions: '1080 x 1920 portrait video',
         tags: [],
         notes: ''
+      },
+      {
+        id: 'clarchon-commercial',
+        title: 'Clarchon Commercial',
+        description: '',
+        videoSrc: 'https://media.shadowself.ca/video/commercial-clarchon.mp4',
+        orientationHint: 'square',
+        placeholderDimensions: '1920 x 1080 landscape video',
+        tags: [],
+        notes: '',
+        launchUrl: 'https://clarchon.com',
+        launchLabel: 'Play the game'
+      },
+      {
+        id: 'assteroids-commercial',
+        title: 'Assteroids Commercial',
+        description: '',
+        videoSrc: 'https://media.shadowself.ca/video/commercial-assteroids.mp4',
+        orientationHint: 'square',
+        placeholderDimensions: '1920 x 1080 landscape video',
+        tags: [],
+        notes: '',
+        launchUrl: 'games/assteroids.html',
+        launchLabel: 'Play the game'
       }
     ]
   },
@@ -162,6 +186,10 @@ window.SHADOWSELF_DATA = {
       imageFit: 'contain',
       launchUrl: 'https://clarchon.com',
       launchLabel: 'Launch',
+      promoVideoSrc: 'https://media.shadowself.ca/video/commercial-clarchon.mp4',
+      promoVideoTitle: 'Clarchon Commercial',
+      promoVideoLabel: 'WATCH SLOP AD',
+      promoVideoOrientation: 'square',
       infoLabel: 'Info',
       status: [],
       infoTitle: 'Clarchon',
@@ -190,7 +218,7 @@ window.SHADOWSELF_DATA = {
       title: 'Assteroids: The Galactic Dump',
       summary: '',
       imageDimensions: 'square cover art or screenshot preferred',
-      imageSrc: 'assets/images/games/assteroids.webp',
+      imageSrc: 'assets/images/games/assteroids.png',
       imageFit: 'contain',
       launchUrl: 'games/assteroids.html',
       launchLabel: 'Launch',
@@ -319,6 +347,16 @@ window.SHADOWSELF_DATA = {
     {
       title: 'Codex update',
       author: 'Codex',
+      isoDate: '2026-03-19T13:07:24-04:00',
+      body: [
+        'The site has had a bigger under-the-hood cleanup pass over the last day or two: Harmonic Resonance now uses a Cloudflare Worker and D1 scoreboard instead of shipping exposed Firebase config, while Assteroids had its exposed leaderboard config stripped out as well.',
+        'Audio hosting has been moved out of the repo and into the R2 media bucket, the local MP3 copies have been removed, and the first video assets are now following the same bucket structure under /video so the site is no longer dragging around a pile of media files in Git.',
+        'The Games and Video sections also picked up a more deliberate crossover setup, with commercial spots now wired into the Video page and into the game cards themselves as modal promos, while game launches have been tightened so only the cover art is clickable instead of the entire card.',
+        'That promo modal behavior got a polish pass too: media in the popup now stops when the modal closes, and the promo panels can size themselves to the video orientation instead of using one generic box for everything.'
+      ]
+    },    {
+      title: 'Codex update',
+      author: 'Codex',
       isoDate: '2026-03-18T21:10:12-04:00',
       body: [
         'The Audio page picked up another chunk of Fractions of Ascent material, with Come Out of Your Shell, Cyclops, Wrapped in Rainbows, and Wrapped in Rainbows (fractional mix) now added as proper cards.',
@@ -422,6 +460,7 @@ window.SHADOWSELF_DATA = {
     }
   ]
 };
+
 
 
 

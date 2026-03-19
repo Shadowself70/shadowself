@@ -376,12 +376,16 @@ img {
   align-content: start;
 }
 
-.project-card-link {
+.project-card-art-link {
+  display: block;
+}
+
+.project-card-art-link .project-card-art {
   transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
 }
 
-.project-card-link:hover,
-.project-card-link:focus-visible {
+.project-card-art-link:hover .project-card-art,
+.project-card-art-link:focus-visible .project-card-art {
   border-color: var(--line-bright);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 40%),
@@ -390,7 +394,9 @@ img {
   transform: translateX(2px);
 }
 
-.audio-actions {
+.audio-actions,
+.video-actions,
+.project-card-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -504,6 +510,22 @@ img {
     var(--bg-panel);
   border: 1px solid var(--line-bright);
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.56);
+}
+
+.modal-panel--media {
+  max-height: min(90vh, 960px);
+}
+
+.modal-panel--portrait {
+  width: min(460px, calc(100vw - 24px));
+}
+
+.modal-panel--square {
+  width: min(620px, calc(100vw - 24px));
+}
+
+.modal-panel--landscape {
+  width: min(860px, calc(100vw - 24px));
 }
 
 
@@ -1203,5 +1225,6 @@ img {
   object-fit: contain;
   background: #000;
 }
+
 
 

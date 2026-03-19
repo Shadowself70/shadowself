@@ -108,20 +108,25 @@
     );
   }
 
+  function buildHostedVideoMarkup(videoSrc, orientation, extraClass = '') {
+    const extraClasses = extraClass ? ` ${extraClass}` : '';
+    return `
+      <div class='video-frame video-frame--${orientation}${extraClasses}'>
+        <video controls preload='metadata' playsinline>
+          <source src='${escapeAttribute(videoSrc)}'>
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    `;
+  }
+
   function buildVideoCardElement(entry, orientation, index) {
     const card = document.createElement('article');
     card.className = 'video-card';
     card.dataset.entryIndex = String(index);
 
     const mediaFrame = entry.videoSrc
-      ? `
-        <div class='video-frame video-frame--${orientation}'>
-          <video controls preload='metadata' playsinline>
-            <source src='${escapeAttribute(entry.videoSrc)}'>
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      `
+      ? buildHostedVideoMarkup(entry.videoSrc, orientation)
       : `
         <div class='video-frame-placeholder video-frame--${orientation} placeholder-box'>
           <span class='placeholder-kicker'>Video Placeholder</span>
@@ -132,6 +137,20 @@
         </div>
       `;
 
+    const launchAction = entry.launchUrl
+      ? `
+        <div class='video-actions'>
+          <a
+            class='ui-button'
+            href='${escapeAttribute(entry.launchUrl)}'
+            ${/^https?:\/\//i.test(entry.launchUrl) ? "target='_blank' rel='noreferrer'" : ''}
+          >
+            ${escapeHtml(entry.launchLabel || 'Open')}
+          </a>
+        </div>
+      `
+      : '';
+
     card.innerHTML = `
       ${mediaFrame}
       <div class='video-copy'>
@@ -139,12 +158,12 @@
         ${entry.description ? `<p>${escapeHtml(entry.description)}</p>` : ''}
         ${renderTags(entry.tags)}
         ${entry.notes ? `<p>${escapeHtml(entry.notes)}</p>` : ''}
+        ${launchAction}
       </div>
     `;
 
     return card;
   }
-
   function placeVideoCard(root, card, orientation) {
     const normalizedOrientation = normalizeVideoOrientation(orientation);
     const targetGroup = root.querySelector(`[data-video-group='${normalizedOrientation}']`);
@@ -324,6 +343,7 @@
       return;
     }
 
+    const fragment = document.createDocumentFragment();
     const projects = data.projects || [];
     root.innerHTML = projects
       .map((project) => {
@@ -332,13 +352,30 @@
           .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
           .join('');
         const summary = project.summary ? `<p>${escapeHtml(project.summary)}</p>` : '';
-        const projectTag = project.launchUrl ? 'a' : 'article';
-        const hrefAttribute = project.launchUrl ? ` href='${escapeAttribute(project.launchUrl)}'` : '';
-        const externalAttribute = /^https?:\/\//i.test(project.launchUrl || '') ? " target='_blank' rel='noreferrer'" : '';
-        const ariaLabel = project.launchUrl ? ` aria-label='${escapeAttribute(project.launchLabel || `Open ${project.title}`)}'` : '';
         const statusMarkup = renderStatuses(project.status);
+        const launchTarget = /^https?:\/\//i.test(project.launchUrl || '') ? " target='_blank' rel='noreferrer'" : '';
+        const launchHref = project.launchUrl
+          ? ` href='${escapeAttribute(project.launchUrl)}'${launchTarget} aria-label='${escapeAttribute(project.launchLabel || `Open ${project.title}`)}'`
+          : '';
+        const promoModalId = project.promoVideoSrc ? `${project.id}-promo-modal` : '';
+        const promoOrientation = normalizeVideoOrientation(project.promoVideoOrientation || 'landscape');
 
-        const projectArt = project.imageSrc
+        if (project.promoVideoSrc) {
+          fragment.append(
+            buildModal({
+              id: promoModalId,
+              title: project.promoVideoTitle || `${project.title} video`,
+              panelClass: `modal-panel--media modal-panel--${promoOrientation}`,
+              body: buildHostedVideoMarkup(
+                project.promoVideoSrc,
+                promoOrientation,
+                'project-promo-frame'
+              )
+            })
+          );
+        }
+
+        const projectArtInner = project.imageSrc
           ? `
             <div class='project-card-art${project.imageFit === 'contain' ? ' project-card-art-contain' : ''}'>
               <img
@@ -357,21 +394,37 @@
             </div>
           `;
 
+        const projectArt = project.launchUrl
+          ? `<a class='project-card-art-link'${launchHref}>${projectArtInner}</a>`
+          : projectArtInner;
+
+        const promoAction = project.promoVideoSrc
+          ? `
+            <div class='project-card-actions'>
+              <button class='ui-button secondary' type='button' data-open-modal='${escapeAttribute(promoModalId)}'>
+                ${escapeHtml(project.promoVideoLabel || 'Watch video')}
+              </button>
+            </div>
+          `
+          : '';
+
         return `
-          <${projectTag} class='project-card${project.launchUrl ? ' project-card-link' : ''}'${hrefAttribute}${externalAttribute}${ariaLabel}>
+          <article class='project-card'>
             ${projectArt}
             <div class='project-card-body'>
               <h3>${escapeHtml(project.title)}</h3>
               ${summary}
               ${detailParagraphs}
               ${statusMarkup}
+              ${promoAction}
             </div>
-          </${projectTag}>
+          </article>
         `;
       })
       .join('');
-  }
 
+    document.body.append(fragment);
+  }
   function renderUpdates() {
     const root = document.getElementById('updates-feed');
     if (!root) {
@@ -493,6 +546,20 @@
       return;
     }
 
+    modal.querySelectorAll('audio, video').forEach((media) => {
+      if (!(media instanceof HTMLMediaElement)) {
+        return;
+      }
+
+      media.pause();
+
+      try {
+        media.currentTime = 0;
+      } catch {
+        // Some streams cannot seek immediately; pausing is still enough to stop playback.
+      }
+    });
+
     modal.hidden = true;
 
     if (!document.querySelector('.modal:not([hidden])')) {
@@ -500,8 +567,9 @@
     }
   }
 
-  function buildModal({ id, title, body }) {
+  function buildModal({ id, title, body, panelClass = '' }) {
     const modal = document.createElement('section');
+    const panelClasses = panelClass ? `modal-panel ${panelClass}` : 'modal-panel';
     modal.className = 'modal';
     modal.id = id;
     modal.hidden = true;
@@ -511,7 +579,7 @@
 
     modal.innerHTML = `
       <div class='modal-backdrop'></div>
-      <div class='modal-panel'>
+      <div class='${panelClasses}'>
         <button class='modal-close' type='button' aria-label='Close dialog' data-close-modal>&times;</button>
         <h2 id='${id}-title'>${escapeHtml(title)}</h2>
         ${body}
