@@ -172,6 +172,21 @@ window.SHADOWSELF_DATA = {
       ]
     },
     {
+      id: 'cancer-stage-2',
+      title: 'Cancer (stage 2)',
+      description: 'Fractions of Ascent',
+      coverDimensions: '360 x 360 embedded cover art',
+      coverArtSrc: 'assets/images/song icons/cancer (stage 2).jpg',
+      audioSrc: 'https://media.shadowself.ca/audio/Fractions%20of%20Ascent%20-%20Cancer%20%28stage%202%29.mp3',
+      tags: ['AI-assisted', 'audio restoration'],
+      notes: '',
+      infoLabel: 'Info',
+      infoTitle: 'Cancer (stage 2)',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
+    {
       id: 'heroes',
       title: 'Heroes',
       description: 'Fractions of Ascent',
