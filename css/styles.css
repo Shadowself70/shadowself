@@ -276,7 +276,7 @@ img {
   display: grid;
   grid-template-columns: 160px minmax(0, 1fr);
   gap: 14px;
-  align-items: start;
+  align-items: stretch;
   padding: 14px;
   min-width: 0;
 }
@@ -331,7 +331,7 @@ img {
   display: grid;
   grid-template-columns: 108px minmax(0, 1fr);
   gap: 14px;
-  align-items: start;
+  align-items: stretch;
   padding: 14px;
 }
 
@@ -371,9 +371,10 @@ img {
 
 .project-card-body {
   min-width: 0;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  align-content: start;
+  align-items: stretch;
 }
 
 .project-card-art-link {
@@ -400,6 +401,19 @@ img {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.project-card-actions {
+  margin-top: auto;
+  align-items: center;
+}
+
+.project-card-actions .ui-button {
+  min-height: 26px;
+  padding: 0 10px;
+  border-color: var(--line);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
 }
 
 .ui-button {
@@ -706,7 +720,7 @@ img {
   display: grid;
   grid-template-columns: var(--rail-column-width) minmax(0, 1fr);
   gap: clamp(24px, 3vw, 42px);
-  align-items: start;
+  align-items: stretch;
   min-height: 100svh;
 }
 
@@ -872,7 +886,7 @@ img {
     grid-template-rows: none;
     grid-template-columns: 1fr;
     justify-items: center;
-    align-items: start;
+    align-items: stretch;
     gap: 12px;
     padding: 0 0 14px;
     border-right: 0;

@@ -398,12 +398,19 @@
           ? `<a class='project-card-art-link'${launchHref}>${projectArtInner}</a>`
           : projectArtInner;
 
-        const promoAction = project.promoVideoSrc
+        const promoButton = project.promoVideoSrc
           ? `
-            <div class='project-card-actions'>
               <button class='ui-button secondary' type='button' data-open-modal='${escapeAttribute(promoModalId)}'>
                 ${escapeHtml(project.promoVideoLabel || 'Watch video')}
               </button>
+            `
+          : '';
+
+        const footerActions = statusMarkup || promoButton
+          ? `
+            <div class='project-card-actions'>
+              ${statusMarkup}
+              ${promoButton}
             </div>
           `
           : '';
@@ -415,8 +422,7 @@
               <h3>${escapeHtml(project.title)}</h3>
               ${summary}
               ${detailParagraphs}
-              ${statusMarkup}
-              ${promoAction}
+              ${footerActions}
             </div>
           </article>
         `;

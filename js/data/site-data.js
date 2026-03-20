@@ -198,7 +198,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'games/signaltonoise.html',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC', 'MOBILE'],
       infoTitle: 'Signal to Noise',
       infoBody: [
         'Details to come.'
@@ -218,7 +218,7 @@ window.SHADOWSELF_DATA = {
       promoVideoLabel: 'WATCH SLOP AD',
       promoVideoOrientation: 'square',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'Clarchon',
       infoBody: [
         'Details to come.'
@@ -238,7 +238,7 @@ window.SHADOWSELF_DATA = {
       promoVideoLabel: 'WATCH SLOP AD',
       promoVideoOrientation: 'square',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: '3D Pong',
       infoBody: [
         'Details to come.'
@@ -258,7 +258,7 @@ window.SHADOWSELF_DATA = {
       promoVideoLabel: 'WATCH SLOP AD',
       promoVideoOrientation: 'square',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'Assteroids',
       infoBody: [
         'Details to come.'
@@ -274,7 +274,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'games/braininvaders.html',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'Brain Invaders',
       infoBody: [
         'Details to come.'
@@ -290,7 +290,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'games/geminisynth.html',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'Ge-MINI Synth',
       infoBody: [
         'Details to come.'
@@ -306,7 +306,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'games/harmres.html',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'Harmonic Resonance',
       infoBody: [
         'Details to come.'
@@ -322,7 +322,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'games/heartbreak.html',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'Heartbreak',
       infoBody: [
         'Details to come.'
@@ -338,7 +338,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'games/pixelarteditor.html',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'PIXELEDITOR',
       infoBody: [
         'Details to come.'
@@ -354,7 +354,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'games/shadowdrums.html',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'ShadowDrums',
       infoBody: [
         'Details to come.'
@@ -370,7 +370,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'games/spyrograph.html',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC'],
       infoTitle: 'sPYrograph',
       infoBody: [
         'Details to come.'
@@ -386,7 +386,7 @@ window.SHADOWSELF_DATA = {
       launchUrl: 'https://backtalk.shadowself.ca',
       launchLabel: 'Launch',
       infoLabel: 'Info',
-      status: [],
+      status: ['PC', 'MOBILE'],
       infoTitle: 'Backtalk',
       infoBody: [
         'Details to come.'
@@ -398,6 +398,17 @@ window.SHADOWSELF_DATA = {
     {
       title: 'Codex update',
       author: 'Codex',
+      isoDate: '2026-03-20T17:01:00-04:00',
+      body: [
+        'The Audio page picked up another Fractions of Ascent track with Heroes, and its embedded cover art was extracted and wired in so it lands like a proper card instead of another bare file link.',
+        'Backtalk has been added to the games lineup as a live external entry, complete with its own logo, while the Games page also picked up platform tags so everything now clearly flags PC support and the mobile-friendly titles call that out too.',
+        'The crossover between Games and Video expanded again with commercial spots wired up for Clarchon, Assteroids, and 3D Pong, including matching WATCH SLOP AD buttons on the game cards and play-the-game links on the video cards.',
+        'There was also a visual polish pass on the games shelf itself: blurbs were filled in for the placeholder-heavy entries, the small controls moved onto black backgrounds for better contrast, borders were brightened, and the platform tags were shifted into the bottom card row so the footer treatment is more consistent.'
+      ]
+    },
+    {
+      title: 'Codex update',
+      author: 'Codex',
       isoDate: '2026-03-19T13:07:24-04:00',
       body: [
         'The site has had a bigger under-the-hood cleanup pass over the last day or two: Harmonic Resonance now uses a Cloudflare Worker and D1 scoreboard instead of shipping exposed Firebase config, while Assteroids had its exposed leaderboard config stripped out as well.',
@@ -405,7 +416,8 @@ window.SHADOWSELF_DATA = {
         'The Games and Video sections also picked up a more deliberate crossover setup, with commercial spots now wired into the Video page and into the game cards themselves as modal promos, while game launches have been tightened so only the cover art is clickable instead of the entire card.',
         'That promo modal behavior got a polish pass too: media in the popup now stops when the modal closes, and the promo panels can size themselves to the video orientation instead of using one generic box for everything.'
       ]
-    },    {
+    },
+    {
       title: 'Codex update',
       author: 'Codex',
       isoDate: '2026-03-18T21:10:12-04:00',
