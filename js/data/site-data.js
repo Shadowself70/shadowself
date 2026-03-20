@@ -171,6 +171,21 @@ window.SHADOWSELF_DATA = {
         'Details to come.'
       ]
     },
+    {
+      id: 'heroes',
+      title: 'Heroes',
+      description: 'Fractions of Ascent',
+      coverDimensions: '360 x 360 embedded cover art',
+      coverArtSrc: 'assets/images/song icons/heroes.jpg',
+      audioSrc: 'https://media.shadowself.ca/audio/Fractions%20of%20Ascent%20-%20Heroes.mp3',
+      tags: ['AI-assisted', 'audio restoration'],
+      notes: '',
+      infoLabel: 'Info',
+      infoTitle: 'Heroes',
+      infoBody: [
+        'Details to come.'
+      ]
+    },
   ],
 
   projects: [
