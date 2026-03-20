@@ -381,6 +381,8 @@ window.SHADOWSELF_DATA = {
       title: 'Backtalk',
       summary: 'A two-player phrase game built around reversed audio, browser recording, and live room play.',
       imageDimensions: 'square cover art or screenshot preferred',
+      imageSrc: 'assets/images/games/backtalk-logo.png',
+      imageFit: 'contain',
       launchUrl: 'https://backtalk.shadowself.ca',
       launchLabel: 'Launch',
       infoLabel: 'Info',
