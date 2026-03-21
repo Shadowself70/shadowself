@@ -1,0 +1,12 @@
+name = "assteroids-scoreboard"
+main = "src/index.mjs"
+compatibility_date = "2026-03-20"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGINS = "https://newsite.shadowself.ca,https://shadowself.ca,https://shadowself70.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "assteroids-scoreboard"
+database_id = "e6da0158-6fbf-42ea-a703-1f608890b3cc"

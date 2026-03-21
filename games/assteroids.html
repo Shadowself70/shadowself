@@ -136,7 +136,7 @@
                 class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-xl shadow-md transition duration-150">
                 START MISSION
             </button>
-            <p class="text-xs text-gray-500 mt-4">Leaderboard is disabled in this hosted build.</p>
+            <p class="text-xs text-gray-500 mt-4">Enter a pilot name and try not to disgrace yourself.</p>
         </div>
     </div>
 
@@ -183,10 +183,10 @@
             <!-- Touch Controls (Mobile Only) -->
             <div id="touchControls">
                 <div class="space-y-2">
-                    <button class="touch-button" id="touchUp">â–²</button>
+                    <button class="touch-button" id="touchUp">&#9650;</button>
                     <div class="flex space-x-2">
-                        <button class="touch-button" id="touchLeft">â—€</button>
-                        <button class="touch-button" id="touchRight">â–¶</button>
+                        <button class="touch-button" id="touchLeft">&#9664;</button>
+                        <button class="touch-button" id="touchRight">&#9654;</button>
                     </div>
                 </div>
                 <button class="touch-button touch-shoot" id="touchShoot">FIRE</button>
@@ -194,99 +194,90 @@
         </div>
     </div>
 
-    <!-- Firebase and Game Logic -->
+    <!-- Scoreboard and Game Logic -->
     <script type="module">
-        // Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-        // FIX: Re-import 'orderBy'
-        import { getFirestore, collection, query, limit, addDoc, onSnapshot, serverTimestamp, setLogLevel, orderBy } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-        const SCOREBOARD_ENABLED = false;
+        const SCOREBOARD_API_BASE = "https://assteroids-scoreboard.shadowself.workers.dev";
+        const SCOREBOARD_ENABLED = !SCOREBOARD_API_BASE.includes("REPLACE_WITH_YOUR_WORKER_URL");
 
-        // Hosted build: disable the online leaderboard instead of shipping Firebase credentials.
-        let app, auth, db, analytics;
-        let currentUserId = null;
+        let pilotName = "Pilot";
 
-        if (!SCOREBOARD_ENABLED) {
-            document.getElementById("scoreboard").innerHTML = '<p class="text-gray-400 text-center">Leaderboard disabled for this hosted build.</p>';
-        }
-        let pilotName = "Pilot"; // Default pilot name
-
-        // --- FIREBASE AUTH & SCORE ---
-        function signInUser() {
-            if (!SCOREBOARD_ENABLED || !auth) return;
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    console.log("User is signed in:", user.uid);
-                    currentUserId = user.uid;
-                    startScoreListener(); // Start listening for scores *after* auth
-                } else {
-                    console.log("User is signed out, signing in anonymously.");
-                    signInAnonymously(auth).catch((error) => {
-                        console.error("Anonymous sign-in failed:", error);
-                    });
-                }
-            });
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
         }
 
-        function startScoreListener() {
-            if (!SCOREBOARD_ENABLED || !db) return;
+        async function loadLeaderboard() {
+            const scoreboard = document.getElementById('scoreboard');
+            if (!SCOREBOARD_ENABLED) {
+                scoreboard.innerHTML = '<p class="text-gray-400 text-center">Leaderboard unavailable right now.</p>';
+                return;
+            }
 
-            const scoresRef = collection(db, `assteroids_scores`);
-            
-            // FIX: Re-add orderBy. This will require an index in Firestore.
-            const q = query(scoresRef, orderBy("score", "desc"), limit(10));
+            scoreboard.innerHTML = '<p class="text-gray-400 text-center">Loading scores...</p>';
 
-            onSnapshot(q, (snapshot) => {
-                let tempScores = [];
-                snapshot.forEach((doc) => {
-                    tempScores.push(doc.data());
+            try {
+                const response = await fetch(`${SCOREBOARD_API_BASE}/assteroids/leaderboard?limit=10`, {
+                    headers: {
+                        Accept: 'application/json'
+                    }
                 });
 
-                // Update UI
-                const scoreboard = document.getElementById("scoreboard");
-                if (tempScores.length === 0) {
-                     scoreboard.innerHTML = '<p class="text-gray-400 text-center">No scores yet. Be the first!</p>';
-                     return;
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
                 }
-                
-                scoreboard.innerHTML = tempScores.map(score => `
+
+                const payload = await response.json();
+                const entries = Array.isArray(payload.entries) ? payload.entries : [];
+
+                if (entries.length === 0) {
+                    scoreboard.innerHTML = '<p class="text-gray-400 text-center">No scores yet. Be the first!</p>';
+                    return;
+                }
+
+                scoreboard.innerHTML = entries.map((entry) => `
                     <div class="flex justify-between items-center bg-gray-800 p-2 rounded-lg">
-                        <span class="font-bold text-yellow-400 truncate" title="${score.name}">${score.name || 'PILOT'}</span>
-                        <span class="text-white">${score.score || 0}</span>
+                        <span class="font-bold text-yellow-400 truncate" title="${escapeHtml(entry.playerName)}">${escapeHtml(entry.playerName || 'PILOT')}</span>
+                        <span class="text-white">${Number(entry.score) || 0}</span>
                     </div>
                 `).join('');
-            }, (error) => {
-                // This error is *EXPECTED* until the index is created
-                console.error("Error listening to scores (Did you create the Firestore Index?):", error);
-                document.getElementById("scoreboard").innerHTML = '<p class="text-red-500 text-center">Leaderboard listener failed. (Did you create the Firestore Index?)</p>';
-            });
+            } catch (error) {
+                console.error('Failed to load Assteroids leaderboard:', error);
+                scoreboard.innerHTML = '<p class="text-red-500 text-center">Leaderboard unavailable right now.</p>';
+            }
         }
 
         async function addHighScore(score, name) {
             if (!SCOREBOARD_ENABLED) {
                 return;
             }
-            if (!db || !currentUserId) {
-                console.error("Database not initialized or user not signed in.");
-                return;
-            }
+
             try {
-                await addDoc(collection(db, `assteroids_scores`), {
-                    name: name,
-                    score: score,
-                    userId: currentUserId,
-                    createdAt: serverTimestamp()
+                const response = await fetch(`${SCOREBOARD_API_BASE}/assteroids/score`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playerName: name,
+                        score: score
+                    })
                 });
-                console.log("High score added:", name, score);
-            } catch (error)
-             {
-                console.error("Error adding high score:", error);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                await loadLeaderboard();
+            } catch (error) {
+                console.error('Failed to submit Assteroids score:', error);
             }
         }
-
-
         // --- GAME SETUP ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -1199,7 +1190,7 @@
 
             // Draw Lives
             ctx.textAlign = 'left';
-            const lifeIcon = "ðŸ‘"; // Using a peach emoji as a butt icon
+            const lifeIcon = "\u{1F351}"; // Using a peach emoji as a butt icon
             let livesText = "";
             for (let i = 0; i < lives; i++) {
                 livesText += lifeIcon;
@@ -1234,7 +1225,7 @@
                 ctx.fillStyle = 'white';
                 ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 60);
                 ctx.font = '24px Orbitron';
-                ctx.fillText(SCOREBOARD_ENABLED ? 'Score submitted to leaderboard!' : 'Leaderboard disabled for hosted build.', canvas.width / 2, canvas.height / 2 + 100);
+                ctx.fillText(SCOREBOARD_ENABLED ? 'Score submitted to leaderboard!' : 'Leaderboard unavailable right now.', canvas.width / 2, canvas.height / 2 + 100);
                 ctx.restore();
             }
         }
@@ -1402,6 +1393,7 @@
 
         // Ensure canvas is resized initially on load
         resizeCanvas();
+        loadLeaderboard();
         // Start the game loop immediately, it will idle on the modal screen
         requestAnimationFrame(gameLoop);
 

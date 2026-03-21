@@ -7,7 +7,10 @@
                     "test":  "echo \"Error: no test specified\" \u0026\u0026 exit 1",
                     "harmres:worker:dev":  "wrangler dev --config cloudflare/harmres-scoreboard/wrangler.toml",
                     "harmres:worker:deploy":  "wrangler deploy --config cloudflare/harmres-scoreboard/wrangler.toml",
-                    "harmres:d1:seed":  "wrangler d1 execute harmres-scoreboard --remote --file cloudflare/harmres-scoreboard/schema.sql"
+                    "harmres:d1:seed":  "wrangler d1 execute harmres-scoreboard --remote --file cloudflare/harmres-scoreboard/schema.sql",
+                    "assteroids:worker:dev":  "wrangler dev --config cloudflare/assteroids-scoreboard/wrangler.toml",
+                    "assteroids:worker:deploy":  "wrangler deploy --config cloudflare/assteroids-scoreboard/wrangler.toml",
+                    "assteroids:d1:seed":  "wrangler d1 execute assteroids-scoreboard --remote --file cloudflare/assteroids-scoreboard/schema.sql"
                 },
     "repository":  {
                        "type":  "git",
