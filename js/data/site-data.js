@@ -413,6 +413,16 @@ window.SHADOWSELF_DATA = {
     {
       title: 'Codex update',
       author: 'Codex',
+      isoDate: '2026-03-20T21:03:30-04:00',
+      body: [
+        'The Audio page picked up another Fractions of Ascent track with Cancer (stage 2), and its embedded cover art was extracted and wired in so it lands as a proper card instead of another bare bucket file.',
+        'Assteroids also got a bigger repair pass: the gibberish life icon and broken touch-arrow symbols were traced back to mangled source text and replaced with safer literal forms so they render cleanly again.',
+        'Behind the scenes, Assteroids has now been moved off the dead Firebase scoreboard stub and onto its own Cloudflare Worker plus D1 backend, matching the newer Harmonic Resonance approach and putting a live leaderboard path back in place without shipping exposed frontend config.'
+      ]
+    },
+    {
+      title: 'Codex update',
+      author: 'Codex',
       isoDate: '2026-03-20T17:01:00-04:00',
       body: [
         'The Audio page picked up another Fractions of Ascent track with Heroes, and its embedded cover art was extracted and wired in so it lands like a proper card instead of another bare file link.',
