@@ -1243,3 +1243,39 @@ img {
 
 
 
+
+.inline-help-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  margin-left: 0.45rem;
+  border: 1px solid rgba(180, 36, 40, 0.95);
+  border-radius: 999px;
+  background: #000;
+  color: #f4efe7;
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.inline-help-button:hover,
+.inline-help-button:focus-visible {
+  border-color: rgba(225, 60, 64, 0.98);
+  color: #fff;
+}
+
+.modal-panel--audio-note {
+  width: min(760px, calc(100vw - 24px));
+}
+
+.modal-panel--audio-note ul {
+  margin: 18px 0 0;
+  padding-left: 1.2rem;
+}
+
+.modal-panel--audio-note li + li {
+  margin-top: 0.65rem;
+}
