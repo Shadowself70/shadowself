@@ -12,6 +12,16 @@ window.SHADOWSELF_DATA = {
         notes: ''
       },
       {
+        id: 'chewbacca-sings',
+        title: 'Chewbacca Sings',
+        description: '',
+        videoSrc: 'https://media.shadowself.ca/video/chewbaccasings.mp4',
+        orientationHint: 'landscape',
+        placeholderDimensions: '1920 x 1080 landscape video',
+        tags: [],
+        notes: ''
+      },
+      {
         id: 'clarchon-commercial',
         title: 'Clarchon Commercial',
         description: '',
