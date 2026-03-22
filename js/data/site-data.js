@@ -35,16 +35,16 @@ window.SHADOWSELF_DATA = {
         launchUrl: 'games/assteroids.html',
         launchLabel: 'Play the game'
       },
-      {
-        id: '3d-pong-commercial',
-        title: '3D Pong Commercial',
+      ,{
+        id: 'backtalk-commercial',
+        title: 'Backtalk Commercial',
         description: '',
-        videoSrc: 'https://media.shadowself.ca/video/commercial-3d-pong.mp4',
+        videoSrc: 'https://media.shadowself.ca/video/commercial%20-%20backtalk.mp4',
         orientationHint: 'square',
         placeholderDimensions: '1920 x 1080 landscape video',
         tags: [],
         notes: '',
-        launchUrl: 'games/3dpong.html',
+        launchUrl: 'https://backtalk.shadowself.ca',
         launchLabel: 'Play the game'
       }
     ]
@@ -374,8 +374,7 @@ window.SHADOWSELF_DATA = {
       infoBody: [
         'Details to come.'
       ]
-    },
-    {
+    },    {
       id: 'spyrograph',
       title: 'sPYrograph',
       summary: 'Originally built in Python, a Spirograph simulator with adjustable parts, solid colours, and colour patterns.',
@@ -400,6 +399,10 @@ window.SHADOWSELF_DATA = {
       imageFit: 'contain',
       launchUrl: 'https://backtalk.shadowself.ca',
       launchLabel: 'Launch',
+      promoVideoSrc: 'https://media.shadowself.ca/video/commercial%20-%20backtalk.mp4',
+      promoVideoTitle: 'Backtalk Commercial',
+      promoVideoLabel: 'WATCH SLOP AD',
+      promoVideoOrientation: 'square',
       infoLabel: 'Info',
       status: ['PC', 'MOBILE'],
       infoTitle: 'Backtalk',
