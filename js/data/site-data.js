@@ -58,7 +58,19 @@ window.SHADOWSELF_DATA = {
         notes: '',
         launchUrl: 'https://backtalk.shadowself.ca',
         launchLabel: 'Play the game'
-      }
+      },
+      {
+        id: 'shadowdrums-commercial',
+        title: 'ShadowDrums Commercial',
+        description: '',
+        videoSrc: 'https://media.shadowself.ca/video/commercial-shadowdrums.mp4',
+        orientationHint: 'square',
+        placeholderDimensions: '1920 x 1080 landscape video',
+        tags: [],
+        notes: '',
+        launchUrl: 'games/shadowdrums.html',
+        launchLabel: 'Play the game'
+      },
     ]
   },
 
@@ -380,6 +392,10 @@ window.SHADOWSELF_DATA = {
       imageFit: 'contain',
       launchUrl: 'games/shadowdrums.html',
       launchLabel: 'Launch',
+      promoVideoSrc: 'https://media.shadowself.ca/video/commercial-shadowdrums.mp4',
+      promoVideoTitle: 'ShadowDrums Commercial',
+      promoVideoLabel: 'WATCH SLOP AD',
+      promoVideoOrientation: 'square',
       infoLabel: 'Info',
       status: ['PC'],
       infoTitle: 'ShadowDrums',
