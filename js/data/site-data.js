@@ -15,7 +15,7 @@ window.SHADOWSELF_DATA = {
         id: 'chewbacca-sings',
         title: 'Chewbacca Sings',
         description: '',
-        videoSrc: 'https://media.shadowself.ca/video/chewbaccasings.mp4',
+        videoSrc: 'https://media.shadowself.ca/video/chewbacca_dinner.mp4',
         orientationHint: 'landscape',
         placeholderDimensions: '1920 x 1080 landscape video',
         tags: [],
