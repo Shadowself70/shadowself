@@ -112,7 +112,7 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'Last of Our Kind (Anna\'s Song)',
       infoBody: [
-        'Details to come.'
+        "A years-old song about a crush from a safe distance, not approaching because of the potential \"not if we were the last two people on earth\" type of response."
       ]
     },
     {
@@ -127,7 +127,9 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'Escape',
       infoBody: [
-        'Details to come.'
+        "This was written after getting home from a local concert 20-ish years ago, smoking a joint, and remembering someone I wish I didn't. But even today I still do.",
+        "The AI kept the structure of this one pretty true, and added a lead guitar player. It also added an octave-up-vocal chorus near the end, which I should have done in the original, really.",
+        "As in all songs, the voice profile is trained from my own voice."
       ]
     },
     {
@@ -142,7 +144,9 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'The Bright Side',
       infoBody: [
-        'Details to come.'
+        "This is honestly pretty bad, the AI changed too much, and it has that gritty shitty sound.",
+        "But these songs are mostly placeholders until I do better versions of them in Studio and by downloading stems if I ever have the ambition.",
+        "This is an oldie, maybe 20 years old or so."
       ]
     },
     {
@@ -157,7 +161,9 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'Come Out of Your Shell',
       infoBody: [
-        'Details to come.'
+        "This song has had many revisions, and now I'm seeing how AI can sweeten it. I kept the AI influence low on this one, so it is very much like the original recording.",
+        "However, I decided to mix in another song I wrote after the bridge, which blends back into the initial song after the generic AI guitar solo.",
+        "This song was written for one of my favourite people in the world just after a messy divorce."
       ]
     },
     {
@@ -172,7 +178,9 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'Cyclops',
       infoBody: [
-        'Details to come.'
+        "A fun song written about 20 years ago about a cyclops falling in love with me. Happens all the time, I can't shake them off.",
+        "In this case, the AI mixed this one very much like I wanted the song to sound. It did not get all confused by the bridge like it often does, it kept the bridge the same, and the structure of the whole song pretty much identical to the original recording.",
+        "I used my voice profile that I trained from my own voice, but that metal scream was all AI because I can't do that. Well, WON'T do that."
       ]
     },
     {
@@ -187,7 +195,9 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'Wrapped in Rainbows (fractional mix)',
       infoBody: [
-        'Details to come.'
+        "Listen to the one beside this card a better idea of how this one started.",
+        "I ran it through the AI thing and added \"math rock\" among other things in the prompt because I love math rock.",
+        "I think this one turned out pretty listenable."
       ]
     },
     {
@@ -202,7 +212,9 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'Wrapped in Rainbows',
       infoBody: [
-        'Details to come.'
+        "This is the only song I have written without an instrument handy, I scribbled down the lyrics and chords while working a telemarketing job.",
+        "I got home, picked up a guitar, and came up with the main hook, and wrote the song around it.",
+        "This song started out as a live acoustic/vocal performance, enhanced by some AI bullshit. This one is quite close to the original input. Maybe Laura will click on this info button one day."
       ]
     },
     {
@@ -217,7 +229,9 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'Cancer (stage 2)',
       infoBody: [
-        'Details to come.'
+        "I don't often have outside collaborators, but Megan M. wrote the lyrics for this song after I sent her a mumble track.",
+        "She is a far better lyricist than I will ever be, I should have worked with her more.",
+        "As for the sound of the song, I was aiming for an Ultravox vibe; soaring vocals and very punchy repeated kicks. The AI took a couple liberties with the structure of the song, but I am OK with that in this case."
       ]
     },
     {
@@ -232,7 +246,9 @@ window.SHADOWSELF_DATA = {
       infoLabel: 'Info',
       infoTitle: 'Heroes',
       infoBody: [
-        'Details to come.'
+        "Another song written when getting home from a local band performance.",
+        "Even the original of this one is not great, and this AI mix of it is kinda bad. It has some nice ideas, I like the \"escapes into the crowd\" chord progression it changed my original to. That's nice. And the solo is pretty slick, but generic.",
+        "But it really changed some things I didn't want it to, I will be replacing this one eventually. This is just the closest so far I can get to what I want for this song."
       ]
     },
   ],
