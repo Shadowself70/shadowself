@@ -1,4 +1,4 @@
-const UPSTREAM_URL = "https://shadowself.ca/games/harmres.html";
+const UPSTREAM_URL = "https://newsite.shadowself.ca/games/harmres.html";
 
 export default {
   async fetch(request) {
