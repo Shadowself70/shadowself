@@ -95,6 +95,24 @@
             }
         }
 
+        #game-grid[data-size="5"] .tile {
+            font-size: 1.2rem;
+        }
+
+        #game-grid[data-size="6"] .tile {
+            font-size: 1rem;
+        }
+
+        @media (min-width: 640px) { /* sm breakpoint */
+            #game-grid[data-size="5"] .tile {
+                font-size: 1.9rem;
+            }
+
+            #game-grid[data-size="6"] .tile {
+                font-size: 1.45rem;
+            }
+        }
+
         .tile {
             background-color: rgba(50, 50, 100, 0.6);
             border-radius: 0.5rem;
@@ -129,12 +147,22 @@
             opacity: 0.3;
             pointer-events: none;
         }
+        .tile.core {
+            background: radial-gradient(circle at 30% 30%, rgba(255, 235, 160, 0.95), rgba(108, 92, 231, 0.85));
+            color: #fff7d6;
+            cursor: default;
+            box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.2), 0 0 18px rgba(224, 176, 255, 0.35);
+        }
         .tile-content {
             visibility: hidden;
             opacity: 0;
             transition: opacity 0.3s;
         }
         .tile.flipped .tile-content {
+            visibility: visible;
+            opacity: 1;
+        }
+        .tile.core .tile-content {
             visibility: visible;
             opacity: 1;
         }
@@ -153,6 +181,73 @@
             z-index: 20;
             pointer-events: auto;
             transition: opacity 0.5s;
+            text-align: center;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        #start-screen h1 {
+            font-size: clamp(2.4rem, 7vw, 4.75rem);
+            letter-spacing: 0.06em;
+            margin-bottom: 0.75rem;
+        }
+        #start-screen .intro-copy {
+            max-width: 32rem;
+            margin-bottom: 1.5rem;
+        }
+        #level-selector {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.85rem;
+            width: min(100%, 42rem);
+            margin-bottom: 1rem;
+        }
+        .level-button {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 1rem;
+            background: rgba(20, 12, 40, 0.82);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .level-button:hover,
+        .level-button:focus-visible {
+            transform: translateY(-2px);
+            border-color: rgba(224, 176, 255, 0.7);
+            box-shadow: 0 0 22px rgba(108, 92, 231, 0.22);
+            outline: none;
+        }
+        .level-button.active {
+            background: linear-gradient(160deg, rgba(108, 92, 231, 0.9), rgba(40, 12, 85, 0.95));
+            border-color: rgba(255, 230, 170, 0.8);
+            box-shadow: 0 0 28px rgba(224, 176, 255, 0.28);
+        }
+        .level-button-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .level-button-detail {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.75);
+        }
+        .level-button.active .level-button-detail {
+            color: rgba(255, 247, 214, 0.92);
+        }
+        #level-helper-text {
+            min-height: 1.4rem;
+            margin-bottom: 1.5rem;
+            color: rgba(224, 176, 255, 0.88);
+            font-size: 0.95rem;
+        }
+        @media (max-width: 640px) {
+            #level-selector {
+                grid-template-columns: 1fr;
+            }
         }
         #start-game-button {
             padding: 1rem 3rem;
@@ -228,7 +323,12 @@
             font-size: 1.5rem;
             font-weight: 700;
             color: #E0B0FF;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+        .scoreboard-subtitle {
+            margin: 0 0 0.9rem;
+            font-size: 0.92rem;
+            color: #d7c9ff;
         }
         .score-entry {
             display: flex;
@@ -357,6 +457,7 @@
     <div id="overlay">
         <!-- Status Bar -->
         <div id="status-bar">
+            <div id="level-display">Level: Easy 4x4</div>
             <span id="score-display">Matches: 0 / 8 | Moves: 0</span>
             <span id="game-status"></span>
         </div>
@@ -371,6 +472,7 @@
             <!-- Scoreboard (will be re-ordered by CSS) -->
             <div id="scoreboard-container">
                 <h2>Top 10 Clarity Scores</h2>
+                <p class="scoreboard-subtitle" id="scoreboard-level-label">Easy 4x4 leaderboard</p>
                 <div id="high-scores-list">
                     <!-- Scores injected here -->
                     <p class="text-gray-400 text-sm" id="scores-loading">Loading scores...</p>
@@ -386,7 +488,22 @@
         <!-- Start Screen -->
         <div id="start-screen">
             <h1>Harmonic Resonance</h1>
-            <p class="mb-6 text-lg text-gray-400">Match the pairs to clear the vibe and achieve perfect clarity.</p>
+            <p class="intro-copy text-lg text-gray-400">Match the pairs to clear the vibe and achieve perfect clarity.</p>
+            <div id="level-selector" role="group" aria-label="Select difficulty">
+                <button class="level-button active" type="button" data-difficulty="easy">
+                    <span class="level-button-label">Easy</span>
+                    <span class="level-button-detail">4x4 grid - 8 pairs</span>
+                </button>
+                <button class="level-button" type="button" data-difficulty="medium">
+                    <span class="level-button-label">Medium</span>
+                    <span class="level-button-detail">5x5 grid - 12 pairs + core</span>
+                </button>
+                <button class="level-button" type="button" data-difficulty="hard">
+                    <span class="level-button-label">Hard</span>
+                    <span class="level-button-detail">6x6 grid - 18 pairs</span>
+                </button>
+            </div>
+            <p id="level-helper-text">Easy starts with a 4x4 board and its own leaderboard.</p>
             <button id="start-game-button">START VIBE</button>
         </div>
 
@@ -424,6 +541,7 @@
         let scene, camera, renderer, geometry, material, mesh;
         let uniforms;
         let drone, matchSynth, winSynth;
+        let audioInitPromise = null;
         let isPaused = false;
         let isMuted = false;
         let isGameOver = true;
@@ -434,13 +552,80 @@
         let secondTile = null;
         let matchesFound = 0;
         let totalMoves = 0;
-        const totalPairs = 8;
         let currentScore = 0;
         let finalMoves = 0;
         let chaosFactor = 1.0;
+        let currentDifficultyKey = 'easy';
+
+        const DIFFICULTY_CONFIG = {
+            easy: {
+                key: 'easy',
+                label: 'Easy',
+                boardLabel: 'Easy 4x4',
+                helperText: 'Easy starts with a 4x4 board and its own leaderboard.',
+                size: 4,
+                pairs: 8,
+                coreIndex: null
+            },
+            medium: {
+                key: 'medium',
+                label: 'Medium',
+                boardLabel: 'Medium 5x5',
+                helperText: 'Medium uses a 5x5 board with a stable center core and 12 matching pairs.',
+                size: 5,
+                pairs: 12,
+                coreIndex: 12
+            },
+            hard: {
+                key: 'hard',
+                label: 'Hard',
+                boardLabel: 'Hard 6x6',
+                helperText: 'Hard expands to a 6x6 board with 18 matching pairs.',
+                size: 6,
+                pairs: 18,
+                coreIndex: null
+            }
+        };
 
         /* Emojis for Vibe */
-        const tileSymbols = ["\u{1F3B5}", "\u{1F3B9}", "\u2728", "\u{1F52E}", "\u{1F319}", "\u{1F31F}", "\u{1FAA0}", "\u{1F680}"];
+        const tileSymbols = [
+            "\u{1F3B5}", "\u{1F3B9}", "\u2728", "\u{1F52E}", "\u{1F319}", "\u{1F31F}",
+            "\u{1FAA0}", "\u{1F680}", "\u{1F3A7}", "\u{1F39B}", "\u{1F39A}", "\u{1F4AB}",
+            "\u26A1", "\u{1F525}", "\u{1F308}", "\u{1FA90}", "\u{1F514}", "\u{1FAA9}",
+            "\u{1F30C}", "\u{1F31E}"
+        ];
+
+        function getCurrentDifficulty() {
+            return DIFFICULTY_CONFIG[currentDifficultyKey] ?? DIFFICULTY_CONFIG.easy;
+        }
+
+        function updateDifficultyUi() {
+            const difficulty = getCurrentDifficulty();
+            const levelDisplay = document.getElementById('level-display');
+            const helperText = document.getElementById('level-helper-text');
+            const scoreboardLevelLabel = document.getElementById('scoreboard-level-label');
+
+            levelDisplay.textContent = `Level: ${difficulty.boardLabel}`;
+            helperText.textContent = difficulty.helperText;
+            scoreboardLevelLabel.textContent = `${difficulty.boardLabel} leaderboard`;
+
+            document.querySelectorAll('.level-button').forEach((button) => {
+                const isActive = button.dataset.difficulty === currentDifficultyKey;
+                button.classList.toggle('active', isActive);
+                button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        }
+
+        async function setDifficulty(levelKey) {
+            if (!DIFFICULTY_CONFIG[levelKey]) {
+                return;
+            }
+
+            currentDifficultyKey = levelKey;
+            updateDifficultyUi();
+            createGame();
+            await setupScoreboardListener();
+        }
 
         // --- ERROR DISPLAY ---
         function showError(message) {
@@ -480,6 +665,7 @@
 
         async function setupScoreboardListener() {
             const scoresList = document.getElementById('high-scores-list');
+            const difficulty = getCurrentDifficulty();
 
             if (!SCOREBOARD_ENABLED) {
                 scoresList.innerHTML = `<p class="text-gray-400 text-sm">Online high scores are disabled until the Cloudflare Worker URL is configured.</p>`;
@@ -489,7 +675,7 @@
             scoresList.innerHTML = `<p class="text-gray-400 text-sm">Loading scores...</p>`;
 
             try {
-                const response = await fetch(`${SCOREBOARD_API_BASE}/harmres/leaderboard?limit=10`, {
+                const response = await fetch(`${SCOREBOARD_API_BASE}/harmres/leaderboard?limit=10&difficulty=${encodeURIComponent(difficulty.key)}`, {
                     headers: {
                         Accept: 'application/json'
                     }
@@ -709,6 +895,11 @@
         // --- TONE.JS AUDIO SETUP ---
 
         async function initAudio() {
+            if (drone && matchSynth && winSynth) {
+                Tone.Destination.mute = isMuted;
+                return;
+            }
+
             await Tone.start();
             console.log("Audio Context Started.");
 
@@ -733,10 +924,35 @@
                 envelope: { attack: 0.02, decay: 0.4, sustain: 0.1, release: 0.5 },
                 volume: -5
             }).chain(new Tone.Reverb(1).toDestination());
+
+            Tone.Destination.mute = isMuted;
+        }
+
+        async function ensureAudioReady() {
+            if (drone && matchSynth && winSynth) {
+                if (Tone.context.state !== 'running') {
+                    await Tone.start();
+                }
+                Tone.Destination.mute = isMuted;
+                return;
+            }
+
+            if (!audioInitPromise) {
+                audioInitPromise = initAudio().catch((error) => {
+                    audioInitPromise = null;
+                    throw error;
+                });
+            }
+
+            await audioInitPromise;
         }
 
         // Function to play a melodic reward chord (now randomized)
         function playMatchSound() {
+            if (!matchSynth) {
+                return;
+            }
+
             const chords = [
                 ["C4", "E4", "G4"], // C Major
                 ["F4", "A4", "C5"], // F Major
@@ -749,6 +965,10 @@
 
         // Function to play the final happy tune
         function playVictoryTune() {
+            if (!winSynth) {
+                return;
+            }
+
             const sequence = [
                 { note: "G4", duration: "8n", time: 0 },
                 { note: "A4", duration: "8n", time: "8n" },
@@ -777,6 +997,7 @@
         }
 
         function createGame() {
+            const difficulty = getCurrentDifficulty();
             isGameOver = false;
             matchesFound = 0;
             totalMoves = 0;
@@ -785,21 +1006,37 @@
             chaosFactor = 1.0;
             updateStatusBar();
 
-            const symbols = shuffle([...tileSymbols, ...tileSymbols]);
+            const selectedSymbols = shuffle([...tileSymbols]).slice(0, difficulty.pairs);
+            const symbols = shuffle([...selectedSymbols, ...selectedSymbols]);
             tiles = [];
             const grid = document.getElementById('game-grid');
             grid.innerHTML = '';
+            grid.dataset.size = String(difficulty.size);
+            grid.style.gridTemplateColumns = `repeat(${difficulty.size}, minmax(0, 1fr))`;
+            grid.style.gridTemplateRows = `repeat(${difficulty.size}, minmax(0, 1fr))`;
 
-            symbols.forEach((symbol, index) => {
+            let symbolIndex = 0;
+            const totalCells = difficulty.size * difficulty.size;
+
+            for (let index = 0; index < totalCells; index++) {
                 const tile = document.createElement('div');
-                tile.className = 'tile';
-                tile.dataset.symbol = symbol;
                 tile.dataset.index = index;
-                tile.innerHTML = `<span class="tile-content">${symbol}</span>`;
-                tile.addEventListener('click', () => handleTileClick(tile));
+
+                if (difficulty.coreIndex === index) {
+                    tile.className = 'tile core';
+                    tile.innerHTML = `<span class="tile-content">\u{1F300}</span>`;
+                } else {
+                    const symbol = symbols[symbolIndex];
+                    symbolIndex += 1;
+                    tile.className = 'tile';
+                    tile.dataset.symbol = symbol;
+                    tile.innerHTML = `<span class="tile-content">${symbol}</span>`;
+                    tile.addEventListener('click', () => handleTileClick(tile));
+                }
+
                 grid.appendChild(tile);
                 tiles.push(tile);
-            });
+            }
         }
 
         function handleTileClick(tile) {
@@ -825,8 +1062,10 @@
                     playMatchSound();
 
                     // Reduce chaos factor (visual noise and ambient volume)
-                    chaosFactor = 1.0 - (matchesFound / totalPairs);
-                    drone.volume.rampTo(-30 - (30 * (1.0 - chaosFactor)), 0.5); // Drone gets quieter
+                    chaosFactor = 1.0 - (matchesFound / getCurrentDifficulty().pairs);
+                    if (drone) {
+                        drone.volume.rampTo(-30 - (30 * (1.0 - chaosFactor)), 0.5); // Drone gets quieter
+                    }
 
                     // Lock tiles in place
                     setTimeout(() => {
@@ -837,7 +1076,7 @@
 
                         resetTurn();
 
-                        if (matchesFound === totalPairs) {
+                        if (matchesFound === getCurrentDifficulty().pairs) {
                             gameOver();
                         }
                     }, 500);
@@ -860,24 +1099,25 @@
         }
 
         function updateStatusBar() {
+            const difficulty = getCurrentDifficulty();
             const scoreDisplay = document.getElementById('score-display');
-            scoreDisplay.textContent = `Matches: ${matchesFound} / ${totalPairs} | Moves: ${totalMoves}`;
+            scoreDisplay.textContent = `Matches: ${matchesFound} / ${difficulty.pairs} | Moves: ${totalMoves}`;
         }
 
         function gameOver() {
+            const difficulty = getCurrentDifficulty();
             isGameOver = true;
             isPaused = true;
             playVictoryTune();
 
             // Calculate score (Less moves = Higher score)
-            // Base score 1000 - (10 * moves)
-            currentScore = Math.max(100, 1000 - (10 * totalMoves));
+            currentScore = Math.max(100, (difficulty.pairs * 150) - (10 * totalMoves));
             finalMoves = totalMoves;
 
             const gameOverTitle = document.getElementById('game-over-title');
             const gameOverStats = document.getElementById('game-over-stats');
             gameOverTitle.textContent = "Harmony Achieved!";
-            gameOverStats.innerHTML = `Final Score: ${currentScore}<br>Total Moves: ${finalMoves}`;
+            gameOverStats.innerHTML = `Level: ${difficulty.boardLabel}<br>Final Score: ${currentScore}<br>Total Moves: ${finalMoves}`;
 
             // Hide game grid
             document.getElementById('game-grid').style.opacity = '0';
@@ -889,7 +1129,7 @@
             }
 
             // Show name prompt modal
-            document.getElementById('final-score-text').textContent = `${currentScore} (${finalMoves} moves)`;
+            document.getElementById('final-score-text').textContent = `${difficulty.boardLabel} - ${currentScore} (${finalMoves} moves)`;
             document.getElementById('name-prompt-modal').style.display = 'flex';
         }
 
@@ -960,6 +1200,7 @@
             }
 
             const censoredName = censorName(name);
+            const difficulty = getCurrentDifficulty();
 
             try {
                 const response = await fetch(`${SCOREBOARD_API_BASE}/harmres/score`, {
@@ -971,7 +1212,8 @@
                     body: JSON.stringify({
                         score: score,
                         moves: moves,
-                        playerName: censoredName
+                        playerName: censoredName,
+                        difficulty: difficulty.key
                     })
                 });
 
@@ -1015,7 +1257,7 @@
 
         // --- INIT FUNCTIONS AND EVENT LISTENERS ---
 
-        function handleStart() {
+        async function handleStart() {
             const startScreen = document.getElementById('start-screen');
             startScreen.style.opacity = '0';
             startScreen.style.pointerEvents = 'none';
@@ -1023,14 +1265,11 @@
             document.getElementById('game-grid').style.opacity = '1';
             document.getElementById('game-grid').style.pointerEvents = 'auto';
 
-            if (Tone.context.state !== 'running') {
-                Tone.context.resume().then(() => {
-                    initAudio();
-                });
-            } else {
-                if (!drone) { // Only init if it hasn't been done
-                    initAudio();
-                }
+            try {
+                await ensureAudioReady();
+            } catch (error) {
+                showError('Audio could not start. Check your browser autoplay permissions.');
+                console.error('Audio initialization failed:', error);
             }
             
             isPaused = false; // Unpause rendering
@@ -1056,6 +1295,7 @@
 
         window.onload = function() {
             // Initialization Sequence
+            updateDifficultyUi();
             initScoreboard(); // Initialize scoreboard first
             init(); // Initialize Three.js
 
@@ -1063,6 +1303,11 @@
             document.getElementById('start-game-button').addEventListener('click', handleStart);
             document.getElementById('mute-button').addEventListener('click', window.toggleMute); 
             document.getElementById('restart-button').addEventListener('click', restartGame);
+            document.querySelectorAll('.level-button').forEach((button) => {
+                button.addEventListener('click', () => {
+                    setDifficulty(button.dataset.difficulty);
+                });
+            });
             
             // Initial game setup (hidden)
             createGame();

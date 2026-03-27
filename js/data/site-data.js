@@ -368,7 +368,7 @@ window.SHADOWSELF_DATA = {
       imageDimensions: 'square cover art or screenshot preferred',
       imageSrc: 'assets/images/games/harmonicresonance.webp',
       imageFit: 'contain',
-      launchUrl: 'games/harmres.html',
+      launchUrl: 'https://harmres.shadowself.ca',
       launchLabel: 'Launch',
       infoLabel: 'Info',
       status: ['PC'],

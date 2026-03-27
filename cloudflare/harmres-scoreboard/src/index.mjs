@@ -5,8 +5,11 @@ const JSON_HEADERS = {
 const DEFAULT_ALLOWED_ORIGINS = [
   "https://newsite.shadowself.ca",
   "https://shadowself.ca",
+  "https://harmres.shadowself.ca",
   "https://shadowself70.github.io",
 ];
+
+const VALID_DIFFICULTIES = new Set(["easy", "medium", "hard"]);
 
 export default {
   async fetch(request, env) {
@@ -45,24 +48,28 @@ export default {
 async function handleGetLeaderboard(env, corsHeaders, url) {
   const requestedLimit = Number.parseInt(url.searchParams.get("limit") ?? "10", 10);
   const limit = clampNumber(requestedLimit, 1, 25, 10);
+  const difficulty = normalizeDifficulty(url.searchParams.get("difficulty"));
 
   const { results } = await env.DB.prepare(
     `
-      SELECT player_name, score, moves, created_at
+      SELECT player_name, score, moves, difficulty, created_at
       FROM harmres_scores
+      WHERE difficulty = ?
       ORDER BY score DESC, moves ASC, created_at ASC
       LIMIT ?
     `,
   )
-    .bind(limit)
+    .bind(difficulty, limit)
     .all();
 
   return json(
     {
+      difficulty,
       entries: (results ?? []).map((row) => ({
         playerName: row.player_name,
         score: row.score,
         moves: row.moves,
+        difficulty: row.difficulty,
         createdAt: row.created_at,
       })),
     },
@@ -83,6 +90,7 @@ async function handleSubmitScore(request, env, corsHeaders) {
   const score = clampNumber(payload?.score, 0, 5000, null);
   const moves = clampNumber(payload?.moves, 0, 9999, null);
   const playerName = sanitizePlayerName(payload?.playerName);
+  const difficulty = normalizeDifficulty(payload?.difficulty);
 
   if (score === null || moves === null) {
     return json({ error: "Score and moves must be valid numbers." }, 400, corsHeaders);
@@ -90,14 +98,23 @@ async function handleSubmitScore(request, env, corsHeaders) {
 
   await env.DB.prepare(
     `
-      INSERT INTO harmres_scores (player_name, score, moves)
-      VALUES (?, ?, ?)
+      INSERT INTO harmres_scores (player_name, score, moves, difficulty)
+      VALUES (?, ?, ?, ?)
     `,
   )
-    .bind(playerName, score, moves)
+    .bind(playerName, score, moves, difficulty)
     .run();
 
-  return json({ ok: true }, 201, corsHeaders);
+  return json({ ok: true, difficulty }, 201, corsHeaders);
+}
+
+function normalizeDifficulty(value) {
+  const normalized = String(value ?? "easy").trim().toLowerCase();
+  if (normalized === "med") {
+    return "medium";
+  }
+
+  return VALID_DIFFICULTIES.has(normalized) ? normalized : "easy";
 }
 
 function buildCorsHeaders(origin, env) {

@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "harmres-site",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-03-27",
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "harmres.shadowself.ca",
+      "custom_domain": true
+    }
+  ]
+}

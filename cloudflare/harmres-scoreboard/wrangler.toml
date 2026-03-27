@@ -4,7 +4,7 @@ compatibility_date = "2026-03-19"
 workers_dev = true
 
 [vars]
-ALLOWED_ORIGINS = "https://newsite.shadowself.ca,https://shadowself.ca,https://shadowself70.github.io"
+ALLOWED_ORIGINS = "https://newsite.shadowself.ca,https://shadowself.ca,https://harmres.shadowself.ca,https://shadowself70.github.io"
 
 [[d1_databases]]
 binding = "DB"

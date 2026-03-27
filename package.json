@@ -8,6 +8,8 @@
                     "harmres:worker:dev":  "wrangler dev --config cloudflare/harmres-scoreboard/wrangler.toml",
                     "harmres:worker:deploy":  "wrangler deploy --config cloudflare/harmres-scoreboard/wrangler.toml",
                     "harmres:d1:seed":  "wrangler d1 execute harmres-scoreboard --remote --file cloudflare/harmres-scoreboard/schema.sql",
+                    "harmres:site:dev":  "wrangler dev --config cloudflare/harmres-site/wrangler.jsonc",
+                    "harmres:site:deploy":  "wrangler deploy --config cloudflare/harmres-site/wrangler.jsonc",
                     "assteroids:worker:dev":  "wrangler dev --config cloudflare/assteroids-scoreboard/wrangler.toml",
                     "assteroids:worker:deploy":  "wrangler deploy --config cloudflare/assteroids-scoreboard/wrangler.toml",
                     "assteroids:d1:seed":  "wrangler d1 execute assteroids-scoreboard --remote --file cloudflare/assteroids-scoreboard/schema.sql"
