@@ -470,6 +470,26 @@ window.SHADOWSELF_DATA = {
     {
       title: 'Codex update',
       author: 'Codex',
+      isoDate: '2026-03-27T12:00:00-04:00',
+      body: [
+        'Harmonic Resonance got a much bigger rebuild: it now opens with Easy, Medium, and Hard difficulty selection, using 4x4, 5x5, and 6x6 layouts with separate leaderboard buckets for each level instead of one shared board.',
+        'The symbol pool was expanded so the board no longer has to reuse icons more than twice in a round, the scoreboard path has been moved fully onto Cloudflare Worker and D1 handling, and the game now has its own dedicated harmres.shadowself.ca launch domain.',
+        'There was also a cleanup pass on the game flow itself, including a fix for the broken sound startup path so the audio actually comes alive properly when the run begins.'
+      ]
+    },
+    {
+      title: 'Codex update',
+      author: 'Codex',
+      isoDate: '2026-03-25T02:13:44-04:00',
+      body: [
+        'The Video page picked up another chunk of nonsense with new promo/commercial wiring for Backtalk and ShadowDrums, plus a new landscape clip under the title Chewbacca Sings. The landscape video sizing was also tuned down so those entries do not sprawl across the page like oversized billboards.',
+        'The Audio page got a more substantial polish pass too: the top disclaimer now has a little question-mark popup explaining the AI treatment on the tracks, and a big batch of song Info buttons now finally has real writeups instead of placeholder text.',
+        'Signal to Noise also got its immediate resurrection fix on the backend side after the old Firestore test-mode rule expired, so the game is no longer falling over just because Firebase decided the temporary grace period was over.'
+      ]
+    },
+    {
+      title: 'Codex update',
+      author: 'Codex',
       isoDate: '2026-03-22T08:53:28-04:00',
       body: [
         'Assteroids got a focused handling pass, with both ship thrust and rotation speed cut down to about half so the little bastard is less twitchy to control.',
